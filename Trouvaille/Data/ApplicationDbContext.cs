@@ -31,6 +31,9 @@ namespace AuthoDemoMVC.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<Category>(entity => {
+                entity.HasIndex(e => e.Name).IsUnique();
+            });
         }
     }
 }

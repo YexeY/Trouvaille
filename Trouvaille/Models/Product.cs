@@ -23,7 +23,7 @@ namespace Trouvaille_WebAPI.Models
 
         public Guid? ManufacturerId { get; set; }
 
-        public Manufacturer? Manufacturer { get; set; }
+        public virtual Manufacturer? Manufacturer { get; set; }
 
         public int InStock { get; set; }
 
@@ -34,8 +34,8 @@ namespace Trouvaille_WebAPI.Models
 
         public Guid? PictureId { get; set; }
 
-        public Picture? picture { get; set; }
+        public virtual Picture? picture { get; set; }
 
-        public ICollection<Category>? ProductCategories { get; set; }
+        public virtual ICollection<Category>? ProductCategories { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using AuthoDemoMVC.Models.Communication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Trouvaille.Models.Communication.Product;
 using Trouvaille_WebAPI.Models;
 
 namespace Trouvaille_WEB_API.Controllers
@@ -26,6 +27,7 @@ namespace Trouvaille_WEB_API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProduct()
         {
+            //return await _context.Product.Include(b => b.ProductCategories).ToListAsync();
             return await _context.Product.ToListAsync();
         }
 
@@ -52,7 +54,6 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // PUT: api/Products/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProduct(Guid id, Product product)
         {
@@ -83,12 +84,11 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // POST: api/Products
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(PostProductViewModel model)
         {
             //Get Manufacturer
-            var manufacturer = _context.Manufacturer.Find(model.ManufacturerId);
+            var manufacturer = await _context.Manufacturer.FindAsync(model.ManufacturerId);
 
             //Create Picture
             var picture = new Picture
@@ -99,13 +99,12 @@ namespace Trouvaille_WEB_API.Controllers
             };
 
             //GET Categories
-
             ICollection<Category> categories = new List<Category>();
             if (model.ProductCategoryIds != null)
             {
                 foreach (var VARIABLE in model.ProductCategoryIds)
                 {
-                    var category = _context.Category.Find(VARIABLE);
+                    var category = await _context.Category.FindAsync(VARIABLE);
                     if (category != null)
                     {
                         categories.Add(category);
@@ -116,8 +115,6 @@ namespace Trouvaille_WEB_API.Controllers
             {
                 categories = null;
             }
-
-
             //Create Product
             var product = new Product()
             {
@@ -134,10 +131,24 @@ namespace Trouvaille_WEB_API.Controllers
             };
 
             //Add Product and save
-            _context.Product.Add(product);
+            await _context.Product.AddAsync(product);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
+            var getProductView = new GetProductViewModel()
+            {
+                ProductId = product.ProductId,
+                Description = product.Description,
+                ManufacturerId = product.ManufacturerId,
+                InStock = product.InStock,
+                picture = product.picture,
+                Name = product.Name,
+                PictureId = product.PictureId,
+                Price = product.Price,
+                Tax = product.Tax,
+                ProductCategories = product.ProductCategories?.Select(p => p.CategoryId).ToList()
+            };
+
+            return CreatedAtAction("GetProduct", new { id = product.ProductId }, getProductView);
         }
 
 

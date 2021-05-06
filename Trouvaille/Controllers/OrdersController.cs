@@ -83,55 +83,12 @@ namespace AuthoDemoMVC.Controllers
         [Authorize]
         public async Task<ActionResult<Order>> PostOrder(PostOrderViewModel model)
         {
-
-
             //Extract Adresses
             //------------------------------------------
-            var invoiceCity = new City
-            {
-                CityId = Guid.NewGuid(),
-                Name = model.InvoiceAddress.CityName,
-                PostalCode = model.InvoiceAddress.PostalCode
-            };
-
-            var invoiceAddress = new Address
-            {
-                AddressId = Guid.NewGuid(),
-                Country = model.InvoiceAddress.Country,
-                State = model.InvoiceAddress.State,
-                Street = model.InvoiceAddress.Street,
-                StreetNumber = model.InvoiceAddress.StreetNumber,
-                CityId = invoiceCity.CityId,
-                City = invoiceCity
-            };
-
-            City deliveryCity;
-            Address deliveryAddress;
-
-            if (model.DeliveryAddress == null)
-            {
-                deliveryAddress = invoiceAddress;
-            }
-            else
-            {
-                deliveryCity = new City
-                {
-                    CityId = Guid.NewGuid(),
-                    Name = model.DeliveryAddress.CityName,
-                    PostalCode = model.DeliveryAddress.PostalCode
-                };
-
-                deliveryAddress = new Address
-                {
-                    AddressId = Guid.NewGuid(),
-                    Country = model.DeliveryAddress.Country,
-                    State = model.DeliveryAddress.State,
-                    Street = model.DeliveryAddress.Street,
-                    StreetNumber = model.DeliveryAddress.StreetNumber,
-                    CityId = deliveryCity.CityId,
-                    City = deliveryCity
-                };
-            }
+            var invoiceAddress = AddressViewModel.GetAddress(model.InvoiceAddress);
+            var deliveryAddress = model.DeliveryAddress == null
+                ? invoiceAddress
+                : AddressViewModel.GetAddress(model.DeliveryAddress);
             //------------------------------------------
 
             var order = new Order
@@ -155,9 +112,8 @@ namespace AuthoDemoMVC.Controllers
             {
                 var product = _context.Product.Find(VARIABLE.ProductId);
                 if (product == null)
-                {
-                    continue;
-                }
+                {    continue;}
+
                 var cardinality = VARIABLE.Cardinality;
                 if (product.InStock - cardinality < product.MinStock)
                 {
@@ -167,7 +123,8 @@ namespace AuthoDemoMVC.Controllers
                 else
                 {
                     product.InStock -= cardinality;
-                    _context.Product.Update(product);
+                    _context.Entry(product).State = EntityState.Modified;
+                    //_context.Product.Update(product);
                 }
 
                 var orderProduct = new OrderProduct
@@ -184,9 +141,9 @@ namespace AuthoDemoMVC.Controllers
                 orderProducts.Add(orderProduct);
             }
             order.Products = orderProducts;
-            //------------------------------------------
-            _context.Order.Add(order);
 
+            //------------------------------------------
+            await _context.Order.AddAsync(order);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, order);

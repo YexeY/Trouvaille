@@ -17,6 +17,6 @@ namespace Trouvaille_WebAPI.Models
 
         public string IBAN { get; set; }
 
-        public Address Residency { get; set; }
+        public virtual Address Residency { get; set; }
     }
 }

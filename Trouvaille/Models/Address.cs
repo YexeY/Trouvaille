@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using AuthoDemoMVC.Models.Communication;
 
 namespace Trouvaille_WebAPI.Models
 {
@@ -22,6 +23,6 @@ namespace Trouvaille_WebAPI.Models
         [Required]
         public Guid CityId { get; set; }
 
-        public City City { get; set; }
+        public virtual City City { get; set; }
     }
 }

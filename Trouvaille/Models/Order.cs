@@ -26,13 +26,13 @@ namespace Trouvaille_WebAPI.Models
 
         public Globals.Globals.OrderState OrderState { get; set; }
 
-        public Address DeliveryAddress { get; set; }
+        public virtual Address DeliveryAddress { get; set; }
 
-        public Address InvoiceAddress { get; set; }
+        public virtual Address InvoiceAddress { get; set; }
 
-        public ApplicationUser Customer { get; set; }
+        public virtual ApplicationUser Customer { get; set; }
 
         [Required]
-        public ICollection<OrderProduct> Products { get; set; }
+        public virtual ICollection<OrderProduct> Products { get; set; }
     }
 }

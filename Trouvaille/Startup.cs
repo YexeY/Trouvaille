@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AuthoDemoMVC.Data;
 using AuthoDemoMVC.Data.CustomerService;
+using AuthoDemoMVC.Data.EmployeeService;
 using AuthoDemoMVC.Data.UserService;
 using AuthoDemoMVC.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -58,8 +59,9 @@ namespace Trouvaille3
             {
                 options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
+                    //maybe this should be true
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
                     ValidAudience = Configuration["AuthSettings:Audience"],
                     ValidIssuer = Configuration["AuthSettings:Issuer"],
                     RequireExpirationTime = true,
@@ -70,6 +72,7 @@ namespace Trouvaille3
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<IEmployeeService, EmployeeService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

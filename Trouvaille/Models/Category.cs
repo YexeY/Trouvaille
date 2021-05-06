@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Trouvaille_WebAPI.Models
 {
-    public class Category
+    public class Category : IEquatable<Category>
     {
         [Key]
         public Guid CategoryId { get; set; }
@@ -14,6 +14,11 @@ namespace Trouvaille_WebAPI.Models
         [Required]
         public string Name { get; set; }
 
-        public ICollection<Product> Products { get; set; }
+        public virtual  ICollection<Product> Products { get; set; }
+
+        public bool Equals(Category? other)
+        {
+            return other != null && this.CategoryId.Equals(other.CategoryId);
+        }
     }
 }

@@ -24,32 +24,75 @@ namespace AuthoDemoMVC.Controllers
 
         // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategory()
+        public async Task<ActionResult<IEnumerable<GetCategoryViewModel>>> GetCategory()
         {
-            return await _context.Category.ToListAsync();
+            //var categories = await _context.Category.ToListAsync();
+            var categories = await _context.Category.Include(c => c.Products).ToListAsync();
+
+            ICollection<GetCategoryViewModel> getCategories = new List<GetCategoryViewModel>();
+            foreach (var category in categories)
+            {
+                ICollection<Guid> productIds = null;
+                if (category.Products != null)
+                {
+                    productIds =
+                        category.Products.Select(categoryProduct => categoryProduct.ProductId).ToList();
+                }
+
+                var getCategory = new GetCategoryViewModel()
+                {
+                    CategoryId = category.CategoryId,
+                    Name = category.Name,
+                    ProductIds = productIds
+                };
+                getCategories.Add(getCategory);
+            }
+            return Ok(getCategories);
         }
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(Guid id)
+        public async Task<ActionResult<GetCategoryViewModel>> GetCategory(Guid id)
         {
             var category = await _context.Category.FindAsync(id);
-
             if (category == null)
             {
                 return NotFound();
             }
 
-            return category;
+            ICollection<Guid> products = new List<Guid>();
+            foreach (var VARIABLE in category.Products)
+            {
+                products.Add(VARIABLE.ProductId);
+            }
+
+            var getCategory = new GetCategoryViewModel()
+            {
+                CategoryId = category.CategoryId,
+                Name = category.Name,
+                ProductIds = products
+            };
+
+            return getCategory;
         }
 
-        // PUT: api/Categories/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(Guid id, Category category)
+        // PUT: api/Categories/5/AddProducts
+        [HttpPut("{id}/AddProducts")]
+        public async Task<IActionResult> PutCategory(Guid id, [FromBody]ICollection<Guid> productIds)
         {
-            if (id != category.CategoryId)
+            var category = await _context.Category.FindAsync(id);
+            if (category == null)
             {
-                return BadRequest();
+                return NotFound();
+            }
+
+            foreach (var productId in productIds)
+            {
+                var product = await _context.Product.FindAsync(productId);
+                if (!category.Products.Contains(product))
+                {
+                    category.Products.Add(product);
+                }
             }
 
             _context.Entry(category).State = EntityState.Modified;
@@ -80,8 +123,7 @@ namespace AuthoDemoMVC.Controllers
             var category = new Category()
             {
                 CategoryId = Guid.NewGuid(),
-                Name = model.Name,
-                Products = null
+                Name = model.Name
             };
 
             _context.Category.Add(category);

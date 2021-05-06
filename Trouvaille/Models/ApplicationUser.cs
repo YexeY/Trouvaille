@@ -15,10 +15,10 @@ namespace AuthoDemoMVC.Models
 
         public Guid? DeliveryAddressId { get; set; }
 
-        public Address? DeliveryAddress { get; set; }
+        public virtual Address? DeliveryAddress { get; set; }
 
         public Guid? InvoiceAddressId { get; set; }
 
-        public Address? InvoiceAddress { get; set; }
+        public virtual Address? InvoiceAddress { get; set; }
     }
 }

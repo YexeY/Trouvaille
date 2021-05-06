@@ -6,39 +6,32 @@ using System.Linq;
 using System.Threading.Tasks;
 using Trouvaille_WebAPI.Models;
 
-namespace AuthoDemoMVC.Models.Communication
+namespace Trouvaille.Models.Communication.Product
 {
-    public class PostProductViewModel
+    public class GetProductViewModel
     {
-        [Required]
+        [Key]
+        public Guid ProductId { get; set; }
+
         public string Name { get; set; }
 
         public string? Description { get; set; }
 
-        [Required]
         [Column(TypeName = "decimal(16,2)")]
         public decimal Price { get; set; }
 
-        [Required]
+        public Guid? ManufacturerId { get; set; }
+
         public int InStock { get; set; }
 
-        [Required]
-        public int MinStock { get; set; }
 
-        [Required]
         [Column(TypeName = "decimal(16,2)")]
         public decimal Tax { get; set; }
 
-        //Manufacturer
-        public Guid? ManufacturerId { get; set; }
+        public Guid? PictureId { get; set; }
 
-        //Image
-        public string? ImageTitle { get; set; }
+        public virtual Picture? picture { get; set; }
 
-        public byte[]? ImageData { get; set; }
-
-        //Categories
-        public ICollection<Guid>? ProductCategoryIds { get; set; }
-
+        public virtual List<Guid>? ProductCategories { get; set; }
     }
 }

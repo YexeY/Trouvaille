@@ -13,9 +13,13 @@ namespace Trouvaille_WebAPI.Models
         [Key]
         public Guid RatingId { get; set; }
 
-        public ApplicationUser Customer { get; set; }
+        public Guid CustomerId { get; set; }
 
-        public Product Product { get; set; }
+        public virtual ApplicationUser Customer { get; set; }
+
+        public Guid ProductId { get; set; }
+
+        public virtual Product Product { get; set; }
 
         [Column(TypeName = "decimal(16,1)")]
         public decimal Starcount { get; set; }

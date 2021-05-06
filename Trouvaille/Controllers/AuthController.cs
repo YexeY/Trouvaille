@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthoDemoMVC.Data.CustomerService;
+using AuthoDemoMVC.Data.EmployeeService;
 using AuthoDemoMVC.Data.UserService;
 using AuthoDemoMVC.Models.Communication;
 using AuthoDemoMVC.Models.ViewModels;
@@ -17,11 +18,13 @@ namespace Trouvaille3.Controllers
     {
         private readonly IUserService _userService;
         private readonly ICustomerService _customerService;
+        private readonly IEmployeeService _employeeService;
 
-        public AuthController(IUserService userService, ICustomerService customerService)
+        public AuthController(IUserService userService, ICustomerService customerService, IEmployeeService employeeService)
         {
             _userService = userService;
             _customerService = customerService;
+            _employeeService = employeeService;
         }
 
         // POST: api/auth/register
@@ -92,6 +95,46 @@ namespace Trouvaille3.Controllers
             if (ModelState.IsValid)
             {
                 var result = await _customerService.LoginCustomerAsync(model);
+
+                if (result.IsSuccess)
+                {
+                    return Ok(result);
+                }
+
+                return BadRequest(result);
+            }
+
+            return BadRequest("Some properties are not Valid"); //TODO code 401 not authorized
+        }
+
+        // POST: api/auth/Employee/register
+        [HttpPost]
+        [Route("Employee/Register")]
+        public async Task<IActionResult> RegisterEmployeeAsync([FromBody] RegisterEmployeeViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _employeeService.RegisterEmployeeAsync(model);
+
+                if (result.IsSuccess)
+                {
+                    return Ok(result);
+                }
+
+                return BadRequest(result);
+            }
+
+            return BadRequest("Some properties are not valid"); // Status Code: 400
+        }
+
+        // POST: api/auth/Employee/login
+        [HttpPost]
+        [Route("Employee/Login")]
+        public async Task<IActionResult> LoginEmployeeAsync([FromBody] LoginEmployeeViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _employeeService.LoginEmployeeAsync(model);
 
                 if (result.IsSuccess)
                 {

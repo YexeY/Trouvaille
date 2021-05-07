@@ -4,14 +4,16 @@ using AuthoDemoMVC.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Trouvaille3.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210506131517_CategoryProduct")]
+    partial class CategoryProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -268,6 +270,21 @@ namespace Trouvaille3.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("Trouvaille.Models.CategoryProduct", b =>
+                {
+                    b.Property<Guid>("ProductCategoriesCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductsProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ProductCategoriesCategoryId", "ProductsProductId");
+
+                    b.HasIndex("ProductsProductId");
+
+                    b.ToTable("CategoryProducts");
                 });
 
             modelBuilder.Entity("Trouvaille_WebAPI.Models.Address", b =>
@@ -598,6 +615,25 @@ namespace Trouvaille3.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Trouvaille.Models.CategoryProduct", b =>
+                {
+                    b.HasOne("Trouvaille_WebAPI.Models.Category", "ProductCategoriesCategory")
+                        .WithMany()
+                        .HasForeignKey("ProductCategoriesCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Trouvaille_WebAPI.Models.Product", "ProductsProduct")
+                        .WithMany()
+                        .HasForeignKey("ProductsProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ProductCategoriesCategory");
+
+                    b.Navigation("ProductsProduct");
                 });
 
             modelBuilder.Entity("Trouvaille_WebAPI.Models.Address", b =>

@@ -20,5 +20,7 @@ namespace AuthoDemoMVC.Models
         public Guid? InvoiceAddressId { get; set; }
 
         public virtual Address? InvoiceAddress { get; set; }
+
+        public virtual ICollection<Order>? Orders { get; set; }
     }
 }

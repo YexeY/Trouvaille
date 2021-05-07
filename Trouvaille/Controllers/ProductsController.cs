@@ -36,8 +36,32 @@ namespace Trouvaille_WEB_API.Controllers
         [Route("{from}/{to}")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProductFromTo(int from, int to)
         {
-            return await _context.Product.Skip(from).Take(to).ToListAsync();
+            return await _context.Product.Skip(from).Take((to - from)).ToListAsync();
         }
+
+        // POST: api/Products/filtered
+        [HttpPost]
+        [Route("filtered")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetProductFiltered([FromBody]ICollection<Guid> CategoryIds)
+        {
+            ICollection<Product> finalCollection = null;
+            foreach (var categoryId in CategoryIds)
+            {
+                var products = _context.Product.Include(p => 
+                    p.ProductCategories).Where(p => p.ProductCategories.Contains(
+                    _context.Category.FirstOrDefault(c => c.CategoryId == categoryId))).ToList();
+
+                finalCollection ??= products;
+                
+                //TODO fix this line
+                finalCollection = finalCollection.Intersect(products) as ICollection<Product>;
+                
+            }
+            
+
+            return Ok(finalCollection);
+        }
+
 
         // GET: api/Products/5
         [HttpGet("{id}")]
@@ -115,6 +139,7 @@ namespace Trouvaille_WEB_API.Controllers
             {
                 categories = null;
             }
+
             //Create Product
             var product = new Product()
             {
@@ -134,19 +159,7 @@ namespace Trouvaille_WEB_API.Controllers
             await _context.Product.AddAsync(product);
             await _context.SaveChangesAsync();
 
-            var getProductView = new GetProductViewModel()
-            {
-                ProductId = product.ProductId,
-                Description = product.Description,
-                ManufacturerId = product.ManufacturerId,
-                InStock = product.InStock,
-                picture = product.picture,
-                Name = product.Name,
-                PictureId = product.PictureId,
-                Price = product.Price,
-                Tax = product.Tax,
-                ProductCategories = product.ProductCategories?.Select(p => p.CategoryId).ToList()
-            };
+            var getProductView = new GetProductViewModel(product);
 
             return CreatedAtAction("GetProduct", new { id = product.ProductId }, getProductView);
         }

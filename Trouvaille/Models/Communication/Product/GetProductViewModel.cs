@@ -33,5 +33,19 @@ namespace Trouvaille.Models.Communication.Product
         public virtual Picture? picture { get; set; }
 
         public virtual List<Guid>? ProductCategories { get; set; }
+
+        public GetProductViewModel(Trouvaille_WebAPI.Models.Product product)
+        {
+            ProductId = product.ProductId;
+            Description = product.Description;
+            ManufacturerId = product.ManufacturerId;
+            InStock = product.InStock;
+            picture = product.picture;
+            Name = product.Name;
+            PictureId = product.PictureId;
+            Price = product.Price;
+            Tax = product.Tax;
+            ProductCategories = product.ProductCategories?.Select(p => p.CategoryId).ToList();
+        }
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using AuthoDemoMVC.Models;
+using Trouvaille.Models;
 using Trouvaille_WebAPI.Models;
 
 namespace AuthoDemoMVC.Data
@@ -26,7 +27,7 @@ namespace AuthoDemoMVC.Data
         public DbSet<Rating> Rating { get; set; }
         public DbSet<Manufacturer> Manufacturer { get; set; }
         //public DbSet<ApplicationUser> ApplicationUser { get; set; }
-        
+        //public DbSet<CategoryProduct> CategoryProduct { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -34,6 +35,10 @@ namespace AuthoDemoMVC.Data
             builder.Entity<Category>(entity => {
                 entity.HasIndex(e => e.Name).IsUnique();
             });
+            /**
+            builder.Entity<CategoryProduct>(entity =>
+                entity.HasKey(e => new {e.ProductCategoriesCategoryId, e.ProductsProductId}));
+            **/
         }
     }
 }

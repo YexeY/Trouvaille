@@ -113,7 +113,7 @@ namespace AuthoDemoMVC.Controllers
             {
                 OrderId = Guid.NewGuid(),
                 Invoice_Id = Guid.NewGuid(),
-                Date = model.Date,
+                Date = DateTime.Now,
                 PaymentMethod = model.PaymentMethod,
                 ShipmentMethod = model.ShipmentMethod,
                 OrderState = model.OrderState,

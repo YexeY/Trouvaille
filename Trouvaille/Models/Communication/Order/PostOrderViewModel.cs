@@ -11,10 +11,11 @@ namespace AuthoDemoMVC.Models.Communication
 {
     public class PostOrderViewModel
     {
+        /**
         [DataType(DataType.Date)]
         [Column(TypeName = "Date")]
         public DateTime Date { get; set; }
-
+        **/
         public Trouvaille_WebAPI.Globals.Globals.PaymentMethod PaymentMethod { get; set; }
 
         public Trouvaille_WebAPI.Globals.Globals.Shipmentmethod ShipmentMethod { get; set; }

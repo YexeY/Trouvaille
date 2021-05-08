@@ -42,6 +42,9 @@ namespace Trouvaille3
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            //allow Cors
+            services.AddCors(o => o.AddDefaultPolicy(d => d.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+
 
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
                 {
@@ -94,6 +97,8 @@ namespace Trouvaille3
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthentication();
             app.UseAuthorization();

@@ -80,6 +80,16 @@ namespace AuthoDemoMVC.Data.CustomerService
 
             var result = await _userManger.CreateAsync(customer, model.Password);
 
+            if (!result.Succeeded)
+            {
+                return new UserManagerResponse
+                {
+                    Message = "User did not create!",
+                    IsSuccess = false,
+                    Errors = result.Errors.Select(e => e.Description)
+                };
+            }
+
             //ADD USER THE ROLE CUSTOMER
             var userRole = new IdentityUserRole<string> {RoleId = "1", UserId = customer.Id};
             await _context.UserRoles.AddAsync(userRole);

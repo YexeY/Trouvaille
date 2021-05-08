@@ -37,6 +37,7 @@ namespace Trouvaille_WebAPI.Models
         public virtual Picture? picture { get; set; }
 
         public virtual ICollection<Category>? ProductCategories { get; set; }
+
         public bool Equals(Product? other)
         {
             return this.ProductId == other?.ProductId;

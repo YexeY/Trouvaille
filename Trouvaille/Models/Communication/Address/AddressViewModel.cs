@@ -31,6 +31,7 @@ namespace AuthoDemoMVC.Models.Communication
         [StringLength(50)]
         public string CityName { get; set; }
 
+        
         public static Address GetAddress(AddressViewModel model)
         {
             var cityId = Guid.NewGuid();
@@ -50,7 +51,7 @@ namespace AuthoDemoMVC.Models.Communication
                 CityId = cityId
             };
         }
-
+        
         public AddressViewModel(Address address)
         {
             Country = address.Country;
@@ -59,6 +60,22 @@ namespace AuthoDemoMVC.Models.Communication
             StreetNumber = address.StreetNumber;
             PostalCode = address.City.PostalCode;
             CityName = address.City.Name;
+        }
+
+        public AddressViewModel(string country, string state, string street, int streetNumber, int postalCode,
+            string cityName)
+        {
+            Country = country;
+            State = state;
+            Street = street;
+            StreetNumber = streetNumber;
+            PostalCode = postalCode;
+            CityName = cityName;
+        }
+
+        public AddressViewModel()
+        {
+
         }
     }
 }

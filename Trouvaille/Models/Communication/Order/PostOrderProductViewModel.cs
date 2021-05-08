@@ -20,5 +20,7 @@ namespace Trouvaille.Models.Communication.Order
             ProductId = orderProduct.ProductId;
             Cardinality = orderProduct.Cardinality;
         }
+
+        public PostOrderProductViewModel() { }
     }
 }

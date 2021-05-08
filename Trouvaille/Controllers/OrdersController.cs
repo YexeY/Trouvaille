@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -78,17 +79,35 @@ namespace AuthoDemoMVC.Controllers
         }
 
         // POST: api/Orders
+        //[Authorize]
         [HttpPost]
-        [Authorize]
         public async Task<ActionResult<GetOrderViewModel>> PostOrder(PostOrderViewModel model)
         {
+            //VERIFY USER ROLE
+            //-------------------------------------------
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.FindAsync(userId?.Value);
+
+            /**
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity != null)
+            {
+                var value = identity.FindFirst("Role").Value;
+                if (value != "Customer")
+                {
+                    return Unauthorized("Not Authorized");
+                }
+            }
+            **/
+            //-------------------------------------------
             //Extract Adresses
-            //------------------------------------------
+            //-------------------------------------------
             var invoiceAddress = AddressViewModel.GetAddress(model.InvoiceAddress);
             var deliveryAddress = model.DeliveryAddress == null
                 ? invoiceAddress
                 : AddressViewModel.GetAddress(model.DeliveryAddress);
-            //------------------------------------------
+            //-------------------------------------------
+
 
             var order = new Order
             {
@@ -99,7 +118,8 @@ namespace AuthoDemoMVC.Controllers
                 ShipmentMethod = model.ShipmentMethod,
                 OrderState = model.OrderState,
                 InvoiceAddress = invoiceAddress,
-                DeliveryAddress = deliveryAddress
+                DeliveryAddress = deliveryAddress,
+                CustomerId = user?.Id
             };
 
             //Extract Products and add to Order

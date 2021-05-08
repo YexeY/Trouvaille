@@ -87,7 +87,7 @@ namespace AuthoDemoMVC.Controllers
             //-------------------------------------------
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
             var user = await _context.Users.FindAsync(userId?.Value);
-
+            //TODO Verify Role
             /**
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             if (identity != null)

@@ -9,7 +9,7 @@ using AuthoDemoMVC.Models;
 
 namespace Trouvaille_WebAPI.Models
 {
-    public class Product
+    public class Product : IEquatable<Product>
     {
         [Key]
         public Guid ProductId { get; set; }
@@ -37,5 +37,9 @@ namespace Trouvaille_WebAPI.Models
         public virtual Picture? picture { get; set; }
 
         public virtual ICollection<Category>? ProductCategories { get; set; }
+        public bool Equals(Product? other)
+        {
+            return this.ProductId == other?.ProductId;
+        }
     }
 }

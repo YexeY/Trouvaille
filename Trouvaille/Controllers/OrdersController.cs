@@ -10,6 +10,7 @@ using AuthoDemoMVC.Models;
 using AuthoDemoMVC.Models.Communication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Trouvaille.Models.Communication.Order;
 using Trouvaille_WebAPI.Models;
 
 namespace AuthoDemoMVC.Controllers
@@ -79,7 +80,7 @@ namespace AuthoDemoMVC.Controllers
         // POST: api/Orders
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<Order>> PostOrder(PostOrderViewModel model)
+        public async Task<ActionResult<GetOrderViewModel>> PostOrder(PostOrderViewModel model)
         {
             //Extract Adresses
             //------------------------------------------
@@ -98,8 +99,7 @@ namespace AuthoDemoMVC.Controllers
                 ShipmentMethod = model.ShipmentMethod,
                 OrderState = model.OrderState,
                 InvoiceAddress = invoiceAddress,
-                DeliveryAddress = deliveryAddress,
-               // Products = 
+                DeliveryAddress = deliveryAddress
             };
 
             //Extract Products and add to Order
@@ -144,7 +144,8 @@ namespace AuthoDemoMVC.Controllers
             await _context.Order.AddAsync(order);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetOrder", new { id = order.OrderId }, order);
+            var getOrderViewModel = new GetOrderViewModel(order);
+            return CreatedAtAction("GetOrder", new { id = order.OrderId }, getOrderViewModel);
         }
 
         // DELETE: api/Orders/5

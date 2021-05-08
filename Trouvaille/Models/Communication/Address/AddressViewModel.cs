@@ -50,5 +50,15 @@ namespace AuthoDemoMVC.Models.Communication
                 CityId = cityId
             };
         }
+
+        public AddressViewModel(Address address)
+        {
+            Country = address.Country;
+            State = address.State;
+            Street = address.Street;
+            StreetNumber = address.StreetNumber;
+            PostalCode = address.City.PostalCode;
+            CityName = address.City.Name;
+        }
     }
 }

@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using Trouvaille_WebAPI.Models;
+using AuthoDemoMVC.Models;
 
-namespace AuthoDemoMVC.Models.Communication
+namespace Trouvaille.Models.Communication.Order
 {
-    public class OrderProductViewModel
+    public class PostOrderProductViewModel
     {
-        public Guid ProductId { get; set; }
         [Required]
+        public Guid ProductId { get; set; }
 
+        [Required]
         public int Cardinality { get; set; }
 
-        public OrderProductViewModel(OrderProduct orderProduct)
+        public PostOrderProductViewModel(OrderProduct orderProduct)
         {
             ProductId = orderProduct.ProductId;
             Cardinality = orderProduct.Cardinality;

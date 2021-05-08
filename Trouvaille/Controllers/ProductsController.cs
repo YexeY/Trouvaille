@@ -25,10 +25,16 @@ namespace Trouvaille_WEB_API.Controllers
 
         // GET: api/Products
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProduct()
+        public async Task<ActionResult<ICollection<GetProductViewModel>>> GetProduct()
         {
-            //return await _context.Product.Include(b => b.ProductCategories).ToListAsync();
-            return await _context.Product.ToListAsync();
+            var products = await _context.Product.Include(b => b.ProductCategories).ToListAsync();
+            ICollection<GetProductViewModel> getProductViewModels = new List<GetProductViewModel>();
+            foreach (var product in products)
+            {
+                var productView = new GetProductViewModel(product);
+                getProductViewModels.Add(productView);
+            }
+            return Ok(getProductViewModels);
         }
 
         // GET: api/Products/10/20
@@ -36,45 +42,57 @@ namespace Trouvaille_WEB_API.Controllers
         [Route("{from}/{to}")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProductFromTo(int from, int to)
         {
-            return await _context.Product.Skip(from).Take((to - from)).ToListAsync();
+            var products = await _context.Product.Skip(from).Take((to - from)).Include(b => b.ProductCategories).ToListAsync();
+            ICollection<GetProductViewModel> getProductViewModels = new List<GetProductViewModel>();
+            foreach (var product in products)
+            {
+                var productView = new GetProductViewModel(product);
+                getProductViewModels.Add(productView);
+            }
+            return Ok(getProductViewModels);
         }
 
         // POST: api/Products/filtered
         [HttpPost]
         [Route("filtered")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProductFiltered([FromBody]ICollection<Guid> CategoryIds)
+        public async Task<ActionResult<ICollection<Product>>> GetProductFiltered([FromBody]ICollection<Guid> CategoryIds)
         {
-            ICollection<Product> finalCollection = null;
+            IEnumerable<Product> finalCollection = null;
             foreach (var categoryId in CategoryIds)
             {
-                var products = _context.Product.Include(p => 
+                var products = await _context.Product.Include(p => 
                     p.ProductCategories).Where(p => p.ProductCategories.Contains(
-                    _context.Category.FirstOrDefault(c => c.CategoryId == categoryId))).ToList();
+                    _context.Category.FirstOrDefault(c => c.CategoryId == categoryId))).ToListAsync();
 
                 finalCollection ??= products;
-                
-                //TODO fix this line
-                finalCollection = finalCollection.Intersect(products) as ICollection<Product>;
-                
+                finalCollection = finalCollection.Intersect(products);
+
             }
-            
+            if (finalCollection == null) return Ok((ICollection<Product>) null);
 
-            return Ok(finalCollection);
+            ICollection<GetProductViewModel> getProductViews = new List<GetProductViewModel>();
+            foreach (var product in finalCollection)
+            {
+                var productViewModel = new GetProductViewModel(product);
+                getProductViews.Add(productViewModel);
+            }
+            return Ok(getProductViews);
         }
-
 
         // GET: api/Products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(Guid id)
+        public async Task<ActionResult<GetProductViewModel>> GetProduct(Guid id)
         {
-            var product = await _context.Product.FindAsync(id);
+            //var product = await _context.Product.Include(b => b.ProductCategories).FindAsync(id);
+            var product = await _context.Product.Include(b => b.ProductCategories).FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
             {
                 return NotFound();
             }
 
-            return product;
+            var getProductViewModel = new GetProductViewModel(product);
+            return getProductViewModel;
         }
 
         // PUT: api/Products/5
@@ -163,7 +181,6 @@ namespace Trouvaille_WEB_API.Controllers
 
             return CreatedAtAction("GetProduct", new { id = product.ProductId }, getProductView);
         }
-
 
         // DELETE: api/Products/5
         [HttpDelete("{id}")]

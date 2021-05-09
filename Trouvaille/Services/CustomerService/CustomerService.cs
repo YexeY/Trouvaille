@@ -171,8 +171,12 @@ namespace AuthoDemoMVC.Data.CustomerService
         public async Task<GetCustomerViewModel> GetCustomerInfo(string customerId)
         {
             //var customer = await _context.Users.FindAsync(customerId);
-            var customer = await _context.Users.Include(c => c.DeliveryAddress).Include(c => c.InvoiceAddress)
-                .Include(c => c.Orders).FirstOrDefaultAsync(c => c.Id == customerId);
+            var customer = await _context.Users.Include(c => c.DeliveryAddress)
+                .Include(c => c.InvoiceAddress)
+                .Include(c => c.Orders)
+                .Include(c => c.InvoiceAddress.City)
+                .Include(c => c.DeliveryAddress.City)
+                .FirstOrDefaultAsync(c => c.Id == customerId);
             var customerInfo = new GetCustomerViewModel(customer);
 
             return customerInfo;

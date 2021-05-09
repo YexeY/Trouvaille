@@ -16,7 +16,6 @@ namespace AuthoDemoMVC.Data
         {
         }
 
-        
         public DbSet<Address> Address { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<City> City { get; set; }
@@ -26,8 +25,6 @@ namespace AuthoDemoMVC.Data
         public DbSet<Product> Product { get; set; }
         public DbSet<Rating> Rating { get; set; }
         public DbSet<Manufacturer> Manufacturer { get; set; }
-        //public DbSet<ApplicationUser> ApplicationUser { get; set; }
-        //public DbSet<CategoryProduct> CategoryProduct { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -35,10 +32,6 @@ namespace AuthoDemoMVC.Data
             builder.Entity<Category>(entity => {
                 entity.HasIndex(e => e.Name).IsUnique();
             });
-            /**
-            builder.Entity<CategoryProduct>(entity =>
-                entity.HasKey(e => new {e.ProductCategoriesCategoryId, e.ProductsProductId}));
-            **/
         }
     }
 }

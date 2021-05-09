@@ -12,8 +12,10 @@ using AuthoDemoMVC.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Trouvaille.Models.Communication.Customer;
 using Trouvaille_WebAPI.Models;
 
 namespace AuthoDemoMVC.Data.CustomerService
@@ -164,6 +166,16 @@ namespace AuthoDemoMVC.Data.CustomerService
                 IsSuccess = true,
                 ExpireDate = token.ValidTo
             };
+        }
+
+        public async Task<GetCustomerViewModel> GetCustomerInfo(string customerId)
+        {
+            //var customer = await _context.Users.FindAsync(customerId);
+            var customer = await _context.Users.Include(c => c.DeliveryAddress).Include(c => c.InvoiceAddress)
+                .Include(c => c.Orders).FirstOrDefaultAsync(c => c.Id == customerId);
+            var customerInfo = new GetCustomerViewModel(customer);
+
+            return customerInfo;
         }
 
         /**

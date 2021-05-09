@@ -133,17 +133,20 @@ namespace AuthoDemoMVC.Controllers
                 {    continue;}
 
                 var cardinality = VARIABLE.Cardinality;
+
+                if (product.InStock - cardinality < product.MinStock)
+                {
+                    return BadRequest("Don't have that many in stock");
+                }
+
                 if (product.InStock - cardinality < product.MinStock)
                 {
                     //TODO sth
                     Console.WriteLine("Dont have that many in stock");
                 }
-                else
-                {
-                    product.InStock -= cardinality;
-                    _context.Entry(product).State = EntityState.Modified;
-                    //_context.Product.Update(product);
-                }
+                product.InStock -= cardinality;
+                _context.Entry(product).State = EntityState.Modified;
+                //_context.Product.Update(product)
 
                 var orderProduct = new OrderProduct
                 {

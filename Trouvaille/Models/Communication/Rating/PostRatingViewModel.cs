@@ -6,20 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthoDemoMVC.Models;
 
-namespace Trouvaille_WebAPI.Models
+namespace Trouvaille.Models.Communication.Rating
 {
-    public class Rating
+    public class PostRatingViewModel
     {
-        [Key]
-        public Guid RatingId { get; set; }
-
-        public string CustomerId { get; set; }
-
-        public virtual ApplicationUser Customer { get; set; }
-
         public Guid ProductId { get; set; }
-
-        public virtual Product Product { get; set; }
 
         [Column(TypeName = "decimal(16,1)")]
         public decimal StarCount { get; set; }

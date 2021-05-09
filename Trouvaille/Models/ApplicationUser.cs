@@ -23,6 +23,10 @@ namespace AuthoDemoMVC.Models
         public virtual Address? InvoiceAddress { get; set; }
 
         public virtual ICollection<Order>? Orders { get; set; }
+
+        public virtual ICollection<Rating>? Ratings { get; set; }
+
+        public virtual ICollection<Product>? Products { get; set; }
 #nullable disable
     }
 }

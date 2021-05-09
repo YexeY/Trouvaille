@@ -130,7 +130,7 @@ namespace AuthoDemoMVC.Controllers
             //Extract Products and add to Order
             //------------------------------------------
             ICollection<OrderProduct> orderProducts = new List<OrderProduct>();
-            //ICollection<Product> products = new List<Product>();
+            ICollection<Product> products = new List<Product>();
             foreach (var VARIABLE in model.Products)
             {
                 var product = _context.Product.Find(VARIABLE.ProductId);
@@ -151,6 +151,11 @@ namespace AuthoDemoMVC.Controllers
                 }
                 product.InStock -= cardinality;
                 _context.Entry(product).State = EntityState.Modified;
+                //TODO Add Product to USerProductList if not already contained
+                if (await _context.Product.AnyAsync(p => p.ProductId == product.ProductId))
+                {
+                    await _context.Product.AddAsync(product);
+                }
 
                 var orderProduct = new OrderProduct
                 {

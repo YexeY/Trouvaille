@@ -38,6 +38,10 @@ namespace Trouvaille_WebAPI.Models
 
         public virtual ICollection<Category>? ProductCategories { get; set; }
 
+        public virtual ICollection<Rating>? Ratings { get; set; }
+
+        public virtual ICollection<ApplicationUser>? Customer { get; set; }
+
         public bool Equals(Product? other)
         {
             return this.ProductId == other?.ProductId;

@@ -4,35 +4,22 @@ using AuthoDemoMVC.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Trouvaille3.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210509101519_ratingStarcountTpStarCount")]
+    partial class ratingStarcountTpStarCount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.5")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("ApplicationUserProduct", b =>
-                {
-                    b.Property<string>("CustomerId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<Guid>("ProductsProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("CustomerId", "ProductsProductId");
-
-                    b.HasIndex("ProductsProductId");
-
-                    b.ToTable("ApplicationUserProduct");
-                });
 
             modelBuilder.Entity("AuthoDemoMVC.Models.ApplicationUser", b =>
                 {
@@ -510,21 +497,6 @@ namespace Trouvaille3.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("Rating");
-                });
-
-            modelBuilder.Entity("ApplicationUserProduct", b =>
-                {
-                    b.HasOne("AuthoDemoMVC.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Trouvaille_WebAPI.Models.Product", null)
-                        .WithMany()
-                        .HasForeignKey("ProductsProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("AuthoDemoMVC.Models.ApplicationUser", b =>

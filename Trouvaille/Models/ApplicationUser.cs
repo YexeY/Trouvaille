@@ -9,6 +9,7 @@ namespace AuthoDemoMVC.Models
 {
     public class ApplicationUser : IdentityUser
     {
+#nullable enable
         public string? FirstName { get; set; }
 
         public string? LastName { get; set; }
@@ -22,5 +23,6 @@ namespace AuthoDemoMVC.Models
         public virtual Address? InvoiceAddress { get; set; }
 
         public virtual ICollection<Order>? Orders { get; set; }
+#nullable disable
     }
 }

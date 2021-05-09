@@ -10,6 +10,9 @@ namespace Trouvaille.Models.Communication.Order
 {
     public class GetOrderViewModel
     {
+        [Key]
+        public Guid OrderId { get; set; }
+
         [DataType(DataType.Date)]
         [Column(TypeName = "Date")]
         public DateTime Date { get; set; }
@@ -20,7 +23,7 @@ namespace Trouvaille.Models.Communication.Order
 
         public Trouvaille_WebAPI.Globals.Globals.OrderState OrderState { get; set; }
 
-        public AddressViewModel? DeliveryAddress { get; set; }
+        public AddressViewModel DeliveryAddress { get; set; }
 
         public AddressViewModel InvoiceAddress { get; set; }
 
@@ -29,6 +32,7 @@ namespace Trouvaille.Models.Communication.Order
 
         public GetOrderViewModel(Trouvaille_WebAPI.Models.Order order)
         {
+            OrderId = order.OrderId;
             Date = order.Date;
             PaymentMethod = order.PaymentMethod;
             ShipmentMethod = order.ShipmentMethod;

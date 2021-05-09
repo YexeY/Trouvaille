@@ -29,16 +29,16 @@ namespace AuthoDemoMVC.Models.Communication
         [Column(TypeName = "decimal(16,2)")]
         public decimal Tax { get; set; }
 
-        //Manufacturer
+#nullable enable
         public Guid? ManufacturerId { get; set; }
 
-        //Image
+
         public string? ImageTitle { get; set; }
 
         public byte[]? ImageData { get; set; }
 
-        //Categories
-        public ICollection<Guid>? ProductCategoryIds { get; set; }
 
+        public ICollection<Guid>? ProductCategoryIds { get; set; }
+#nullable disable
     }
 }

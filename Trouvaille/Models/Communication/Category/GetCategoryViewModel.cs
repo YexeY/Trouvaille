@@ -13,7 +13,8 @@ namespace Trouvaille.Models.Communication.Category
 
         [Required]
         public string Name { get; set; }
-
+#nullable enable
         public ICollection<Guid>? ProductIds { get; set; }
+#nullable disable
     }
 }

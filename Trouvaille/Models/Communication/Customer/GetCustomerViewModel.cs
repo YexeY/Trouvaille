@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AuthoDemoMVC.Models;
+using Trouvaille.Models.Communication.Order;
 using Trouvaille_WebAPI.Models;
 
 namespace Trouvaille.Models.Communication.Customer
@@ -25,7 +26,7 @@ namespace Trouvaille.Models.Communication.Customer
 
         public Address DeliveryAddress { get; set; }
 
-        public ICollection<Guid> Orders { get; set; }
+        public ICollection<GetOrderViewModel> Orders { get; set; }
 
         private GetCustomerViewModel() { }
 
@@ -38,7 +39,8 @@ namespace Trouvaille.Models.Communication.Customer
             LastName = user.LastName;
             InvoiceAddress = user.InvoiceAddress;
             DeliveryAddress = user.DeliveryAddress;
-            Orders = user.Orders?.Select(o => o.OrderId).ToList();
+            Orders = user.Orders?.Select(o => new GetOrderViewModel(o)).ToList();
+            //Orders = user.Orders?.Select(o => o.OrderId).ToList();
         }
     }
 }

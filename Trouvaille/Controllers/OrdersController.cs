@@ -29,14 +29,16 @@ namespace AuthoDemoMVC.Controllers
 
         // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrder()
+        public async Task<ActionResult<IEnumerable<GetOrderViewModel>>> GetOrder()
         {
-            return await _context.Order.ToListAsync();
+            var orders = await _context.Order.ToListAsync();
+            var getOrderViewModels = orders.Select(p => new GetOrderViewModel(p)).ToList();
+            return getOrderViewModels;
         }
 
         // GET: api/Orders/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrder(Guid id)
+        public async Task<ActionResult<GetOrderViewModel>> GetOrder(Guid id)
         {
             var order = await _context.Order.FindAsync(id);
 
@@ -45,9 +47,11 @@ namespace AuthoDemoMVC.Controllers
                 return NotFound();
             }
 
-            return order;
+            var getOrderViewModel = new GetOrderViewModel(order);
+            return getOrderViewModel;
         }
 
+        /**
         // PUT: api/Orders/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOrder(Guid id, Order order)
@@ -77,6 +81,7 @@ namespace AuthoDemoMVC.Controllers
 
             return NoContent();
         }
+        **/
 
         // POST: api/Orders
         //[Authorize]
@@ -146,7 +151,6 @@ namespace AuthoDemoMVC.Controllers
                 }
                 product.InStock -= cardinality;
                 _context.Entry(product).State = EntityState.Modified;
-                //_context.Product.Update(product)
 
                 var orderProduct = new OrderProduct
                 {
@@ -157,8 +161,6 @@ namespace AuthoDemoMVC.Controllers
                     Order = order,
                     OrderId = order.OrderId
                 };
-
-                //products.Add(product);
                 orderProducts.Add(orderProduct);
             }
             order.Products = orderProducts;

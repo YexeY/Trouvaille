@@ -24,8 +24,10 @@ namespace Trouvaille_WebAPI.Models
         [Column(TypeName = "decimal(16,1)")]
         public decimal Starcount { get; set; }
 
+#nullable enable
         public string? Title { get; set; }
 
         public string? Description { get; set; }
+#nullable disable
     }
 }

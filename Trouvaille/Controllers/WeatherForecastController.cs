@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using AuthoDemoMVC.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Trouvaille3.Controllers
@@ -39,12 +40,12 @@ namespace Trouvaille3.Controllers
             //VERIFY USER ROLE
             //-------------------------------------------
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userRole = _context.UserRoles.SingleOrDefault(ur => ur.UserId == userId.Value);
+            var userRole = await _context.UserRoles.SingleOrDefaultAsync(ur => ur.UserId == userId.Value);
 
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             if (identity != null)
             {
-                var value = identity.FindFirst("Role").Value;
+                var value = identity.FindFirst("Role")?.Value;
                 if (value != "Customer")
                 {
                     return Unauthorized("Not Authorized");

@@ -84,7 +84,7 @@ namespace Trouvaille.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
             var user = await _context.Users.Include(u => u.Products).FirstOrDefaultAsync(u => u.Id == userId.Value);
-            var userProduct = user?.Products.Select(u => u.ProductId).ToList();
+            var userProduct = user?.Products?.Select(u => u.ProductId).ToList();
 
             if (userProduct?.Contains(model.ProductId) != true)
             {

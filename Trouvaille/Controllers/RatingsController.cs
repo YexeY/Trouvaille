@@ -47,6 +47,31 @@ namespace Trouvaille.Controllers
             return rating;
         }
 
+        [HttpGet]
+        [Route("Product/{id}")]
+        public async Task<ActionResult<IEnumerable<GetRatingViewModel>>> GetRatingOfProduct(Guid id)
+        {
+            var product = await _context.Product
+                .Include(p => p.Ratings)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            var ratings = product.Ratings?.Select(r => new GetRatingViewModel(r)).ToList();
+            return ratings;
+        }
+
+        [HttpGet]
+        [Route("Customer/{id}")]
+        public async Task<ActionResult<IEnumerable<GetRatingViewModel>>> GetRatingOfCustomer(Guid id)
+        {
+            var user = await _context.Users
+                .Include(u => u.Ratings)
+                .FirstOrDefaultAsync(u => u.Id == id.ToString());
+
+            var ratings = user.Ratings?.Select(r => new GetRatingViewModel(r)).ToList();
+            return ratings;
+        }
+
+
         // PUT: api/Ratings/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRating(Guid id, Rating rating)
@@ -84,7 +109,7 @@ namespace Trouvaille.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
             var user = await _context.Users.Include(u => u.Products).FirstOrDefaultAsync(u => u.Id == userId.Value);
-            var userProduct = user?.Products?.Select(u => u.ProductId).ToList();
+            var userProduct = user.Products?.Select(u => u.ProductId).ToList();
 
             if (userProduct?.Contains(model.ProductId) != true)
             {

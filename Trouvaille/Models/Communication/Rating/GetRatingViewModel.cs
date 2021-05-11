@@ -34,9 +34,9 @@ namespace Trouvaille.Models.Communication.Rating
         {
             RatingId = rating.RatingId;
             CustomerId = rating.CustomerId;
-            Customer = rating.Customer;
+            Customer = null;
             ProductId = rating.ProductId;
-            Product = rating.Product;
+            Product = null;
             StarCount = rating.StarCount;
             Title = rating.Title;
             Description = rating.Description;

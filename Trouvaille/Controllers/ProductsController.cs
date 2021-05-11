@@ -27,7 +27,10 @@ namespace Trouvaille_WEB_API.Controllers
         [HttpGet]
         public async Task<ActionResult<ICollection<GetProductViewModel>>> GetProduct()
         {
-            var products = await _context.Product.Include(b => b.ProductCategories).ToListAsync();
+            var products = await _context.Product
+                .Include(b => b.ProductCategories)
+                .Include(p => p.picture)
+                .ToListAsync();
             ICollection<GetProductViewModel> getProductViewModels = new List<GetProductViewModel>();
             foreach (var product in products)
             {
@@ -42,7 +45,12 @@ namespace Trouvaille_WEB_API.Controllers
         [Route("{from}/{to}")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProductFromTo(int from, int to)
         {
-            var products = await _context.Product.Skip(from).Take((to - from)).Include(b => b.ProductCategories).ToListAsync();
+            var products = await _context.Product
+                .Skip(from)
+                .Take((to - from))
+                .Include(b => b.ProductCategories)
+                .Include(p => p.picture)
+                .ToListAsync();
             ICollection<GetProductViewModel> getProductViewModels = new List<GetProductViewModel>();
             foreach (var product in products)
             {
@@ -55,10 +63,10 @@ namespace Trouvaille_WEB_API.Controllers
         // POST: api/Products/filtered
         [HttpPost]
         [Route("filtered")]
-        public async Task<ActionResult<ICollection<Product>>> GetProductFiltered([FromBody]ICollection<Guid> CategoryIds)
+        public async Task<ActionResult<ICollection<Product>>> GetProductFiltered([FromBody]ICollection<Guid> categoryIds)
         {
             IEnumerable<Product> finalCollection = null;
-            foreach (var categoryId in CategoryIds)
+            foreach (var categoryId in categoryIds)
             {
                 var products = await _context.Product.Include(p => 
                     p.ProductCategories).Where(p => p.ProductCategories.Contains(
@@ -123,6 +131,38 @@ namespace Trouvaille_WEB_API.Controllers
             }
 
             return NoContent();
+        }
+
+        //POST: api/Product/5/addCategory
+        [HttpPost]
+        [Route("{id}/addCategory")]
+        public async Task<IActionResult> AddCategoryToProduct(Guid id,[FromBody]ICollection<Guid> categoryIds)
+        {
+            var product = await _context.Product
+                .Include(p => p.ProductCategories)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            if (product == null)
+            {
+                return NotFound($"Product with id:{id} not found");
+            }
+
+            foreach (var categoryId in categoryIds)
+            {
+                if (product.ProductCategories.Any(c => c.CategoryId == categoryId) == false)
+                {
+                    var category = await _context.Category.FindAsync(categoryId);
+                    if (category == null)
+                    {
+                        return NotFound($"Category with id ={categoryId} not found");
+                    }
+                    product.ProductCategories.Add(category);
+                }
+            }
+
+            _context.Entry(product).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // POST: api/Products

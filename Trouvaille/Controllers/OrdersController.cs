@@ -31,7 +31,13 @@ namespace AuthoDemoMVC.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetOrderViewModel>>> GetOrder()
         {
-            var orders = await _context.Order.ToListAsync();
+            var orders = await _context.Order
+                .Include(o => o.DeliveryAddress)
+                .Include(o => o.InvoiceAddress)
+                .Include(o => o.DeliveryAddress.City)
+                .Include(o => o.InvoiceAddress.City)
+                .Include(o => o.Products)
+                .ToListAsync();
             var getOrderViewModels = orders.Select(p => new GetOrderViewModel(p)).ToList();
             return getOrderViewModels;
         }
@@ -40,7 +46,13 @@ namespace AuthoDemoMVC.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<GetOrderViewModel>> GetOrder(Guid id)
         {
-            var order = await _context.Order.FindAsync(id);
+            var order = await _context.Order
+                .Include(o => o.DeliveryAddress)
+                .Include(o => o.InvoiceAddress)
+                .Include(o => o.DeliveryAddress.City)
+                .Include(o => o.InvoiceAddress.City)
+                .Include(o => o.Products)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null)
             {
@@ -91,7 +103,7 @@ namespace AuthoDemoMVC.Controllers
             //VERIFY USER ROLE
             //-------------------------------------------
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
-            var user = await _context.Users.FindAsync(userId?.Value);
+            var user = await _context.Users.Include(u => u.Products).FirstOrDefaultAsync(u => u.Id == userId.Value);
             //TODO Verify Role
             /**
             var identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -151,12 +163,19 @@ namespace AuthoDemoMVC.Controllers
                 }
                 product.InStock -= cardinality;
                 _context.Entry(product).State = EntityState.Modified;
+
                 //TODO Add Product to USerProductList if not already contained
-                if (await _context.Product.AnyAsync(p => p.ProductId == product.ProductId))
+
+                if (user.Products == null)
                 {
-                    await _context.Product.AddAsync(product);
+                    user.Products = new List<Product> {product};
+                } 
+                else if (user.Products.Any(p => p.ProductId == product.ProductId) != true)
+                {
+                    user.Products.Add(product);
                 }
 
+                //_context.Entry(user).State = EntityState.Modified;
                 var orderProduct = new OrderProduct
                 {
                     Product = product,

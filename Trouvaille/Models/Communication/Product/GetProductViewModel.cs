@@ -30,7 +30,7 @@ namespace Trouvaille.Models.Communication.Product
 
         public Guid? PictureId { get; set; }
 
-        public virtual Picture? picture { get; set; }
+        public virtual Picture? Picture { get; set; }
 
         public virtual List<Guid>? ProductCategories { get; set; }
 
@@ -40,7 +40,7 @@ namespace Trouvaille.Models.Communication.Product
             Description = product.Description;
             ManufacturerId = product.ManufacturerId;
             InStock = product.InStock;
-            picture = product.picture;
+            Picture = product.picture;
             Name = product.Name;
             PictureId = product.PictureId;
             Price = product.Price;

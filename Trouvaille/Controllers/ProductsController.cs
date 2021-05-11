@@ -30,6 +30,7 @@ namespace Trouvaille_WEB_API.Controllers
             var products = await _context.Product
                 .Include(b => b.ProductCategories)
                 .Include(p => p.picture)
+                .Include(p => p.Ratings)
                 .ToListAsync();
             ICollection<GetProductViewModel> getProductViewModels = new List<GetProductViewModel>();
             foreach (var product in products)
@@ -50,6 +51,7 @@ namespace Trouvaille_WEB_API.Controllers
                 .Take((to - from))
                 .Include(b => b.ProductCategories)
                 .Include(p => p.picture)
+                .Include(p => p.Ratings)
                 .ToListAsync();
             ICollection<GetProductViewModel> getProductViewModels = new List<GetProductViewModel>();
             foreach (var product in products)
@@ -68,8 +70,12 @@ namespace Trouvaille_WEB_API.Controllers
             IEnumerable<Product> finalCollection = null;
             foreach (var categoryId in categoryIds)
             {
-                var products = await _context.Product.Include(p => 
-                    p.ProductCategories).Where(p => p.ProductCategories.Contains(
+                var products = 
+                    await _context.Product
+                        .Include(b => b.ProductCategories)
+                        .Include(p => p.picture)
+                        .Include(p => p.Ratings)
+                        .Where(p => p.ProductCategories.Contains(
                     _context.Category.FirstOrDefault(c => c.CategoryId == categoryId))).ToListAsync();
 
                 finalCollection ??= products;
@@ -92,7 +98,11 @@ namespace Trouvaille_WEB_API.Controllers
         public async Task<ActionResult<GetProductViewModel>> GetProduct(Guid id)
         {
             //var product = await _context.Product.Include(b => b.ProductCategories).FindAsync(id);
-            var product = await _context.Product.Include(b => b.ProductCategories).FirstOrDefaultAsync(p => p.ProductId == id);
+            var product = await _context.Product
+                .Include(b => b.ProductCategories)
+                .Include(p => p.picture)
+                .Include(p => p.Ratings)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
             {

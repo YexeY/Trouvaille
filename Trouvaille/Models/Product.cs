@@ -36,6 +36,11 @@ namespace Trouvaille_WebAPI.Models
 
         public virtual Picture? picture { get; set; }
 
+        [Column(TypeName = "decimal(16,2)")]
+        public decimal AverageRating { get; set; }
+
+        public int? RatingCounter { get; set; }
+
         public virtual ICollection<Category>? ProductCategories { get; set; }
 
         public virtual ICollection<Rating>? Ratings { get; set; }

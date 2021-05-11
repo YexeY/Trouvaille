@@ -34,8 +34,15 @@ namespace Trouvaille.Models.Communication.Product
 
         public virtual List<Guid>? ProductCategories { get; set; }
 
+        public virtual ICollection<Guid>? Ratings { get; set; }
+
+        public decimal? AverageRating { get; set; }
+
+        //TODO RATING DURCHSCHNITT
+        //TODO RATING GUIDS
+
         public GetProductViewModel(Trouvaille_WebAPI.Models.Product product)
-        {
+        {  
             ProductId = product.ProductId;
             Description = product.Description;
             ManufacturerId = product.ManufacturerId;
@@ -46,6 +53,8 @@ namespace Trouvaille.Models.Communication.Product
             Price = product.Price;
             Tax = product.Tax;
             ProductCategories = product.ProductCategories?.Select(p => p.CategoryId).ToList();
+            Ratings = product.Ratings.Select(r => r.RatingId).ToList();
+            AverageRating = product.AverageRating;
         }
     }
 }

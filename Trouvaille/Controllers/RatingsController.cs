@@ -152,6 +152,18 @@ namespace Trouvaille.Controllers
             return NoContent();
         }
 
+
+        [HttpGet]
+        [Route("CanRate/{id}")]
+        public async Task<IActionResult> CanRate(Guid id)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            var user = await _context.Users.Include(u => u.Products).FirstOrDefaultAsync(u => u.Id == userId.Value);
+            var userProduct = user.Products?.Select(u => u.ProductId).ToList();
+
+            return Ok(userProduct?.Contains(id) == true);
+        }
+
         private bool RatingExists(Guid id)
         {
             return _context.Rating.Any(e => e.RatingId == id);

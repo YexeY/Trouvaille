@@ -22,7 +22,6 @@ namespace AuthoDemoMVC.Data.UserService
 
         private UserManager<ApplicationUser> _userManger;
         private IConfiguration _configuration;
-
         private ApplicationDbContext _context;
         //private IMailService _mailService;
         public UserService(UserManager<ApplicationUser> userManager, IConfiguration configuration/**, IMailService mailService**/, ApplicationDbContext context)

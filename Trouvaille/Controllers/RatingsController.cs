@@ -109,9 +109,9 @@ namespace Trouvaille.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
             var user = await _context.Users.Include(u => u.Products).FirstOrDefaultAsync(u => u.Id == userId.Value);
-            var userProduct = user.Products?.Select(u => u.ProductId).ToList();
+            var userProductIds = user.Products?.Select(u => u.ProductId).ToList();
 
-            if (userProduct?.Contains(model.ProductId) != true)
+            if (userProductIds?.Contains(model.ProductId) != true)
             {
                 return Forbid("User did not Order this Product before");
             }
@@ -127,6 +127,13 @@ namespace Trouvaille.Controllers
                 Customer = null,
                 Product = null
             };
+
+            var product = await _context.Product.FindAsync(model.ProductId);
+            product.AverageRating =
+                    (decimal) (((product.RatingCounter * product.AverageRating) + rating.StarCount) /
+                               (product.RatingCounter + 1));
+            product.RatingCounter += 1;
+            _context.Entry(product).State = EntityState.Modified;
 
             await _context.Rating.AddAsync(rating);
             await _context.SaveChangesAsync();

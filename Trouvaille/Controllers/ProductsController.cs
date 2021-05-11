@@ -220,7 +220,8 @@ namespace Trouvaille_WEB_API.Controllers
                 MinStock = model.MinStock,
                 Tax = model.Tax,
                 picture = picture,
-                ProductCategories = categories
+                ProductCategories = categories,
+                RatingCounter = 0
             };
 
             //Add Product and save

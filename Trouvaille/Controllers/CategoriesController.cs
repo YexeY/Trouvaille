@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using AuthoDemoMVC.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AuthoDemoMVC.Data;
 using Trouvaille.Models.Communication.Category;
 using Trouvaille_WebAPI.Models;
 
-namespace AuthoDemoMVC.Controllers
+namespace Trouvaille.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

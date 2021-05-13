@@ -80,7 +80,9 @@ namespace AuthoDemoMVC.Controllers
         [HttpPut("{id}/AddProducts")]
         public async Task<IActionResult> PutCategory(Guid id, [FromBody]ICollection<Guid> productIds)
         {
-            var category = await _context.Category.FindAsync(id);
+            var category = await _context.Category
+                .Include(c => c.Products)
+                .FirstOrDefaultAsync(c => c.CategoryId == id);
             if (category == null)
             {
                 return NotFound();

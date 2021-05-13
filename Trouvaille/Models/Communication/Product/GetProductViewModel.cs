@@ -22,11 +22,11 @@ namespace Trouvaille.Models.Communication.Product
 
         public Guid? ManufacturerId { get; set; }
 
-        public int InStock { get; set; }
+        public int? InStock { get; set; }
 
 
         [Column(TypeName = "decimal(16,2)")]
-        public decimal Tax { get; set; }
+        public decimal? Tax { get; set; }
 
         public Guid? PictureId { get; set; }
 
@@ -53,7 +53,7 @@ namespace Trouvaille.Models.Communication.Product
             Price = product.Price;
             Tax = product.Tax;
             ProductCategories = product.ProductCategories?.Select(p => p.CategoryId).ToList();
-            Ratings = product.Ratings.Select(r => r.RatingId).ToList();
+            Ratings = product.Ratings?.Select(r => r.RatingId).ToList();
             AverageRating = product.AverageRating;
         }
     }

@@ -50,9 +50,9 @@ namespace Trouvaille_WEB_API.Controllers
             var products = await _context.Product
                 .Skip(from)
                 .Take((to - from))
-                .Include(b => b.ProductCategories)
+                //.Include(b => b.ProductCategories)
                 .Include(p => p.picture)
-                .Include(p => p.Ratings)
+                //.Include(p => p.Ratings)
                 .ToListAsync();
             ICollection<GetProductViewModel> getProductViewModels = new List<GetProductViewModel>();
             foreach (var product in products)

@@ -54,7 +54,10 @@ namespace Trouvaille.Controllers
             var product = await _context.Product
                 .Include(p => p.Ratings)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
-
+            if (product == null)
+            {
+                return NotFound();
+            }
             var ratings = product.Ratings?.Select(r => new GetRatingViewModel(r)).ToList();
             return ratings;
         }

@@ -39,12 +39,7 @@ namespace AuthoDemoMVC.Controllers
                         category.Products.Select(categoryProduct => categoryProduct.ProductId).ToList();
                 }
 
-                var getCategory = new GetCategoryViewModel()
-                {
-                    CategoryId = category.CategoryId,
-                    Name = category.Name,
-                    ProductIds = productIds
-                };
+                var getCategory = new GetCategoryViewModel(category);
                 getCategories.Add(getCategory);
             }
             return Ok(getCategories);
@@ -66,12 +61,7 @@ namespace AuthoDemoMVC.Controllers
                 products.Add(VARIABLE.ProductId);
             }
 
-            var getCategory = new GetCategoryViewModel()
-            {
-                CategoryId = category.CategoryId,
-                Name = category.Name,
-                ProductIds = products
-            };
+            var getCategory = new GetCategoryViewModel(category);
 
             return getCategory;
         }
@@ -125,18 +115,15 @@ namespace AuthoDemoMVC.Controllers
             var category = new Category()
             {
                 CategoryId = Guid.NewGuid(),
-                Name = model.Name
+                Name = model.Name,
+                ProductCounter = 0
             };
 
             _context.Category.Add(category);
             await _context.SaveChangesAsync();
 
 
-            var getCategoryViewModel = new GetCategoryViewModel()
-            {
-                CategoryId = category.CategoryId,
-                Name = category.Name
-            };
+            var getCategoryViewModel = new GetCategoryViewModel(category);
 
             return CreatedAtAction("GetCategory", new { id = category.CategoryId }, getCategoryViewModel);
         }

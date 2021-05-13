@@ -14,6 +14,8 @@ namespace Trouvaille_WebAPI.Models
         [Required]
         public string Name { get; set; }
 
+        public int ProductCounter { get; set; }
+
         public virtual  ICollection<Product> Products { get; set; }
 
         public bool Equals(Category? other)

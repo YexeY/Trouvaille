@@ -13,8 +13,18 @@ namespace Trouvaille.Models.Communication.Category
 
         [Required]
         public string Name { get; set; }
+
+        public int ProductCounter { get; set; }
 #nullable enable
         public ICollection<Guid>? ProductIds { get; set; }
 #nullable disable
+
+        public GetCategoryViewModel(Trouvaille_WebAPI.Models.Category category)
+        {
+            CategoryId = category.CategoryId;
+            Name = category.Name;
+            ProductCounter = category.ProductCounter;
+            ProductIds = category.Products?.Select(p => p.ProductId).ToList();
+        }
     }
 }

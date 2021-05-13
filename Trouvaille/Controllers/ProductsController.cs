@@ -165,7 +165,7 @@ namespace Trouvaille_WEB_API.Controllers
                     .FirstOrDefaultAsync(p => p.ProductId == productId);
                 if (product == null)
                 {
-                    return NotFound();
+                    return NotFound($"Product with the ID:{productId} not found");
                 }
                 getProductViewModels.Add(new GetProductViewModel(product));
             }

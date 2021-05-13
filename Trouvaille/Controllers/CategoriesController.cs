@@ -65,6 +65,25 @@ namespace Trouvaille.Controllers
             return getCategory;
         }
 
+
+        // POST: api/Categories/GetMultiple
+        [HttpPost]
+        [Route("GetMultiple")]
+        public async Task<ActionResult<GetCategoryViewModel>> GetMultipleCategories(ICollection<Guid> categoryIds)
+        {
+            ICollection<GetCategoryViewModel> getCategoryViewModels = new List<GetCategoryViewModel>();
+            foreach (var categoryId in categoryIds)
+            {
+                var category = await _context.Category.FindAsync(categoryId);
+                if (category == null)
+                {
+                    return NotFound($"Category with the ID:{categoryId} not found");
+                }
+                getCategoryViewModels.Add(new GetCategoryViewModel(category));
+            }
+            return Ok(getCategoryViewModels);
+        }
+
         /**
         // PUT: api/Categories/5/AddProducts
         [HttpPut("{id}/AddProducts")]

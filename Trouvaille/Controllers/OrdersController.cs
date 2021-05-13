@@ -96,7 +96,7 @@ namespace AuthoDemoMVC.Controllers
         **/
 
         // POST: api/Orders
-        //[Authorize]
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<GetOrderViewModel>> PostOrder(PostOrderViewModel model)
         {

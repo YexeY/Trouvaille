@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Trouvaille.Services.MailService;
 
 
 namespace Trouvaille3
@@ -80,6 +81,7 @@ namespace Trouvaille3
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IEmployeeService, EmployeeService>();
+            services.AddScoped<IMailService, MailService>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

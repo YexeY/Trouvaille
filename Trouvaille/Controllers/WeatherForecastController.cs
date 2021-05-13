@@ -11,12 +11,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Trouvaille.Services.MailService;
 
 namespace Trouvaille3.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    //[Authorize]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -26,11 +27,13 @@ namespace Trouvaille3.Controllers
 
         private readonly ILogger<WeatherForecastController> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly IMailService _mailService;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger, ApplicationDbContext context)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, ApplicationDbContext context, IMailService mailService)
         {
             _logger = logger;
             _context = context;
+            _mailService = mailService;
         }
 
         [HttpGet]
@@ -39,6 +42,7 @@ namespace Trouvaille3.Controllers
         {
             //VERIFY USER ROLE
             //-------------------------------------------
+            /**
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
             var userRole = await _context.UserRoles.SingleOrDefaultAsync(ur => ur.UserId == userId.Value);
 
@@ -52,7 +56,7 @@ namespace Trouvaille3.Controllers
                 }
             }
             //-------------------------------------------
-
+            **/
 
             var rng = new Random();
             var result =  Enumerable.Range(1, 5).Select(index => new WeatherForecast
@@ -62,6 +66,8 @@ namespace Trouvaille3.Controllers
                 Summary = Summaries[rng.Next(Summaries.Length)]
             })
             .ToArray();
+
+            _mailService.SendEmailAsync("yazici98@gmx.de", "Registration", "thank you for your registration");
             return Ok(result);
         }
     }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Trouvaille.Services.MailService
 {
-    interface IMailService
+    public interface IMailService
     {
         void SendEmailAsync(string toEmail, string subject, string content);
     }

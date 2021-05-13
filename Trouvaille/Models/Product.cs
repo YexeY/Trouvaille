@@ -34,7 +34,7 @@ namespace Trouvaille_WebAPI.Models
 
         public Guid? PictureId { get; set; }
 
-        public virtual Picture? picture { get; set; }
+        public virtual Picture? Picture { get; set; }
 
         [Column(TypeName = "decimal(16,2)")]
         public decimal AverageRating { get; set; }

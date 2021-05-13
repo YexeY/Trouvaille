@@ -47,7 +47,7 @@ namespace Trouvaille.Models.Communication.Product
             Description = product.Description;
             ManufacturerId = product.ManufacturerId;
             InStock = product.InStock;
-            Picture = product.picture;
+            Picture = product.Picture;
             Name = product.Name;
             PictureId = product.PictureId;
             Price = product.Price;

@@ -10,6 +10,8 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using AuthoDemoMVC.Data;
@@ -17,6 +19,7 @@ using AuthoDemoMVC.Data.CustomerService;
 using AuthoDemoMVC.Data.EmployeeService;
 using AuthoDemoMVC.Data.UserService;
 using AuthoDemoMVC.Models;
+using FluentEmail.Smtp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -39,7 +42,8 @@ namespace Trouvaille3
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
+                    c => c.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
 
             //allow Cors
@@ -82,6 +86,22 @@ namespace Trouvaille3
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Trouvaille3", Version = "v1" });
             });
+
+            //CONFIGURE EMAIL
+            var from = Configuration.GetSection("Email")["From"];
+            var gmailSender = Configuration.GetSection("Gmail")["Sender"];
+            var gmailPassword = Configuration.GetSection("Gmail")["Password"];
+            var gmailPort = Convert.ToInt32(Configuration.GetSection("Gmail")["Port"]);
+
+            services.AddFluentEmail(gmailSender, from)
+                .AddRazorRenderer()
+                .AddSmtpSender(new SmtpClient("smtp.gmail.com")
+                {
+                    UseDefaultCredentials = false,
+                    Port = gmailPort,
+                    Credentials = new NetworkCredential(gmailPassword, gmailPassword),
+                    EnableSsl = true
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

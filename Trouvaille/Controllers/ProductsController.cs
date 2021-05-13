@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AuthoDemoMVC.Data;
 using AuthoDemoMVC.Models.Communication;
@@ -29,7 +30,7 @@ namespace Trouvaille_WEB_API.Controllers
         {
             var products = await _context.Product
                 .Include(b => b.ProductCategories)
-                .Include(p => p.picture)
+                .Include(p => p.Picture)
                 .Include(p => p.Ratings)
                 .ToListAsync();
             ICollection<GetProductViewModel> getProductViewModels = new List<GetProductViewModel>();
@@ -51,7 +52,7 @@ namespace Trouvaille_WEB_API.Controllers
                 .Skip(from)
                 .Take((to - from))
                 //.Include(b => b.ProductCategories)
-                .Include(p => p.picture)
+                .Include(p => p.Picture)
                 //.Include(p => p.Ratings)
                 .ToListAsync();
             ICollection<GetProductViewModel> getProductViewModels = new List<GetProductViewModel>();
@@ -76,7 +77,7 @@ namespace Trouvaille_WEB_API.Controllers
                 var products =
                     await _context.Product
                         .Include(b => b.ProductCategories)
-                        .Include(p => p.picture)
+                        .Include(p => p.Picture)
                         .Include(p => p.Ratings)
                         .Where(p => p.ProductCategories.Contains(
                             _context.Category.FirstOrDefault(c => c.CategoryId == categoryId))).ToListAsync();
@@ -105,7 +106,7 @@ namespace Trouvaille_WEB_API.Controllers
             //var product = await _context.Product.Include(b => b.ProductCategories).FindAsync(id);
             var product = await _context.Product
                 .Include(b => b.ProductCategories)
-                .Include(p => p.picture)
+                .Include(p => p.Picture)
                 .Include(p => p.Ratings)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
 
@@ -159,7 +160,7 @@ namespace Trouvaille_WEB_API.Controllers
             {
                 var product = await _context.Product
                     .Include(b => b.ProductCategories)
-                    .Include(p => p.picture)
+                    .Include(p => p.Picture)
                     .Include(p => p.Ratings)
                     .FirstOrDefaultAsync(p => p.ProductId == productId);
                 if (product == null)
@@ -170,6 +171,15 @@ namespace Trouvaille_WEB_API.Controllers
             }
 
             return Ok(getProductViewModels);
+        }
+
+        // GET: api/Products/Count
+        [HttpGet]
+        [Route("Count")]
+        public async Task<ActionResult<int>> GetNumberOfProducts()
+        {
+            var count = await _context.Product.CountAsync();
+            return Ok(count);
         }
 
         // POST: api/Product/5/addCategory
@@ -250,7 +260,7 @@ namespace Trouvaille_WEB_API.Controllers
                 InStock = model.InStock,
                 MinStock = model.MinStock,
                 Tax = model.Tax,
-                picture = picture,
+                Picture = picture,
                 ProductCategories = categories,
                 RatingCounter = 0
             };

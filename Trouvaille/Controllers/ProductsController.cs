@@ -167,6 +167,8 @@ namespace Trouvaille_WEB_API.Controllers
                         return NotFound($"Category with id ={categoryId} not found");
                     }
                     product.ProductCategories.Add(category);
+                    category.ProductCounter += 1;
+                    _context.Entry(category).State = EntityState.Modified;
                 }
             }
 

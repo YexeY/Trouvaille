@@ -66,6 +66,7 @@ namespace AuthoDemoMVC.Controllers
             return getCategory;
         }
 
+        /**
         // PUT: api/Categories/5/AddProducts
         [HttpPut("{id}/AddProducts")]
         public async Task<IActionResult> PutCategory(Guid id, [FromBody]ICollection<Guid> productIds)
@@ -107,6 +108,7 @@ namespace AuthoDemoMVC.Controllers
 
             return NoContent();
         }
+        **/
 
         // POST: api/Categories
         [HttpPost]

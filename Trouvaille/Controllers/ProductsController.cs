@@ -38,6 +38,7 @@ namespace Trouvaille_WEB_API.Controllers
                 var productView = new GetProductViewModel(product);
                 getProductViewModels.Add(productView);
             }
+
             return Ok(getProductViewModels);
         }
 
@@ -59,29 +60,32 @@ namespace Trouvaille_WEB_API.Controllers
                 var productView = new GetProductViewModel(product);
                 getProductViewModels.Add(productView);
             }
+
             return Ok(getProductViewModels);
         }
 
         // POST: api/Products/filtered
         [HttpPost]
         [Route("filtered")]
-        public async Task<ActionResult<ICollection<Product>>> GetProductFiltered([FromBody]ICollection<Guid> categoryIds)
+        public async Task<ActionResult<ICollection<Product>>> GetProductFiltered(
+            [FromBody] ICollection<Guid> categoryIds)
         {
             IEnumerable<Product> finalCollection = null;
             foreach (var categoryId in categoryIds)
             {
-                var products = 
+                var products =
                     await _context.Product
                         .Include(b => b.ProductCategories)
                         .Include(p => p.picture)
                         .Include(p => p.Ratings)
                         .Where(p => p.ProductCategories.Contains(
-                    _context.Category.FirstOrDefault(c => c.CategoryId == categoryId))).ToListAsync();
+                            _context.Category.FirstOrDefault(c => c.CategoryId == categoryId))).ToListAsync();
 
                 finalCollection ??= products;
                 finalCollection = finalCollection.Intersect(products);
 
             }
+
             if (finalCollection == null) return Ok((ICollection<Product>) null);
 
             ICollection<GetProductViewModel> getProductViews = new List<GetProductViewModel>();
@@ -90,6 +94,7 @@ namespace Trouvaille_WEB_API.Controllers
                 var productViewModel = new GetProductViewModel(product);
                 getProductViews.Add(productViewModel);
             }
+
             return Ok(getProductViews);
         }
 
@@ -143,7 +148,31 @@ namespace Trouvaille_WEB_API.Controllers
             return NoContent();
         }
 
-        //POST: api/Product/5/addCategory
+
+        // POST: api/Products/GetMultiple
+        [HttpPost]
+        [Route("GetMultiple")]
+        public async Task<ActionResult<GetProductViewModel>> GetMultipleProducts([FromBody] ICollection<Guid> productIds)
+        {
+            ICollection<GetProductViewModel> getProductViewModels = new List<GetProductViewModel>();
+            foreach (var productId in productIds)
+            {
+                var product = await _context.Product
+                    .Include(b => b.ProductCategories)
+                    .Include(p => p.picture)
+                    .Include(p => p.Ratings)
+                    .FirstOrDefaultAsync(p => p.ProductId == productId);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                getProductViewModels.Add(new GetProductViewModel(product));
+            }
+
+            return Ok(getProductViewModels);
+        }
+
+        // POST: api/Product/5/addCategory
         [HttpPost]
         [Route("{id}/addCategory")]
         public async Task<IActionResult> AddCategoryToProduct(Guid id,[FromBody]ICollection<Guid> categoryIds)

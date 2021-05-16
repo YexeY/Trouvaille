@@ -95,14 +95,15 @@ namespace Trouvaille3
             var gmailPassword = Configuration.GetSection("Gmail")["Password"];
             var gmailPort = Convert.ToInt32(Configuration.GetSection("Gmail")["Port"]);
 
+
             services.AddFluentEmail(gmailSender, from)
                 .AddRazorRenderer()
                 .AddSmtpSender(new SmtpClient("smtp.gmail.com")
                 {
                     UseDefaultCredentials = false,
                     Port = gmailPort,
-                    Credentials = new NetworkCredential(gmailPassword, gmailPassword),
-                    EnableSsl = true
+                    Credentials = new NetworkCredential(gmailSender, gmailPassword),
+                    EnableSsl = true,
                 });
         }
 

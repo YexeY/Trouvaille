@@ -46,7 +46,7 @@ namespace Trouvaille_WEB_API.Controllers
         // GET: api/Products/10/20
         [HttpGet]
         [Route("{from}/{to}")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProductFromTo(int from, int to)
+        public async Task<ActionResult<IEnumerable<GetProductViewModel>>> GetProductFromTo(int from, int to)
         {
             var products = await _context.Product
                 .Skip(from)
@@ -68,7 +68,7 @@ namespace Trouvaille_WEB_API.Controllers
         // POST: api/Products/filtered
         [HttpPost]
         [Route("filtered")]
-        public async Task<ActionResult<ICollection<Product>>> GetProductFiltered(
+        public async Task<ActionResult<ICollection<GetProductViewModel>>> GetProductFiltered(
             [FromBody] ICollection<Guid> categoryIds)
         {
             IEnumerable<Product> finalCollection = null;
@@ -121,12 +121,22 @@ namespace Trouvaille_WEB_API.Controllers
 
         // PUT: api/Products/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(Guid id, Product product)
+        public async Task<IActionResult> PutProduct(Guid id, PostProductViewModel model)
         {
-            if (id != product.ProductId)
+            var product = await _context.Product.FindAsync(id);
+
+            if (product == null)
             {
                 return BadRequest();
             }
+
+            //TODO der REST
+            product.Name = model.Name;
+            product.Description = model.Description;
+            product.MinStock = model.MinStock;
+            product.Price = model.Price;
+            product.Tax = model.Tax;
+            product.InStock = model.InStock;
 
             _context.Entry(product).State = EntityState.Modified;
 

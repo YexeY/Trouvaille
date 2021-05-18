@@ -17,6 +17,9 @@ namespace Trouvaille.Models.Communication.Order
         [Column(TypeName = "Date")]
         public DateTime Date { get; set; }
 
+        [Column(TypeName = "decimal(16,2)")]
+        public decimal TotalCost { get; set; }
+
         public Trouvaille_WebAPI.Globals.Globals.PaymentMethod PaymentMethod { get; set; }
 
         public Trouvaille_WebAPI.Globals.Globals.Shipmentmethod ShipmentMethod { get; set; }
@@ -37,6 +40,7 @@ namespace Trouvaille.Models.Communication.Order
             PaymentMethod = order.PaymentMethod;
             ShipmentMethod = order.ShipmentMethod;
             OrderState = order.OrderState;
+            TotalCost = order.TotalCost;
             DeliveryAddress = new AddressViewModel(order.DeliveryAddress);
             InvoiceAddress = new AddressViewModel(order.InvoiceAddress);
             ICollection<PostOrderProductViewModel> products = new List<PostOrderProductViewModel>();

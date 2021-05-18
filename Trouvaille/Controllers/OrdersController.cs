@@ -146,6 +146,7 @@ namespace AuthoDemoMVC.Controllers
             foreach (var VARIABLE in model.Products)
             {
                 var product = _context.Product.Find(VARIABLE.ProductId);
+
                 if (product == null)
                 {    continue;}
 
@@ -161,6 +162,7 @@ namespace AuthoDemoMVC.Controllers
                     //TODO sth
                     Console.WriteLine("Dont have that many in stock");
                 }
+
                 product.InStock -= cardinality;
                 _context.Entry(product).State = EntityState.Modified;
 
@@ -188,6 +190,13 @@ namespace AuthoDemoMVC.Controllers
                 orderProducts.Add(orderProduct);
             }
             order.Products = orderProducts;
+            //Calculate total Cost
+            //TODO what about tax?
+            ICollection<decimal> costList = order.Products.Select(i => i.Cardinality * i.Product.Price).ToList();
+            foreach (var @decimal in costList)
+            {
+                order.TotalCost += @decimal;
+            }
 
             //------------------------------------------
             await _context.Order.AddAsync(order);

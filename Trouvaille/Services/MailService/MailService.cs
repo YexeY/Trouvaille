@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AuthoDemoMVC.Models;
 using FluentEmail.Core;
+using FluentEmail.Razor;
 using FluentEmail.Smtp;
 using Microsoft.Extensions.Logging;
 using Trouvaille_WebAPI.Models;
@@ -19,7 +20,8 @@ namespace Trouvaille.Services.MailService
         public MailService(IFluentEmail fluentEmail)
         {
             _fluentEmail = fluentEmail;
-            Email.DefaultSender = _fluentEmail.Sender; 
+            Email.DefaultSender = _fluentEmail.Sender;
+            //Email.DefaultRenderer = new RazorRenderer();
         }
 
         public async Task<bool> SendEmailAsync(string toEmail, string subject, string content)
@@ -80,7 +82,7 @@ namespace Trouvaille.Services.MailService
             return true;
         }
 
-        public async Task<bool> SendOrderConfirmationEmail(ApplicationUser customer, Order order)
+        public async Task<bool> SendOrderConfirmationEmailAsync(ApplicationUser customer, Order order)
         {
             if (customer == null || order == null)
             {
@@ -88,20 +90,19 @@ namespace Trouvaille.Services.MailService
             }
 
             var template = new StringBuilder();
-            template.AppendLine("Hello @Model.FirstName,");
-            template.AppendLine("Thank you for your Order!");
-            template.AppendLine("Invoice Number: @Model.InvoiceId");
-            template.AppendLine("Total Cost: @Model.TotalCost");
-            template.AppendLine("With the best Regard");
-            template.AppendLine("your Trouvaille Online-Shop");
+            template.AppendLine($"<p>Hello {customer.FirstName},</p>");
+            template.AppendLine("<p>Thank you for your Order!</p>");
+            template.AppendLine($"<p>Invoice Number: {order.Invoice_Id}</p>");
+            template.AppendLine($"<p>Total Cost: {order.TotalCost}</p>");
+            template.AppendLine("<p>With the best Regard</p>");
+            template.AppendLine("<p>your Trouvaille Online-Shop</p>");
 
-            //TODO add cost
             var email = Email
                 .From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
                 .To(customer.Email)
                 .Subject("Order confirmation")
                 .UsingTemplate(template.ToString(),
-                    new {FirstName = customer.FirstName, InvoiceId = order.Invoice_Id,});
+                    new {FirstName = customer.FirstName, InvoiceId = order.Invoice_Id, TotalCost = order.TotalCost});
             try
             {
                 await email.SendAsync();

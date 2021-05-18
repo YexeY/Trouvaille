@@ -12,6 +12,7 @@ using AuthoDemoMVC.Models.Communication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Trouvaille.Models.Communication.Order;
+using Trouvaille.Services.MailService;
 using Trouvaille_WebAPI.Models;
 
 namespace AuthoDemoMVC.Controllers
@@ -21,10 +22,12 @@ namespace AuthoDemoMVC.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMailService _mailService;
 
-        public OrdersController(ApplicationDbContext context)
+        public OrdersController(ApplicationDbContext context, IMailService mailService)
         {
             _context = context;
+            _mailService = mailService;
         }
 
         // GET: api/Orders
@@ -201,6 +204,8 @@ namespace AuthoDemoMVC.Controllers
             //------------------------------------------
             await _context.Order.AddAsync(order);
             await _context.SaveChangesAsync();
+
+            _mailService.SendOrderConfirmationEmailAsync(user, order);
 
             var getOrderViewModel = new GetOrderViewModel(order);
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, getOrderViewModel);

@@ -20,7 +20,8 @@ namespace Trouvaille_WebAPI.Models
         [Column(TypeName = "Date")]
         public DateTime Date { get; set; }
 
-        public int TotalCost { get; set; }
+        [Column(TypeName = "decimal(16,2)")]
+        public decimal TotalCost { get; set; }
 
         public Globals.Globals.PaymentMethod PaymentMethod { get; set; }
 

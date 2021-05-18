@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Net;
 using System.Net.Mail;
+using System.Threading.Tasks;
 using FluentEmail.Core;
 using FluentEmail.Smtp;
+using Microsoft.Extensions.Logging;
 
 namespace Trouvaille.Services.MailService
 {
@@ -13,26 +15,20 @@ namespace Trouvaille.Services.MailService
         public MailService(IFluentEmail fluentEmail)
         {
             _fluentEmail = fluentEmail;
+            Email.DefaultSender = _fluentEmail.Sender;
         }
 
-        public async void SendEmailAsync(string toEmail, string subject, string content)
+        public async Task<bool> SendEmailAsync(string toEmail, string subject, string content)
         {
-            var sender = new SmtpSender(() => new SmtpClient("smtp.gmail.com")
+            if (content == null || subject == null || toEmail == null)
             {
-                UseDefaultCredentials = false,
-                Port = 587,
-                Credentials = new NetworkCredential("trouvaille.customerservice@gmail.com", "cuA3GJcMfmXeB5x"),
-                EnableSsl = true
-            });
-
-            Email.DefaultSender = sender;
-
+                return false;
+            };
             var email = Email
                 .From("trouvaille.customerservice@gmail.com", "Trouvaille Company")
-                .To("yazici98@gmx.de")
-                .Subject("Hello there")
-                .Body("Wie gehts dir denn?");
-
+                .To(toEmail)
+                .Subject(subject)
+                .Body(content);
             try
             {
                 await email.SendAsync();
@@ -42,6 +38,8 @@ namespace Trouvaille.Services.MailService
                 Console.WriteLine(e);
                 throw;
             }
+
+            return true;
         }
     }
 }

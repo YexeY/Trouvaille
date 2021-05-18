@@ -7,6 +7,6 @@ namespace Trouvaille.Services.MailService
 {
     public interface IMailService
     {
-        void SendEmailAsync(string toEmail, string subject, string content);
+        Task<bool> SendEmailAsync(string toEmail, string subject, string content);
     }
 }

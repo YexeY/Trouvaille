@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Trouvaille.Models.Communication.Customer;
+using Trouvaille.Services.MailService;
 using Trouvaille_WebAPI.Models;
 
 namespace AuthoDemoMVC.Data.CustomerService
@@ -26,15 +27,15 @@ namespace AuthoDemoMVC.Data.CustomerService
         private readonly UserManager<ApplicationUser> _userManger;
         private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _context;
-        //private IMailService _mailService;
+        private readonly IMailService _mailService;
 
 
-        public CustomerService(UserManager<ApplicationUser> userManager, IConfiguration configuration, ApplicationDbContext context)
+        public CustomerService(UserManager<ApplicationUser> userManager, IConfiguration configuration, ApplicationDbContext context, IMailService mailService)
         {
             _userManger = userManager;
             _configuration = configuration;
             _context = context;
-            //_mailService = mailService;
+            _mailService = mailService;
         }
 
         public async Task<UserManagerResponse> RegisterCustomerAsync(RegisterCustomerViewModel model)
@@ -101,6 +102,8 @@ namespace AuthoDemoMVC.Data.CustomerService
 
             if (result.Succeeded)
             {
+                await _mailService.SendRegistrationConfirmationCustomerAsync(customer);
+                //TODO error handling
                 return new UserManagerResponse
                 {
                     Message = "User created successfully!",

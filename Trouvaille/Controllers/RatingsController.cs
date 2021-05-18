@@ -156,6 +156,12 @@ namespace Trouvaille.Controllers
                 return NotFound();
             }
 
+            var product = await _context.Product.FindAsync(rating.ProductId);
+            product.RatingCounter -= 1;
+            product.AverageRating = (product.AverageRating * (product.RatingCounter + 1) - rating.StarCount) /
+                                    product.AverageRating;
+            _context.Entry(product).State = EntityState.Modified;
+
             _context.Rating.Remove(rating);
             await _context.SaveChangesAsync();
 

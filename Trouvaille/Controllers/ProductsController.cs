@@ -137,8 +137,62 @@ namespace Trouvaille_WEB_API.Controllers
             product.Price = model.Price;
             product.Tax = model.Tax;
             product.InStock = model.InStock;
+            product.ManufacturerId = model.ManufacturerId;
+            product.Manufacturer = await _context.Manufacturer.FindAsync(model.ManufacturerId);
 
             _context.Entry(product).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ProductExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // PUT: api/Product/5/image
+        [HttpPut]
+        [Route("{id}/image")]
+        public async Task<IActionResult> PutProductImage(Guid id, PostProductViewModel model)
+        {
+            var product = await _context.Product
+                .Include(p => p.Picture)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            if (product == null)
+            {
+                return BadRequest();
+            }
+
+            //TODO der REST
+            if (product.Picture != null)
+            {
+                product.Picture.ImageTitle = model.ImageTitle;
+                product.Picture.ImageData = model.ImageData;
+
+                _context.Entry(product.Picture).State = EntityState.Modified;
+            }
+            else
+            {
+                product.Picture = new Picture()
+                {
+                    ImageData = model.ImageData,
+                    ImageTitle = model.ImageTitle,
+                    PictureId = Guid.NewGuid()
+                };
+                _context.Entry(product).State = EntityState.Modified;
+            }
 
             try
             {
@@ -192,7 +246,7 @@ namespace Trouvaille_WEB_API.Controllers
             return Ok(count);
         }
 
-        // POST: api/Product/5/addCategory
+        // POST: api/Products/5/addCategory
         [HttpPost]
         [Route("{id}/addCategory")]
         public async Task<IActionResult> AddCategoryToProduct(Guid id,[FromBody]ICollection<Guid> categoryIds)
@@ -217,6 +271,40 @@ namespace Trouvaille_WEB_API.Controllers
                     }
                     product.ProductCategories.Add(category);
                     category.ProductCounter += 1;
+                    _context.Entry(category).State = EntityState.Modified;
+                }
+            }
+
+            _context.Entry(product).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        // POST: api/Products/5/deleteCategory
+        [HttpPost]
+        [Route("{id}/deleteCategory")]
+        public async Task<IActionResult> DeleteCategoryToProduct(Guid id, [FromBody] ICollection<Guid> categoryIds)
+        {
+            var product = await _context.Product
+                .Include(p => p.ProductCategories)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            if (product == null)
+            {
+                return NotFound($"Product with id:{id} not found");
+            }
+
+            foreach (var categoryId in categoryIds)
+            {
+                if (product.ProductCategories.Any(c => c.CategoryId == categoryId) == true)
+                {
+                    var category = await _context.Category.FindAsync(categoryId);
+                    if (category == null)
+                    {
+                        return NotFound($"Category with id ={categoryId} not found");
+                    }
+                    product.ProductCategories.Remove(category);
+                    category.ProductCounter -= 1;
                     _context.Entry(category).State = EntityState.Modified;
                 }
             }

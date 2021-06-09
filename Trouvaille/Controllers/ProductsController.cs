@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Results;
 using AuthoDemoMVC.Data;
 using AuthoDemoMVC.Models.Communication;
 using Microsoft.AspNetCore.Http;
@@ -13,7 +18,7 @@ using Trouvaille_WebAPI.Models;
 
 namespace Trouvaille_WEB_API.Controllers
 {
-    [Route("api/[controller]")]
+    [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
@@ -25,7 +30,7 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // GET: api/Products
-        [HttpGet]
+        [Microsoft.AspNetCore.Mvc.HttpGet]
         public async Task<ActionResult<ICollection<GetProductViewModel>>> GetProduct()
         {
             var products = await _context.Product
@@ -44,8 +49,8 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // GET: api/Products/10/20
-        [HttpGet]
-        [Route("{from}/{to}")]
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Microsoft.AspNetCore.Mvc.Route("{from}/{to}")]
         public async Task<ActionResult<IEnumerable<GetProductViewModel>>> GetProductFromTo(int from, int to)
         {
             var products = await _context.Product
@@ -66,10 +71,10 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // POST: api/Products/filtered
-        [HttpPost]
-        [Route("filtered")]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("filtered")]
         public async Task<ActionResult<ICollection<GetProductViewModel>>> GetProductFiltered(
-            [FromBody] ICollection<Guid> categoryIds)
+            [Microsoft.AspNetCore.Mvc.FromBody] ICollection<Guid> categoryIds)
         {
             IEnumerable<Product> finalCollection = null;
             foreach (var categoryId in categoryIds)
@@ -100,7 +105,7 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // GET: api/Products/5
-        [HttpGet("{id}")]
+        [Microsoft.AspNetCore.Mvc.HttpGet("{id}")]
         public async Task<ActionResult<GetProductViewModel>> GetProduct(Guid id)
         {
             //var product = await _context.Product.Include(b => b.ProductCategories).FindAsync(id);
@@ -120,7 +125,7 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // PUT: api/Products/5
-        [HttpPut("{id}")]
+        [Microsoft.AspNetCore.Mvc.HttpPut("{id}")]
         public async Task<IActionResult> PutProduct(Guid id, PostProductViewModel model)
         {
             var product = await _context.Product.FindAsync(id);
@@ -162,8 +167,8 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // PUT: api/Product/5/image
-        [HttpPut]
-        [Route("{id}/image")]
+        [Microsoft.AspNetCore.Mvc.HttpPut]
+        [Microsoft.AspNetCore.Mvc.Route("{id}/image")]
         public async Task<IActionResult> PutProductImage(Guid id, PostProductViewModel model)
         {
             var product = await _context.Product
@@ -215,9 +220,9 @@ namespace Trouvaille_WEB_API.Controllers
 
 
         // POST: api/Products/GetMultiple
-        [HttpPost]
-        [Route("GetMultiple")]
-        public async Task<ActionResult<GetProductViewModel>> GetMultipleProducts([FromBody] ICollection<Guid> productIds)
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("GetMultiple")]
+        public async Task<ActionResult<GetProductViewModel>> GetMultipleProducts([Microsoft.AspNetCore.Mvc.FromBody] ICollection<Guid> productIds)
         {
             ICollection<GetProductViewModel> getProductViewModels = new List<GetProductViewModel>();
             foreach (var productId in productIds)
@@ -238,8 +243,8 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // GET: api/Products/Count
-        [HttpGet]
-        [Route("Count")]
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Microsoft.AspNetCore.Mvc.Route("Count")]
         public async Task<ActionResult<int>> GetNumberOfProducts()
         {
             var count = await _context.Product.CountAsync();
@@ -247,9 +252,9 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // POST: api/Products/5/addCategory
-        [HttpPost]
-        [Route("{id}/addCategory")]
-        public async Task<IActionResult> AddCategoryToProduct(Guid id,[FromBody]ICollection<Guid> categoryIds)
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("{id}/addCategory")]
+        public async Task<IActionResult> AddCategoryToProduct(Guid id,[Microsoft.AspNetCore.Mvc.FromBody]ICollection<Guid> categoryIds)
         {
             var product = await _context.Product
                 .Include(p => p.ProductCategories)
@@ -281,9 +286,9 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // POST: api/Products/5/deleteCategory
-        [HttpPost]
-        [Route("{id}/deleteCategory")]
-        public async Task<IActionResult> DeleteCategoryToProduct(Guid id, [FromBody] ICollection<Guid> categoryIds)
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("{id}/deleteCategory")]
+        public async Task<IActionResult> DeleteCategoryToProduct(Guid id, [Microsoft.AspNetCore.Mvc.FromBody] ICollection<Guid> categoryIds)
         {
             var product = await _context.Product
                 .Include(p => p.ProductCategories)
@@ -315,7 +320,7 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // POST: api/Products
-        [HttpPost]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
         public async Task<ActionResult<Product>> PostProduct(PostProductViewModel model)
         {
             //Get Manufacturer
@@ -373,7 +378,7 @@ namespace Trouvaille_WEB_API.Controllers
         }
 
         // DELETE: api/Products/5
-        [HttpDelete("{id}")]
+        [Microsoft.AspNetCore.Mvc.HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
             var product = await _context.Product.FindAsync(id);
@@ -387,6 +392,50 @@ namespace Trouvaille_WEB_API.Controllers
 
             return NoContent();
         }
+
+        // POST: api/Product/searchQuery
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("SearchQuery")]
+        public async Task<ActionResult<GetProductViewModel>> SearchQueryProduct(string searchWord,
+              bool asc, ICollection<Guid> categoryIds, string orderBy = "Price")
+        {
+            StringBuilder query = new StringBuilder();
+            query.AppendLine("  select * from Product P where ProductId IN (");
+            //---------------------------------
+            query.AppendLine($"  select ProductsProductId from CategoryProduct  where ProductCategoriesCategoryId = '{categoryIds.ElementAt(0).ToString()}' ");
+            for (int i = 1; i < categoryIds.Count; i++)
+            {
+                var categoryId = categoryIds.ElementAt(i).ToString();
+                query.AppendLine("  Intersect");
+                query.AppendLine($"  select ProductsProductId from CategoryProduct where ProductCategoriesCategoryId = '{categoryIds.ElementAt(i).ToString()}'");
+            }
+            query.AppendLine("  )");
+            query.AppendLine("  and (");
+            query.AppendLine($"     P.Description	LIKE	'%{searchWord}%'");
+            query.AppendLine($"  OR	P.Name			LIKE	'%{searchWord}%'");
+            query.AppendLine("  )");
+            query.AppendLine($"  order by {orderBy}");
+            query.AppendLine(asc ? "  asc" : "  desc");
+
+
+            var products = await _context.Product.FromSqlRaw(query.ToString()).ToListAsync();
+            var getProductsViewModels = new List<GetProductViewModel>();
+            foreach (var product in products)
+            {
+                if (product == null)
+                {
+                    var response = new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent("Employee doesn't exist", System.Text.Encoding.UTF8, "text/plain"),
+                        StatusCode = HttpStatusCode.NotFound
+                    };
+                    throw new HttpResponseException(response);
+                }
+                getProductsViewModels.Add(new GetProductViewModel(product));
+            }
+            return Ok(getProductsViewModels);
+        }
+
 
         private bool ProductExists(Guid id)
         {

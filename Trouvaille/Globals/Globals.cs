@@ -27,7 +27,7 @@ namespace Trouvaille_WebAPI.Globals
             Bestellt,
             Unterwegs,
             Zugestellt,
-            Storniert,
+            Storniert
         }
 
         public enum GermanStates

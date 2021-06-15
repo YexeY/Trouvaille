@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -267,11 +268,47 @@ namespace AuthoDemoMVC.Controllers
         // POST: api/Orders/SearchQuery
         [HttpPost]
         [Route("{from}/{to}")]
-        public async Task<ActionResult<GetOrderViewModel>> SearchQueryOrder(int from, int to, Guid customerId,
-            DateTime fromDateTime, DateTime toDateTime,  int orderState)
+        public async Task<ActionResult<GetOrderViewModel>> SearchQueryOrder(int from, int to, Guid? customerId = null,
+            DateTime? fromDateTime = null, DateTime? toDateTime = null,  int? orderState = null)
         {
+            Boolean and = false;
+            StringBuilder query = new StringBuilder();
+            query.AppendLine("  select * from [Order]");
+            if (customerId != null || fromDateTime != null || toDateTime != null || orderState != null)
+            {
+                query.AppendLine(" where ");
+            }
+            if (customerId != null)
+            {
+                query.AppendLine($"  CustomerId = '{customerId.ToString()}'");
+                and = true;
+            }
 
-            return null;
+            if (fromDateTime != null)
+            {
+                query.AppendLine(and ? " and " : "");
+                query.AppendLine($"  Date >= '{fromDateTime.Value:yyyy’-‘MM’-‘dd}'");
+                and = true;
+            }
+            if (toDateTime != null)
+            {
+                query.AppendLine(and ? " and " : "");
+                query.AppendLine($"  Date >= '{toDateTime.Value:yyyy’-‘MM’-‘dd}'");
+                and = true;
+            }
+            if (orderState != null)
+            {
+                query.AppendLine(and ? " and " : "");
+                query.AppendLine($"  OrderState = {orderState.Value}");
+            }
+            query.AppendLine("  order by Date asc");
+            var orders = await _context.Order.FromSqlRaw(query.ToString())
+                .Skip(from)
+                .Take((to - from))
+                .ToListAsync();
+            var getOrderViewModel = orders.Select(o => new GetOrderViewModel(o)).ToList();
+
+            return Ok(getOrderViewModel);
         }
     }
 }

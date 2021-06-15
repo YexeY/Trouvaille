@@ -430,11 +430,14 @@ namespace Trouvaille_WEB_API.Controllers
                 query.AppendLine($"  OR	P.Name			LIKE	'%{searchWord}%'");
                 query.AppendLine($"  order by {orderBy}");
                 query.AppendLine(asc ? "  asc" : "  desc");
+                query.AppendLine($"OFFSET {from} ROWS");
+                query.AppendLine($"FETCH NEXT {to - from} ROWS ONLY");
+
             }
 
             var products = await _context.Product.FromSqlRaw(query.ToString())
-                .Skip(from)
-                .Take((to - from))
+                //.Skip(from)
+                //.Take((to - from))
                 //.Include(b => b.ProductCategories)
                 .Include(p => p.Picture)
                 //.Include(p => p.Ratings)

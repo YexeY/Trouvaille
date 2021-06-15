@@ -134,7 +134,6 @@ namespace Trouvaille3.Controllers
         // GET: api/auth/Customer/5/10
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Customer/{from}/{to}")]
-        [Microsoft.AspNetCore.Authorization.Authorize]
         public async Task<IActionResult> GetCustomers(int from, int to)
         {
             StringBuilder query = new StringBuilder();
@@ -144,10 +143,17 @@ namespace Trouvaille3.Controllers
             query.AppendLine("  select R.UserId from AspNetUserRoles R");
             query.AppendLine("  where R.RoleId = 1");
             query.AppendLine("  ) order by Id asc");
+            query.AppendLine($"OFFSET {from} ROWS");
+            query.AppendLine($"FETCH NEXT {to - from} ROWS ONLY");
 
             var customers = await _context.Users.FromSqlRaw(query.ToString())
-                .Skip(from)
-                .Take((to - from))
+                //.Skip(from)
+                //.Take((to - from))
+                                .Include(c => c.DeliveryAddress)
+                                .Include(c => c.InvoiceAddress)
+                                .Include(c => c.Orders)
+                                .Include(c => c.InvoiceAddress.City)
+                                .Include(c => c.DeliveryAddress.City)
                 .ToListAsync();
 
             var getCustomerViewModels = new List<GetCustomerViewModel>();

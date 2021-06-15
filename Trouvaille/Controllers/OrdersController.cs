@@ -63,21 +63,6 @@ namespace AuthoDemoMVC.Controllers
             return getOrderViewModels;
         }
 
-        // GET: api/Orders
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetOrderViewModel>>> GetOrdersFromTo()
-        {
-            var orders = await _context.Order
-                .Include(o => o.DeliveryAddress)
-                .Include(o => o.InvoiceAddress)
-                .Include(o => o.DeliveryAddress.City)
-                .Include(o => o.InvoiceAddress.City)
-                .Include(o => o.Products)
-                .ToListAsync();
-            var getOrderViewModels = orders.Select(p => new GetOrderViewModel(p)).ToList();
-            return getOrderViewModels;
-        }
-
         // GET: api/Orders/5
         [HttpGet("{id}")]
         public async Task<ActionResult<GetOrderViewModel>> GetOrder(Guid id)
@@ -272,11 +257,13 @@ namespace AuthoDemoMVC.Controllers
             DateTime? fromDateTime = null, DateTime? toDateTime = null,  int? orderState = null)
         {
             Boolean and = false;
+            Boolean where = false;
             StringBuilder query = new StringBuilder();
-            query.AppendLine("  select * from [Order]");
+            query.AppendLine("  select * from [Order] O");
             if (customerId != null || fromDateTime != null || toDateTime != null || orderState != null)
             {
-                query.AppendLine(" where ");
+                query.AppendLine(" where (");
+                where = true;
             }
             if (customerId != null)
             {
@@ -287,13 +274,13 @@ namespace AuthoDemoMVC.Controllers
             if (fromDateTime != null)
             {
                 query.AppendLine(and ? " and " : "");
-                query.AppendLine($"  Date >= '{fromDateTime.Value:yyyy’-‘MM’-‘dd}'");
+                query.AppendLine($"  Date >= '{fromDateTime.Value:yyyy-MM-dd}'");
                 and = true;
             }
             if (toDateTime != null)
             {
                 query.AppendLine(and ? " and " : "");
-                query.AppendLine($"  Date >= '{toDateTime.Value:yyyy’-‘MM’-‘dd}'");
+                query.AppendLine($"  Date >= '{toDateTime.Value:yyyy-MM-dd}'");
                 and = true;
             }
             if (orderState != null)
@@ -301,10 +288,21 @@ namespace AuthoDemoMVC.Controllers
                 query.AppendLine(and ? " and " : "");
                 query.AppendLine($"  OrderState = {orderState.Value}");
             }
-            query.AppendLine("  order by Date asc");
+
+            query.AppendLine(where ? " ) " : "");
+            query.AppendLine("  order by O.Date");
+            query.AppendLine("asc");
+            query.AppendLine($"OFFSET {from} ROWS");
+            query.AppendLine($"FETCH NEXT {to - from} ROWS ONLY");
+
             var orders = await _context.Order.FromSqlRaw(query.ToString())
-                .Skip(from)
-                .Take((to - from))
+                .Include(o => o.DeliveryAddress)
+                .Include(o => o.InvoiceAddress)
+                .Include(o => o.DeliveryAddress.City)
+                .Include(o => o.InvoiceAddress.City)
+                .Include(o => o.Products)
+                //.Skip(from)
+                //.Take((to - from))
                 .ToListAsync();
             var getOrderViewModel = orders.Select(o => new GetOrderViewModel(o)).ToList();
 

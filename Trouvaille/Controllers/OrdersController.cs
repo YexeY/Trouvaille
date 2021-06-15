@@ -45,6 +45,23 @@ namespace AuthoDemoMVC.Controllers
             return getOrderViewModels;
         }
 
+        // GET: api/Orders/6/11
+        [HttpGet("{from}/{to}")]
+        public async Task<ActionResult<IEnumerable<GetOrderViewModel>>> GetOrderFromTo(int from, int to)
+        {
+            var orders = await _context.Order
+                .Skip(from)
+                .Take(to - from)
+                .Include(o => o.DeliveryAddress)
+                .Include(o => o.InvoiceAddress)
+                .Include(o => o.DeliveryAddress.City)
+                .Include(o => o.InvoiceAddress.City)
+                .Include(o => o.Products)
+                .ToListAsync();
+            var getOrderViewModels = orders.Select(p => new GetOrderViewModel(p)).ToList();
+            return getOrderViewModels;
+        }
+
         // GET: api/Orders
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetOrderViewModel>>> GetOrdersFromTo()
@@ -245,6 +262,16 @@ namespace AuthoDemoMVC.Controllers
         private bool OrderExists(Guid id)
         {
             return _context.Order.Any(e => e.OrderId == id);
+        }
+
+        // POST: api/Orders/SearchQuery
+        [HttpPost]
+        [Route("{from}/{to}")]
+        public async Task<ActionResult<GetOrderViewModel>> SearchQueryOrder(int from, int to, Guid customerId,
+            DateTime fromDateTime, DateTime toDateTime,  int orderState)
+        {
+
+            return null;
         }
     }
 }

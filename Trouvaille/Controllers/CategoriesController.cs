@@ -65,6 +65,20 @@ namespace Trouvaille.Controllers
             return getCategory;
         }
 
+        // GET: api/Categories/5/10
+        [HttpGet("{from}/{to}")]
+        public async Task<ActionResult<GetCategoryViewModel>> GetCategoryFromTo(int from, int to)
+        {
+            var category = await _context.Category
+                .Skip(from)
+                .Take(to - from)
+                .OrderBy(c => c.CategoryId)
+                .ToListAsync();
+
+            var getCategoryViewModels = category.Select(c => new GetCategoryViewModel(c)).ToList();
+
+            return Ok(getCategoryViewModels);
+        }
 
         // POST: api/Categories/GetMultiple
         [HttpPost]

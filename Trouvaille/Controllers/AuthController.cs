@@ -131,7 +131,7 @@ namespace Trouvaille3.Controllers
             return Ok(result);
         }
 
-
+        // GET: api/auth/Customer/5/10
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Customer/{from}/{to}")]
         [Microsoft.AspNetCore.Authorization.Authorize]

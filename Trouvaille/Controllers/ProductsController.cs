@@ -393,10 +393,10 @@ namespace Trouvaille_WEB_API.Controllers
             return NoContent();
         }
 
-        // POST: api/Product/searchQuery
+        // POST: api/Product/searchQuery/5/10
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("SearchQuery/{from}/{to}")]
-        public async Task<ActionResult<GetProductViewModel>> SearchQueryProduct(int from, int to, string searchWord = "",
+        public async Task<ActionResult<ICollection<GetProductViewModel>>> SearchQueryProduct(int from, int to, string searchWord = "",
               bool asc = true, ICollection<Guid>? categoryIds = null, string orderBy = "Price")
         {
             StringBuilder query = new StringBuilder();

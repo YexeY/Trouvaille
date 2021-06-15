@@ -3,36 +3,45 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web.Http;
+using AuthoDemoMVC.Data;
 using AuthoDemoMVC.Data.CustomerService;
 using AuthoDemoMVC.Data.EmployeeService;
 using AuthoDemoMVC.Data.UserService;
 using AuthoDemoMVC.Models.Communication;
 using AuthoDemoMVC.Models.ViewModels;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Trouvaille.Models.Communication.Customer;
+using Trouvaille.Models.Communication.Product;
 
 namespace Trouvaille3.Controllers
 {
-    [Route("api/[controller]")]
+    [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {
         private readonly IUserService _userService;
         private readonly ICustomerService _customerService;
         private readonly IEmployeeService _employeeService;
+        private readonly ApplicationDbContext _context;
 
-        public AuthController(IUserService userService, ICustomerService customerService, IEmployeeService employeeService)
+        public AuthController(IUserService userService, ICustomerService customerService, IEmployeeService employeeService, ApplicationDbContext context)
         {
             _userService = userService;
             _customerService = customerService;
             _employeeService = employeeService;
+            _context = context;
         }
 
         // POST: api/auth/customer/register
-        [HttpPost]
-        [Route("Customer/Register")]
-        public async Task<IActionResult> RegisterCustomerAsync([FromBody] RegisterCustomerViewModel model)
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("Customer/Register")]
+        public async Task<IActionResult> RegisterCustomerAsync([Microsoft.AspNetCore.Mvc.FromBody] RegisterCustomerViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -50,9 +59,9 @@ namespace Trouvaille3.Controllers
         }
 
         // POST: api/auth/customer/login
-        [HttpPost]
-        [Route("Customer/Login")]
-        public async Task<IActionResult> LoginCustomerAsync([FromBody] LoginCustomerViewModel model)
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("Customer/Login")]
+        public async Task<IActionResult> LoginCustomerAsync([Microsoft.AspNetCore.Mvc.FromBody] LoginCustomerViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -70,9 +79,9 @@ namespace Trouvaille3.Controllers
         }
 
         // POST: api/auth/Employee/register
-        [HttpPost]
-        [Route("Employee/Register")]
-        public async Task<IActionResult> RegisterEmployeeAsync([FromBody] RegisterEmployeeViewModel model)
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("Employee/Register")]
+        public async Task<IActionResult> RegisterEmployeeAsync([Microsoft.AspNetCore.Mvc.FromBody] RegisterEmployeeViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -90,9 +99,9 @@ namespace Trouvaille3.Controllers
         }
 
         // POST: api/auth/Employee/login
-        [HttpPost]
-        [Route("Employee/Login")]
-        public async Task<IActionResult> LoginEmployeeAsync([FromBody] LoginEmployeeViewModel model)
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("Employee/Login")]
+        public async Task<IActionResult> LoginEmployeeAsync([Microsoft.AspNetCore.Mvc.FromBody] LoginEmployeeViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -111,9 +120,9 @@ namespace Trouvaille3.Controllers
 
 
         // GET: api/auth/Customer/info
-        [HttpGet]
-        [Route("Customer/info")]
-        [Authorize]
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Microsoft.AspNetCore.Mvc.Route("Customer/info")]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         public async Task<IActionResult> GetCustomerInfo()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -123,6 +132,40 @@ namespace Trouvaille3.Controllers
         }
 
 
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Microsoft.AspNetCore.Mvc.Route("Customer/{from}/{to}")]
+        [Microsoft.AspNetCore.Authorization.Authorize]
+        public async Task<IActionResult> GetCustomers(int from, int to)
+        {
+            StringBuilder query = new StringBuilder();
+
+
+            query.AppendLine("  select * from AspNetUsers where Id IN (");
+            query.AppendLine("  select R.UserId from AspNetUserRoles R");
+            query.AppendLine("  where R.RoleId = 1");
+            query.AppendLine("  ) order by Id asc");
+
+            var customers = await _context.Users.FromSqlRaw(query.ToString())
+                .Skip(from)
+                .Take((to - from))
+                .ToListAsync();
+
+            var getCustomerViewModels = new List<GetCustomerViewModel>();
+            foreach (var customer in customers)
+            {
+                if (customer == null)
+                {
+                    var response = new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent("Employee doesn't exist", System.Text.Encoding.UTF8, "text/plain"),
+                        StatusCode = HttpStatusCode.NotFound
+                    };
+                    throw new HttpResponseException(response);
+                }
+                getCustomerViewModels.Add(new GetCustomerViewModel(customer));
+            }
+            return Ok(getCustomerViewModels);
+        }
 
         /**
         // POST: api/auth/register

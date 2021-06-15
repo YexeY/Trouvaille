@@ -45,6 +45,21 @@ namespace AuthoDemoMVC.Controllers
             return getOrderViewModels;
         }
 
+        // GET: api/Orders
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<GetOrderViewModel>>> GetOrdersFromTo()
+        {
+            var orders = await _context.Order
+                .Include(o => o.DeliveryAddress)
+                .Include(o => o.InvoiceAddress)
+                .Include(o => o.DeliveryAddress.City)
+                .Include(o => o.InvoiceAddress.City)
+                .Include(o => o.Products)
+                .ToListAsync();
+            var getOrderViewModels = orders.Select(p => new GetOrderViewModel(p)).ToList();
+            return getOrderViewModels;
+        }
+
         // GET: api/Orders/5
         [HttpGet("{id}")]
         public async Task<ActionResult<GetOrderViewModel>> GetOrder(Guid id)

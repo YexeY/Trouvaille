@@ -395,30 +395,50 @@ namespace Trouvaille_WEB_API.Controllers
 
         // POST: api/Product/searchQuery
         [Microsoft.AspNetCore.Mvc.HttpPost]
-        [Microsoft.AspNetCore.Mvc.Route("SearchQuery")]
-        public async Task<ActionResult<GetProductViewModel>> SearchQueryProduct(string searchWord,
-              bool asc, ICollection<Guid> categoryIds, string orderBy = "Price")
+        [Microsoft.AspNetCore.Mvc.Route("SearchQuery/{from}/{to}")]
+        public async Task<ActionResult<GetProductViewModel>> SearchQueryProduct(int from, int to, string searchWord,
+              bool asc, ICollection<Guid>? categoryIds = null, string orderBy = "Price")
         {
             StringBuilder query = new StringBuilder();
-            query.AppendLine("  select * from Product P where ProductId IN (");
-            //---------------------------------
-            query.AppendLine($"  select ProductsProductId from CategoryProduct  where ProductCategoriesCategoryId = '{categoryIds.ElementAt(0).ToString()}' ");
-            for (int i = 1; i < categoryIds.Count; i++)
+
+            if (categoryIds != null && categoryIds.Count > 0)
             {
-                var categoryId = categoryIds.ElementAt(i).ToString();
-                query.AppendLine("  Intersect");
-                query.AppendLine($"  select ProductsProductId from CategoryProduct where ProductCategoriesCategoryId = '{categoryIds.ElementAt(i).ToString()}'");
+                query.AppendLine("  select * from Product P where ProductId IN (");
+                //---------------------------------
+                query.AppendLine(
+                    $"  select ProductsProductId from CategoryProduct  where ProductCategoriesCategoryId = '{categoryIds.ElementAt(0).ToString()}' ");
+                for (int i = 1; i < categoryIds.Count; i++)
+                {
+                    var categoryId = categoryIds.ElementAt(i).ToString();
+                    query.AppendLine("  Intersect");
+                    query.AppendLine(
+                        $"  select ProductsProductId from CategoryProduct where ProductCategoriesCategoryId = '{categoryIds.ElementAt(i).ToString()}'");
+                }
+
+                query.AppendLine("  )");
+                query.AppendLine("  and (");
+                query.AppendLine($"     P.Description	LIKE	'%{searchWord}%'");
+                query.AppendLine($"  OR	P.Name			LIKE	'%{searchWord}%'");
+                query.AppendLine("  )");
+                query.AppendLine($"  order by {orderBy}");
+                query.AppendLine(asc ? "  asc" : "  desc");
             }
-            query.AppendLine("  )");
-            query.AppendLine("  and (");
-            query.AppendLine($"     P.Description	LIKE	'%{searchWord}%'");
-            query.AppendLine($"  OR	P.Name			LIKE	'%{searchWord}%'");
-            query.AppendLine("  )");
-            query.AppendLine($"  order by {orderBy}");
-            query.AppendLine(asc ? "  asc" : "  desc");
+            else
+            {
+                query.AppendLine("  select * from Product P where");
+                query.AppendLine($"     P.Description	LIKE	'%{searchWord}%'");
+                query.AppendLine($"  OR	P.Name			LIKE	'%{searchWord}%'");
+                query.AppendLine($"  order by {orderBy}");
+                query.AppendLine(asc ? "  asc" : "  desc");
+            }
 
-
-            var products = await _context.Product.FromSqlRaw(query.ToString()).ToListAsync();
+            var products = await _context.Product.FromSqlRaw(query.ToString())
+                .Skip(from)
+                .Take((to - from))
+                //.Include(b => b.ProductCategories)
+                .Include(p => p.Picture)
+                //.Include(p => p.Ratings)
+                .ToListAsync();
             var getProductsViewModels = new List<GetProductViewModel>();
             foreach (var product in products)
             {

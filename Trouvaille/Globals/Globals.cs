@@ -24,7 +24,10 @@ namespace Trouvaille_WebAPI.Globals
 
         public enum OrderState
         {
-
+            Bestellt,
+            Unterwegs,
+            Zugestellt,
+            Storniert,
         }
 
         public enum GermanStates

@@ -308,5 +308,13 @@ namespace AuthoDemoMVC.Controllers
 
             return Ok(getOrderViewModel);
         }
+
+        [HttpGet]
+        [Route("Count")]
+        public async Task<ActionResult<int>> GetNumberOfOrders()
+        {
+            var count = await _context.Order.CountAsync();
+            return Ok(count);
+        }
     }
 }

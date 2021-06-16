@@ -182,5 +182,13 @@ namespace Trouvaille.Controllers
         {
             return _context.Category.Any(e => e.CategoryId == id);
         }
+
+        [HttpGet]
+        [Route("Count")]
+        public async Task<ActionResult<int>> GetNumberOfCategories()
+        {
+            var count = await _context.Category.CountAsync();
+            return Ok(count);
+        }
     }
 }

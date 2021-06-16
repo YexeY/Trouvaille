@@ -67,7 +67,7 @@ namespace Trouvaille.Controllers
 
         // GET: api/Categories/5/10
         [HttpGet("{from}/{to}")]
-        public async Task<ActionResult<GetCategoryViewModel>> GetCategoryFromTo(int from, int to)
+        public async Task<ActionResult<ICollection<GetCategoryViewModel>>> GetCategoryFromTo(int from, int to)
         {
             var category = await _context.Category
                 .Skip(from)
@@ -83,7 +83,7 @@ namespace Trouvaille.Controllers
         // POST: api/Categories/GetMultiple
         [HttpPost]
         [Route("GetMultiple")]
-        public async Task<ActionResult<GetCategoryViewModel>> GetMultipleCategories(ICollection<Guid> categoryIds)
+        public async Task<ActionResult<ICollection<GetCategoryViewModel>>> GetMultipleCategories(ICollection<Guid> categoryIds)
         {
             ICollection<GetCategoryViewModel> getCategoryViewModels = new List<GetCategoryViewModel>();
             foreach (var categoryId in categoryIds)

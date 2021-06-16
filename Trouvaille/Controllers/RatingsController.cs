@@ -33,6 +33,20 @@ namespace Trouvaille.Controllers
             return getRatingViewModels;
         }
 
+        [HttpGet]
+        [Route("{from}/{to}")]
+        public async Task<ActionResult<IEnumerable<GetRatingViewModel>>> GetRatingsFromTo(int from, int to)
+        {
+            var ratings = await _context.Rating
+                .OrderBy(r => r.ProductId)
+                .Skip(from)
+                .Take(to - from)
+                .ToListAsync();
+
+            var getRatingViewModels = ratings.Select(r => new GetRatingViewModel(r)).ToList();
+            return getRatingViewModels;
+        }
+
         // GET: api/Ratings/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Rating>> GetRating(Guid id)

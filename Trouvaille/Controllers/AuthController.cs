@@ -134,7 +134,7 @@ namespace Trouvaille3.Controllers
         // GET: api/auth/Customer/5/10
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Customer/{from}/{to}")]
-        public async Task<IActionResult> GetCustomers(int from, int to)
+        public async Task<ActionResult<ICollection<GetCustomerViewModel>>> GetCustomers(int from, int to)
         {
             StringBuilder query = new StringBuilder();
 
@@ -172,6 +172,59 @@ namespace Trouvaille3.Controllers
             }
             return Ok(getCustomerViewModels);
         }
+
+        // GET: api/auth/Customer/5/10
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Microsoft.AspNetCore.Mvc.Route("Customer/SearchQuery/{from}/{to}")]
+        public async Task<ActionResult<ICollection<GetCustomerViewModel>>> GetCustomersSearchQuery(int from, int to, Guid? customerId, string? customerEmail)
+        {
+            StringBuilder query = new StringBuilder();
+
+
+            query.AppendLine("  select * from AspNetUsers U where Id IN (");
+            query.AppendLine("  select R.UserId from AspNetUserRoles R");
+            query.AppendLine("  where R.RoleId = 1");
+            query.AppendLine("  ) ");
+            if (customerId != null)
+            {
+                query.AppendLine($"  and U.Id = '{customerId.ToString()}' ");
+            }
+            if (customerEmail != null)
+            {
+                query.AppendLine($"  and U.Email = '{customerEmail}' ");
+            }
+            query.AppendLine("  order by Id asc");
+            query.AppendLine($"OFFSET {from} ROWS");
+            query.AppendLine($"FETCH NEXT {to - from} ROWS ONLY");
+
+            var customers = await _context.Users.FromSqlRaw(query.ToString())
+                //.Skip(from)
+                //.Take((to - from))
+                .Include(c => c.DeliveryAddress)
+                .Include(c => c.InvoiceAddress)
+                .Include(c => c.Orders)
+                .Include(c => c.InvoiceAddress.City)
+                .Include(c => c.DeliveryAddress.City)
+                .ToListAsync();
+
+            var getCustomerViewModels = new List<GetCustomerViewModel>();
+            foreach (var customer in customers)
+            {
+                if (customer == null)
+                {
+                    var response = new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent("Employee doesn't exist", System.Text.Encoding.UTF8, "text/plain"),
+                        StatusCode = HttpStatusCode.NotFound
+                    };
+                    throw new HttpResponseException(response);
+                }
+                getCustomerViewModels.Add(new GetCustomerViewModel(customer));
+            }
+            return Ok(getCustomerViewModels);
+        }
+
+
 
         /**
         // POST: api/auth/register

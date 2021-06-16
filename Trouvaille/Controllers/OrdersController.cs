@@ -33,7 +33,7 @@ namespace AuthoDemoMVC.Controllers
 
         // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetOrderViewModel>>> GetOrder()
+        public async Task<ActionResult<ICollection<GetOrderViewModel>>> GetOrder()
         {
             var orders = await _context.Order
                 .Include(o => o.DeliveryAddress)
@@ -48,7 +48,7 @@ namespace AuthoDemoMVC.Controllers
 
         // GET: api/Orders/6/11
         [HttpGet("{from}/{to}")]
-        public async Task<ActionResult<IEnumerable<GetOrderViewModel>>> GetOrderFromTo(int from, int to)
+        public async Task<ActionResult<ICollection<GetOrderViewModel>>> GetOrderFromTo(int from, int to)
         {
             var orders = await _context.Order
                 .Skip(from)
@@ -253,7 +253,7 @@ namespace AuthoDemoMVC.Controllers
         // POST: api/Orders/SearchQuery
         [HttpPost]
         [Route("{from}/{to}")]
-        public async Task<ActionResult<GetOrderViewModel>> SearchQueryOrder(int from, int to, Guid? customerId = null,
+        public async Task<ActionResult<ICollection<GetOrderViewModel>>> SearchQueryOrder(int from, int to, Guid? customerId = null,
             DateTime? fromDateTime = null, DateTime? toDateTime = null,  int? orderState = null)
         {
             Boolean and = false;

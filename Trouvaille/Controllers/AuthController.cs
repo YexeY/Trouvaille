@@ -224,6 +224,19 @@ namespace Trouvaille3.Controllers
             return Ok(getCustomerViewModels);
         }
 
+        // GET: api/Products/Count
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Microsoft.AspNetCore.Mvc.Route("Count")]
+        public async Task<ActionResult<int>> GetNumberOfCustomers()
+        {
+            string query =   " select Count(*) from AspNetUsers U where Id IN ("
+                           + " select R.UserId from AspNetUserRoles R"
+                           + " where R.RoleId = 1"
+                           + " )";
+
+            var count = await _context.Database.ExecuteSqlRawAsync(query);
+            return Ok(count);
+        }
 
 
         /**

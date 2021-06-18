@@ -15,11 +15,8 @@ namespace Trouvaille.Models.Communication.Rating
 
         public string CustomerId { get; set; }
 
-        public ApplicationUser Customer{ get; set; }
-
         public Guid ProductId { get; set; }
 
-        public virtual Trouvaille_WebAPI.Models.Product? Product { get; set; }
 
         [Column(TypeName = "decimal(16,1)")]
         public decimal StarCount { get; set; }
@@ -34,9 +31,7 @@ namespace Trouvaille.Models.Communication.Rating
         {
             RatingId = rating.RatingId;
             CustomerId = rating.CustomerId;
-            Customer = null;
             ProductId = rating.ProductId;
-            Product = null;
             StarCount = rating.StarCount;
             Title = rating.Title;
             Description = rating.Description;

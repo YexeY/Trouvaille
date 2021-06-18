@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -62,30 +63,51 @@ namespace Trouvaille.Controllers
         }
 
         [HttpGet]
-        [Route("Product/{id}")]
-        public async Task<ActionResult<IEnumerable<GetRatingViewModel>>> GetRatingOfProduct(Guid id)
+        [Route("Product/{id}/{from}/{to}")]
+        public async Task<ActionResult<IEnumerable<GetRatingViewModel>>> GetRatingOfProduct(int from, int to, Guid productId)
         {
+            var query = new StringBuilder();
             var product = await _context.Product
-                .Include(p => p.Ratings)
-                .FirstOrDefaultAsync(p => p.ProductId == id);
+                .FirstOrDefaultAsync(p => p.ProductId == productId);
+
             if (product == null)
             {
                 return NotFound();
             }
-            var ratings = product.Ratings?.Select(r => new GetRatingViewModel(r)).ToList();
-            return ratings;
+
+            query.AppendLine($" select * from Rating R");
+            query.AppendLine($" where R.ProductId = '{productId.ToString()}'");
+            query.AppendLine($" Order by R.StarCount");
+            query.AppendLine($" OFFSET {from} ROWS");
+            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
+
+            var ratings = await _context.Rating.FromSqlRaw(query.ToString()).ToListAsync();
+            var getRatingViewModels = ratings.Select(r => new GetRatingViewModel(r)).ToList();
+
+            return Ok(getRatingViewModels);
         }
 
         [HttpGet]
-        [Route("Customer/{id}")]
-        public async Task<ActionResult<IEnumerable<GetRatingViewModel>>> GetRatingOfCustomer(Guid id)
+        [Route("Customer/{id}/{from}/{to}")]
+        public async Task<ActionResult<IEnumerable<GetRatingViewModel>>> GetRatingOfCustomer(int from, int to, Guid customerId)
         {
+            var query = new StringBuilder();
             var user = await _context.Users
-                .Include(u => u.Ratings)
-                .FirstOrDefaultAsync(u => u.Id == id.ToString());
+                .FirstOrDefaultAsync(u => u.Id == customerId.ToString());
+            if (user == null)
+            {
+                return NotFound();
+            }
+            query.AppendLine($" select * from Rating R");
+            query.AppendLine($" where R.CustomerId = '{customerId.ToString()}'");
+            query.AppendLine($" Order by R.StarCount");
+            query.AppendLine($" OFFSET {from} ROWS");
+            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
 
-            var ratings = user.Ratings?.Select(r => new GetRatingViewModel(r)).ToList();
-            return ratings;
+            var ratings = await _context.Rating.FromSqlRaw(query.ToString()).ToListAsync();
+            var getRatingViewModels = ratings.Select(r => new GetRatingViewModel(r)).ToList();
+
+            return Ok(getRatingViewModels);
         }
 
 

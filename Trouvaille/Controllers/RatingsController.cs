@@ -113,12 +113,13 @@ namespace Trouvaille.Controllers
 
         // PUT: api/Ratings/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRating(Guid id, Rating rating)
+        public async Task<IActionResult> PutRating(Guid id, PutRatingViewModel putRatingViewModel)
         {
-            if (id != rating.RatingId)
-            {
-                return BadRequest();
-            }
+            var rating = await _context.Rating.FindAsync(id);
+
+            rating.StarCount = putRatingViewModel.StarCount ?? rating.StarCount;
+            rating.Description = putRatingViewModel.Description ?? rating.Description;
+            rating.Title = putRatingViewModel.Title ?? rating.Title;
 
             _context.Entry(rating).State = EntityState.Modified;
 

@@ -240,6 +240,7 @@ namespace Trouvaille3.Controllers
 
         // PUT: api/auth/Customer
         [Microsoft.AspNetCore.Mvc.HttpPut]
+        [Authorize]
         public async Task<ActionResult<GetCustomerViewModel>> PutCustomer([Microsoft.AspNetCore.Mvc.FromBody] PutCustomerViewModel putCustomerViewModel, Guid? customerId = null)
         {
             string id;

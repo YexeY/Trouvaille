@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Trouvaille.Models.Communication.Order;
 using Trouvaille.Services.MailService;
+using Trouvaille_WebAPI.Globals;
 using Trouvaille_WebAPI.Models;
 
 namespace AuthoDemoMVC.Controllers
@@ -87,38 +88,6 @@ namespace AuthoDemoMVC.Controllers
             var getOrderViewModel = new GetOrderViewModel(order);
             return getOrderViewModel;
         }
-
-        /**
-        // PUT: api/Orders/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(Guid id, Order order)
-        {
-            if (id != order.OrderId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(order).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-        **/
 
         // POST: api/Orders
         [Microsoft.AspNetCore.Authorization.Authorize]
@@ -376,6 +345,37 @@ namespace AuthoDemoMVC.Controllers
 
             return Ok(getOrderViewModels);
         }
+
+
+
+        // PUT: api/Orders/5
+        [Microsoft.AspNetCore.Mvc.HttpPut("{id}")]
+        public async Task<IActionResult> PutOrder(Guid id, Globals.OrderState orderState)
+        {
+
+            var order = await _context.Order.FindAsync(id);
+            order.OrderState = orderState;
+            _context.Entry(order).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!OrderExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
 
     }
 }

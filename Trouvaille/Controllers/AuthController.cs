@@ -238,7 +238,86 @@ namespace Trouvaille3.Controllers
             return Ok(count);
         }
 
+        // PUT: api/auth/Customer
+        [Microsoft.AspNetCore.Mvc.HttpPut]
+        public async Task<ActionResult<GetCustomerViewModel>> PutCustomer([Microsoft.AspNetCore.Mvc.FromBody] PutCustomerViewModel putCustomerViewModel, Guid? customerId = null)
+        {
+            string id;
+            if (customerId == null)
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+                id = userId.Value;
+            }
+            else
+            {
+                id = customerId.ToString();
+            }
 
+            var customer = await _context.Users
+                .Include(c => c.DeliveryAddress)
+                .Include(c => c.InvoiceAddress)
+                .Include(c => c.Orders)
+                .Include(c => c.InvoiceAddress.City)
+                .Include(c => c.DeliveryAddress.City)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+
+
+            customer.FirstName = putCustomerViewModel.FirstName ?? customer.FirstName;
+            customer.LastName = putCustomerViewModel.LastName ?? customer.LastName;
+            customer.PhoneNumber = putCustomerViewModel.PhoneNumber ?? customer.PhoneNumber;
+            customer.Email = putCustomerViewModel.Email ?? customer.Email; 
+
+            if (putCustomerViewModel.DeliveryAddress != null)
+            {
+                customer.DeliveryAddress.State =
+                    putCustomerViewModel.DeliveryAddress.State ?? customer.DeliveryAddress.State;
+                customer.DeliveryAddress.Country =
+                    putCustomerViewModel.DeliveryAddress.Country ?? customer.DeliveryAddress.Country;
+                customer.DeliveryAddress.Street =
+                    putCustomerViewModel.DeliveryAddress.Street ?? customer.DeliveryAddress.Street;
+                customer.DeliveryAddress.StreetNumber =
+                    putCustomerViewModel.DeliveryAddress.StreetNumber ?? customer.DeliveryAddress.StreetNumber;
+                customer.DeliveryAddress.City.Name =
+                    putCustomerViewModel.DeliveryAddress.CityName ?? customer.DeliveryAddress.City.Name;
+                customer.DeliveryAddress.City.PostalCode=
+                    putCustomerViewModel.DeliveryAddress.PostalCode ?? customer.DeliveryAddress.City.PostalCode;
+            }
+
+            if (putCustomerViewModel.InvoiceAddress != null)
+            {
+                customer.InvoiceAddress.State =
+                    putCustomerViewModel.InvoiceAddress.State ?? customer.InvoiceAddress.State;
+                customer.InvoiceAddress.Country =
+                    putCustomerViewModel.InvoiceAddress.Country ?? customer.InvoiceAddress.Country;
+                customer.InvoiceAddress.Street =
+                    putCustomerViewModel.InvoiceAddress.Street ?? customer.InvoiceAddress.Street;
+                customer.InvoiceAddress.StreetNumber =
+                    putCustomerViewModel.InvoiceAddress.StreetNumber ?? customer.InvoiceAddress.StreetNumber;
+                customer.InvoiceAddress.City.Name =
+                    putCustomerViewModel.InvoiceAddress.CityName ?? customer.InvoiceAddress.City.Name;
+                customer.InvoiceAddress.City.PostalCode =
+                    putCustomerViewModel.InvoiceAddress.PostalCode ?? customer.InvoiceAddress.City.PostalCode;
+            }
+
+            _context.Entry(customer).State = EntityState.Modified;
+            _context.Entry(customer.DeliveryAddress).State = EntityState.Modified;
+            _context.Entry(customer.InvoiceAddress).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                //TODO: proper error handling
+                Console.WriteLine(e);
+                throw;
+            }
+
+            var getCustomerViewModel = new GetCustomerViewModel(customer);
+            return Ok(getCustomerViewModel);
+        }
         
 
 

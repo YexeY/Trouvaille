@@ -1,24 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AuthoDemoMVC.Data;
 using AuthoDemoMVC.Models;
 using AuthoDemoMVC.Models.Communication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Trouvaille.Models.Communication.Order;
 using Trouvaille.Services.MailService;
 using Trouvaille_WebAPI.Models;
 
 namespace AuthoDemoMVC.Controllers
 {
-    [Route("api/[controller]")]
+    [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [ApiController]
     public class OrdersController : ControllerBase
     {
@@ -32,7 +36,7 @@ namespace AuthoDemoMVC.Controllers
         }
 
         // GET: api/Orders
-        [HttpGet]
+        [Microsoft.AspNetCore.Mvc.HttpGet]
         public async Task<ActionResult<ICollection<GetOrderViewModel>>> GetOrder()
         {
             var orders = await _context.Order
@@ -47,7 +51,7 @@ namespace AuthoDemoMVC.Controllers
         }
 
         // GET: api/Orders/6/11
-        [HttpGet("{from}/{to}")]
+        [Microsoft.AspNetCore.Mvc.HttpGet("{from}/{to}")]
         public async Task<ActionResult<ICollection<GetOrderViewModel>>> GetOrderFromTo(int from, int to)
         {
             var orders = await _context.Order
@@ -64,7 +68,7 @@ namespace AuthoDemoMVC.Controllers
         }
 
         // GET: api/Orders/5
-        [HttpGet("{id}")]
+        [Microsoft.AspNetCore.Mvc.HttpGet("{id}")]
         public async Task<ActionResult<GetOrderViewModel>> GetOrder(Guid id)
         {
             var order = await _context.Order
@@ -117,8 +121,8 @@ namespace AuthoDemoMVC.Controllers
         **/
 
         // POST: api/Orders
-        [Authorize]
-        [HttpPost]
+        [Microsoft.AspNetCore.Authorization.Authorize]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
         public async Task<ActionResult<GetOrderViewModel>> PostOrder(PostOrderViewModel model)
         {
             //VERIFY USER ROLE
@@ -230,7 +234,7 @@ namespace AuthoDemoMVC.Controllers
         }
 
         // DELETE: api/Orders/5
-        [HttpDelete("{id}")]
+        [Microsoft.AspNetCore.Mvc.HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(Guid id)
         {
             var order = await _context.Order.FindAsync(id);
@@ -251,8 +255,8 @@ namespace AuthoDemoMVC.Controllers
         }
 
         // POST: api/Orders/SearchQuery
-        [HttpPost]
-        [Route("{from}/{to}")]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("{from}/{to}")]
         public async Task<ActionResult<ICollection<GetOrderViewModel>>> SearchQueryOrder(int from, int to, Guid? customerId = null,
             DateTime? fromDateTime = null, DateTime? toDateTime = null,  int? orderState = null)
         {
@@ -309,12 +313,69 @@ namespace AuthoDemoMVC.Controllers
             return Ok(getOrderViewModel);
         }
 
-        [HttpGet]
-        [Route("Count")]
+        // GET: api/Orders/Count
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Microsoft.AspNetCore.Mvc.Route("Count")]
         public async Task<ActionResult<int>> GetNumberOfOrders()
         {
             var count = await _context.Order.CountAsync();
             return Ok(count);
         }
+
+        //Post: api/Orders/History
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("History/{from}/{to}")]
+        //[Microsoft.AspNetCore.Authorization.Authorize]
+        public async Task<ActionResult<ICollection<GetOrderViewModel>>> GetHistory(int from, int to
+            , Guid? customerId = null)
+        {
+            string id;
+            if (customerId == null)
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (userId == null)
+                {
+                    var response = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("Customer Id Could Not Be Found"),
+                        ReasonPhrase = "Unclear why this could be the Case, contact Admin"
+                    };
+
+                    throw new HttpResponseException(response);
+                }
+                id = userId.Value;
+            }   
+            else
+            {
+                id = customerId.ToString();
+            }
+
+            var query = new StringBuilder();
+            query.AppendLine($" select * from [Order] O");
+            query.AppendLine($" where O.CustomerId = '{id}'");
+            query.AppendLine($" order by O.Date asc");
+            query.AppendLine($" OFFSET {from} ROWS");
+            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
+
+            var orders = await _context.Order.FromSqlRaw(query.ToString())
+                .Include(o => o.DeliveryAddress)
+                .Include(o => o.InvoiceAddress)
+                .Include(o => o.DeliveryAddress.City)
+                .Include(o => o.InvoiceAddress.City)
+                .Include(o => o.Products)
+                .ToListAsync();
+
+            //TODO: is this necessary?
+            if (!orders.Any())
+            {
+                return NotFound("No Orders were found");
+            }
+
+
+            var getOrderViewModels = orders.Select(o => new GetOrderViewModel(o)).ToList();
+
+            return Ok(getOrderViewModels);
+        }
+
     }
 }

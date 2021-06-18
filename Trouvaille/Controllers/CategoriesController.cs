@@ -142,6 +142,39 @@ namespace Trouvaille.Controllers
         }
         **/
 
+        // PUT: api/Categories/{id}/ChangeName
+        [HttpPut("{id}/ChangeName")]
+        public async Task<IActionResult> PutCategory(Guid id, string name)
+        {
+            var category = await _context.Category
+                .FindAsync(id);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            category.Name = name;
+            _context.Entry(category).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CategoryExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return NoContent();
+        }
+
         // POST: api/Categories
         [HttpPost]
         public async Task<ActionResult<Category>> PostCategory(PostCategoryViewModel model)

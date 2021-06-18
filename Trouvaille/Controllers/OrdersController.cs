@@ -291,7 +291,7 @@ namespace AuthoDemoMVC.Controllers
             return Ok(count);
         }
 
-        //Post: api/Orders/History
+        //Post: api/Orders/History/0/5
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("History/{from}/{to}")]
         //[Microsoft.AspNetCore.Authorization.Authorize]

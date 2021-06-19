@@ -75,7 +75,7 @@ namespace Trouvaille3.Controllers
                 return BadRequest(result);
             }
 
-            return BadRequest("Some properties are not Valid"); //TODO code 401 not authorized
+            return BadRequest("Some properties are not Valid");
         }
 
         // POST: api/auth/Employee/register

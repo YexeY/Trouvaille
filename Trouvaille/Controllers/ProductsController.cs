@@ -152,7 +152,7 @@ namespace Trouvaille_WEB_API.Controllers
                 {
                     product.Manufacturer.CatalogId = model.ManufacturerCatalogId ?? product.Manufacturer.CatalogId;
                     product.Manufacturer.Email = model.ManufacturerEmail ?? product.Manufacturer.Email;
-                    _context.Entry(product.Manufacturer).State = EntityState.Modified;
+                    //_context.Entry(product.Manufacturer).State = EntityState.Modified;
                 }
                 else
                 {
@@ -162,7 +162,7 @@ namespace Trouvaille_WEB_API.Controllers
                         Email = model.ManufacturerEmail,
                         ManufacturerId = Guid.NewGuid()
                     };
-                    //_context.Entry(product.Manufacturer).State = EntityState.Added;
+                    _context.Entry(product.Manufacturer).State = EntityState.Added;
                     //product.ManufacturerId = manufacturer.ManufacturerId;
                 }
 
@@ -176,7 +176,7 @@ namespace Trouvaille_WEB_API.Controllers
                 {
                     product.Picture.ImageData = model.ImageData ?? product.Picture.ImageData;
                     product.Picture.ImageTitle = model.ImageTitle ?? product.Picture.ImageTitle;
-                    _context.Entry(product.Picture).State = EntityState.Modified;
+                    //_context.Entry(product.Picture).State = EntityState.Modified;
                 }
                 else
                 {

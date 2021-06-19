@@ -513,8 +513,8 @@ namespace Trouvaille.Controllers
         }
 
 
-        // DELETE: api/Products/5
-        [Microsoft.AspNetCore.Mvc.HttpGet("/Manufacturer/{id}")]
+        // DELETE: api/Manufacturer/{id}
+        [Microsoft.AspNetCore.Mvc.HttpGet("/api/Manufacturer/{id}")]
         public async Task<ActionResult<GetManufacturerViewModel>> GetManufacturer(Guid id)
         {
             var manufacturer = await _context.Manufacturer.FindAsync(id);

@@ -31,7 +31,11 @@ namespace AuthoDemoMVC.Models.Communication
         public decimal Tax { get; set; }
 
 #nullable enable
-        public PostManufacturerViewModel? Manufacturer { get; set; }
+        //Manufacturer
+        public string? ManufacturerEmail { get; set; }
+
+        public string? ManufacturerCatalogId { get; set; }
+        //
 
         public string? ImageTitle { get; set; }
 

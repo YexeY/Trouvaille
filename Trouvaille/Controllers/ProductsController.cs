@@ -126,24 +126,71 @@ namespace Trouvaille_WEB_API.Controllers
 
         // PUT: api/Products/5
         [Microsoft.AspNetCore.Mvc.HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(Guid id, PostProductViewModel model)
+        public async Task<IActionResult> PutProduct(Guid id, PutProductViewModel model)
         {
-            var product = await _context.Product.FindAsync(id);
+            var product = await _context.Product
+                .Include(p => p.Picture)
+                .Include(p => p.Manufacturer)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
 
             if (product == null)
             {
                 return BadRequest();
             }
 
-            //TODO der REST
-            product.Name = model.Name;
-            product.Description = model.Description;
-            product.MinStock = model.MinStock;
-            product.Price = model.Price;
-            product.Tax = model.Tax;
-            product.InStock = model.InStock;
-            product.ManufacturerId = model.ManufacturerId;
-            product.Manufacturer = await _context.Manufacturer.FindAsync(model.ManufacturerId);
+            product.Name = model.Name ?? product.Name;
+            product.Description = model.Description ?? product.Description;
+            product.MinStock = model.MinStock ?? product.MinStock;
+            product.Price = model.Price ?? product.Price;
+            product.Tax = model.Tax ?? product.Tax;
+            product.InStock = model.InStock ?? product.InStock;
+
+            //Manufacturer
+            if (model.ManufacturerCatalogId != null || model.ManufacturerEmail != null)
+            {
+                if (product.Manufacturer != null)
+                {
+                    product.Manufacturer.CatalogId = model.ManufacturerCatalogId ?? product.Manufacturer.CatalogId;
+                    product.Manufacturer.Email = model.ManufacturerEmail ?? product.Manufacturer.Email;
+                    _context.Entry(product.Manufacturer).State = EntityState.Modified;
+                }
+                else
+                {
+                    product.Manufacturer = new Manufacturer()
+                    {
+                        CatalogId = model.ManufacturerCatalogId,
+                        Email = model.ManufacturerEmail,
+                        ManufacturerId = Guid.NewGuid()
+                    };
+                    //_context.Entry(product.Manufacturer).State = EntityState.Added;
+                    //product.ManufacturerId = manufacturer.ManufacturerId;
+                }
+
+
+            }
+
+            //Image
+            if (model.ImageData != null || model.ImageTitle != null)
+            {
+                if (product.Picture != null)
+                {
+                    product.Picture.ImageData = model.ImageData ?? product.Picture.ImageData;
+                    product.Picture.ImageTitle = model.ImageTitle ?? product.Picture.ImageTitle;
+                    _context.Entry(product.Picture).State = EntityState.Modified;
+                }
+                else
+                {
+                    product.Picture = new Picture()
+                    {
+                        PictureId = Guid.NewGuid(),
+                        ImageData = model.ImageData,
+                        ImageTitle = model.ImageTitle
+                    };
+                    //_context.Entry(product.Picture).State = EntityState.Added;
+                    //product.ManufacturerId = manufacturer.ManufacturerId;
+                }
+
+            }
 
             _context.Entry(product).State = EntityState.Modified;
 
@@ -324,7 +371,12 @@ namespace Trouvaille_WEB_API.Controllers
         public async Task<ActionResult<Product>> PostProduct(PostProductViewModel model)
         {
             //Get Manufacturer
-            var manufacturer = await _context.Manufacturer.FindAsync(model.ManufacturerId);
+            var manufacturer = new Manufacturer()
+            {
+                ManufacturerId = Guid.NewGuid(),
+                Email = model.ManufacturerEmail,
+                CatalogId = model.ManufacturerCatalogId
+            };
 
             //Create Picture
             var picture = new Picture

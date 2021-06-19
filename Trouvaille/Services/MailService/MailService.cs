@@ -33,7 +33,8 @@ namespace Trouvaille.Services.MailService
                 return false;
             };
             var email = Email
-                .From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
+                //.From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
+                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(toEmail)
                 .Subject(subject)
                 .Body(content);
@@ -67,7 +68,8 @@ namespace Trouvaille.Services.MailService
 
 
             var email = Email
-                .From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
+                //.From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
+                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(customer.Email)
                 .Subject("Registration")
                 .UsingTemplate(template.ToString(), new {});

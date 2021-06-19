@@ -163,6 +163,7 @@ namespace AuthoDemoMVC.Data.CustomerService
 
             string tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
 
+
             return new UserManagerResponse
             {
                 Message = tokenAsString,

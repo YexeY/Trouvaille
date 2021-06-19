@@ -7,21 +7,17 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Results;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using AuthoDemoMVC.Data;
 using AuthoDemoMVC.Models;
 using AuthoDemoMVC.Models.Communication;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Trouvaille.Models.Communication.Order;
 using Trouvaille.Services.MailService;
 using Trouvaille_WebAPI.Globals;
 using Trouvaille_WebAPI.Models;
 
-namespace AuthoDemoMVC.Controllers
+namespace Trouvaille.Controllers
 {
     [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [ApiController]

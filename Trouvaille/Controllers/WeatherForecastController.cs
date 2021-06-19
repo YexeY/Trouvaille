@@ -1,19 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Net.Mime;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using AuthoDemoMVC.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Trouvaille.Services.MailService;
+using Trouvaille3;
 
-namespace Trouvaille3.Controllers
+namespace Trouvaille.Controllers
 {
     [ApiController]
     [Route("[controller]")]

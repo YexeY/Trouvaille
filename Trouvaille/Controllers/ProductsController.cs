@@ -4,19 +4,16 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Results;
 using AuthoDemoMVC.Data;
 using AuthoDemoMVC.Models.Communication;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Trouvaille.Models.Communication.Product;
 using Trouvaille_WebAPI.Models;
 
-namespace Trouvaille_WEB_API.Controllers
+namespace Trouvaille.Controllers
 {
     [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [ApiController]

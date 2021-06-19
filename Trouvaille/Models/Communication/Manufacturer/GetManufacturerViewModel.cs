@@ -4,13 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Trouvaille_WebAPI.Models
+namespace Trouvaille.Models.Communication.Manufacturer
 {
-    public class Manufacturer
+    public class GetManufacturerViewModel
     {
-        [Key]
-        public Guid ManufacturerId { get; set; }
-
         [Required]
         [EmailAddress]
         public string Email { get; set; }

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Trouvaille.Models.Communication.Manufacturer;
 using Trouvaille_WebAPI.Models;
 
 namespace AuthoDemoMVC.Models.Communication
@@ -30,8 +31,7 @@ namespace AuthoDemoMVC.Models.Communication
         public decimal Tax { get; set; }
 
 #nullable enable
-        public Guid? ManufacturerId { get; set; }
-
+        public PostManufacturerViewModel? Manufacturer { get; set; }
 
         public string? ImageTitle { get; set; }
 

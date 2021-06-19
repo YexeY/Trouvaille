@@ -72,10 +72,10 @@ namespace Trouvaille3.Controllers
                     return Ok(result);
                 }
 
-                return BadRequest(result);
+                return Unauthorized(result);
             }
 
-            return BadRequest("Some properties are not Valid");
+            return Unauthorized("Some properties are not Valid");
         }
 
         // POST: api/auth/Employee/register
@@ -112,10 +112,10 @@ namespace Trouvaille3.Controllers
                     return Ok(result);
                 }
 
-                return BadRequest(result);
+                return Unauthorized(result);
             }
 
-            return BadRequest("Some properties are not Valid"); //TODO code 401 not authorized
+            return Unauthorized("Some properties are not Valid"); //TODO code 401 not authorized
         }
 
 

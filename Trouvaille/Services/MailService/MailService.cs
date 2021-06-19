@@ -8,6 +8,7 @@ using AuthoDemoMVC.Models;
 using FluentEmail.Core;
 using FluentEmail.Razor;
 using FluentEmail.Smtp;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Trouvaille_WebAPI.Models;
 
@@ -16,11 +17,12 @@ namespace Trouvaille.Services.MailService
     public class MailService : IMailService
     {
         private readonly IFluentEmail _fluentEmail;
-
-        public MailService(IFluentEmail fluentEmail)
+        private readonly IConfiguration _configuration;
+        public MailService(IFluentEmail fluentEmail, IConfiguration configuration)
         {
             _fluentEmail = fluentEmail;
             Email.DefaultSender = _fluentEmail.Sender;
+            _configuration = configuration;
             //Email.DefaultRenderer = new RazorRenderer();
         }
 
@@ -103,6 +105,69 @@ namespace Trouvaille.Services.MailService
                 .Subject("Order confirmation")
                 .UsingTemplate(template.ToString(),
                     new {FirstName = customer.FirstName, InvoiceId = order.Invoice_Id, TotalCost = order.TotalCost});
+            try
+            {
+                await email.SendAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> SendRestockEmailAsync(Manufacturer manufacturer, Product product)
+        {
+            if (manufacturer == null || product == null || manufacturer.Email == null)
+            {
+                return false;
+            }
+
+            var template = new StringBuilder();
+            template.AppendLine($"<p>Hello,</p>");
+            template.AppendLine($"<p>We would like to Order {(product.MinStock + (int)(product.MinStock * 0.5))} of {product.Name}</p>");
+            if (!string.IsNullOrEmpty(manufacturer.CatalogId))
+            {
+                template.AppendLine($"<p>Catalog Number: {manufacturer.CatalogId}</p>");
+            }
+            template.AppendLine("<p>With the best Regard</p>");
+            template.AppendLine("<p>Trouvaille Online-Shop</p>");
+            //TODO: Address
+
+            var email = Email
+                .From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
+                .To(manufacturer.Email)
+                .Subject("Restock Order")
+                .UsingTemplate(template.ToString(), new { Minstock = product.MinStock, ProductName = product.Name});
+            try
+            {
+                await email.SendAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> SendRestockOrderSelfEmailAsync(Product product)
+        {
+            var template = new StringBuilder();
+            template.AppendLine($"<p>Hello,</p>");
+            template.AppendLine($"<p>We need to Order {(product.MinStock + (int)(product.MinStock * 0.5))} of {product.Name}</p>");
+            template.AppendLine($"<p>ProductId: {product.ProductId.ToString()}</p>");
+            template.AppendLine("<p>With the best Regard</p>");
+            template.AppendLine("<p>Trouvaille Online-Shop</p>");
+
+            var email = Email
+                .From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
+                .To(_configuration.GetSection("Email")["RestockEmail"])
+                .Subject("Restock Order")
+                .UsingTemplate(template.ToString(), new { Minstock = product.MinStock, ProductName = product.Name });
             try
             {
                 await email.SendAsync();

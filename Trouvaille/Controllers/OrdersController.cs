@@ -12,6 +12,7 @@ using AuthoDemoMVC.Models;
 using AuthoDemoMVC.Models.Communication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Trouvaille.Models.Communication.Order;
 using Trouvaille.Services.MailService;
 using Trouvaille_WebAPI.Globals;
@@ -149,8 +150,7 @@ namespace Trouvaille.Controllers
 
                 if (product.InStock - cardinality < product.MinStock)
                 {
-                    //TODO sth
-                    Console.WriteLine("Dont have that many in stock");
+                    SendRestockEmailAsync(product.ManufacturerId, product);
                 }
 
                 product.InStock -= cardinality;
@@ -372,6 +372,19 @@ namespace Trouvaille.Controllers
             return NoContent();
         }
 
+        private async Task SendRestockEmailAsync(Guid? manufacturerId, Product toOrderProduct)
+        {
+            if (manufacturerId != null)
+            {
+                var manufacturer = await _context.Manufacturer.FindAsync(manufacturerId);
+                _mailService.SendRestockEmailAsync(manufacturer, toOrderProduct);
+            }
+            else
+            {
+                _mailService.SendRestockOrderSelfEmailAsync(toOrderProduct);
+            }
+            
+        }
 
     }
 }

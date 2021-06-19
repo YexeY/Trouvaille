@@ -13,5 +13,11 @@ namespace Trouvaille.Models.Communication.Manufacturer
         public string Email { get; set; }
 
         public string? CatalogId { get; set; }
+
+        public GetManufacturerViewModel(Trouvaille_WebAPI.Models.Manufacturer manufacturer)
+        {
+            Email = manufacturer.Email;
+            CatalogId = manufacturer.CatalogId;
+        }
     }
 }

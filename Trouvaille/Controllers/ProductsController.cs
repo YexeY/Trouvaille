@@ -10,6 +10,7 @@ using AuthoDemoMVC.Data;
 using AuthoDemoMVC.Models.Communication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Trouvaille.Models.Communication.Manufacturer;
 using Trouvaille.Models.Communication.Product;
 using Trouvaille_WebAPI.Models;
 
@@ -511,6 +512,15 @@ namespace Trouvaille.Controllers
             return Ok(getProductsViewModels);
         }
 
+
+        // DELETE: api/Products/5
+        [Microsoft.AspNetCore.Mvc.HttpGet("/Manufacturer/{id}")]
+        public async Task<ActionResult<GetManufacturerViewModel>> GetManufacturer(Guid id)
+        {
+            var manufacturer = await _context.Manufacturer.FindAsync(id);
+
+            return Ok(new GetManufacturerViewModel(manufacturer));
+        }
 
         private bool ProductExists(Guid id)
         {

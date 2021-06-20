@@ -182,5 +182,71 @@ namespace Trouvaille.Services.MailService
 
             return true;
         }
+
+        public async Task<bool> SendForgotPasswordEmailAsync(ApplicationUser user, string password)
+        {
+            if (user == null)
+            {
+                return false;
+            }
+
+            var template = new StringBuilder();
+            template.AppendLine($"Hello {user.FirstName},");
+            template.AppendLine($"<p>Your new Password: {password}</p>");
+            template.AppendLine("<p>With best regards</p>");
+            template.AppendLine("<p>Trouvaille Online-Shop</p>");
+
+
+            var email = Email
+                //.From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
+                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
+                .To(user.Email)
+                .Subject("Registration")
+                .UsingTemplate(template.ToString(), new { });
+            try
+            {
+                await email.SendAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> SendResetPasswordEmailAsync(ApplicationUser user)
+        {
+            if (user == null)
+            {
+                return false;
+            }
+
+            var template = new StringBuilder();
+            template.AppendLine($"Hello {user.FirstName},");
+            template.AppendLine($"<p>You have successfully reset your password</p>");
+            template.AppendLine("<p>With best regards</p>");
+            template.AppendLine("<p>Trouvaille Online-Shop</p>");
+
+
+            var email = Email
+                //.From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
+                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
+                .To(user.Email)
+                .Subject("Registration")
+                .UsingTemplate(template.ToString(), new { });
+            try
+            {
+                await email.SendAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+            return true;
+        }
     }
 }

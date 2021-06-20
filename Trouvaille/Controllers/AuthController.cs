@@ -350,12 +350,36 @@ namespace Trouvaille.Controllers
         //POST: api/auth/Customer/ResetPassword
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("Customer/ResetPassword")]
-        public async Task<ActionResult<GetCustomerViewModel>> ResetCustomer([Microsoft.AspNetCore.Mvc.FromBody] ResetPasswordViewModel model)
+        [Authorize]
+        public async Task<IActionResult> ResetPasswordCustomer([Microsoft.AspNetCore.Mvc.FromBody] ResetPasswordViewModel model)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
-            var result = await _userService
+            if (userId == null)
+            {
+                return NotFound("User not Found");
+            }
+            model.CustomerId = userId.Value;
+            var result = await _customerService.ResetPasswordAsync(model);
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
 
-            return null;
+
+        //POST: api/auth/Customer/ForgotPassword
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("Customer/ForgotPassword")]
+        [Authorize]
+        public async Task<IActionResult> ForgotPasswordCustomer(string customerEmail)
+        {
+            var result = await _customerService.ForgetPasswordAsync(customerEmail);
+            if (result.IsSuccess)
+            {
+                return Ok();
+            }
+            return BadRequest();
         }
 
 

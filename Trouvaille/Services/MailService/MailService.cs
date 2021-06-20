@@ -8,8 +8,10 @@ using AuthoDemoMVC.Models;
 using FluentEmail.Core;
 using FluentEmail.Razor;
 using FluentEmail.Smtp;
+using Microsoft.AspNetCore.Razor.Language.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Trouvaille_WebAPI.Globals;
 using Trouvaille_WebAPI.Models;
 
 namespace Trouvaille.Services.MailService
@@ -226,6 +228,50 @@ namespace Trouvaille.Services.MailService
             var template = new StringBuilder();
             template.AppendLine($"Hello {user.FirstName},");
             template.AppendLine($"<p>You have successfully reset your password</p>");
+            template.AppendLine("<p>With best regards</p>");
+            template.AppendLine("<p>Trouvaille Online-Shop</p>");
+
+
+            var email = Email
+                //.From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
+                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
+                .To(user.Email)
+                .Subject("Registration")
+                .UsingTemplate(template.ToString(), new { });
+            try
+            {
+                await email.SendAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> SendOrderChangedEmailAsync(ApplicationUser user, Order order)
+        {
+            if (user == null || order == null)
+            {
+                return false;
+            }
+
+            var template = new StringBuilder();
+            template.AppendLine($"Hello {user.FirstName},");
+            template.AppendLine($"<p>Your order with the id: {order.OrderId.ToString()}</p>");
+            if (order.OrderState == Globals.OrderState.Storniert)
+            {
+                template.AppendLine($"<p>is now canceled</p>");
+            }
+            else if(order.OrderState == Globals.OrderState.Unterwegs)
+            {
+                template.AppendLine($"<p>is on the way!</p>");
+            } else if (order.OrderState == Globals.OrderState.Zugestellt)
+            {
+                template.AppendLine($"<p>has been delivered, have fun with your product!</p>");
+            }
             template.AppendLine("<p>With best regards</p>");
             template.AppendLine("<p>Trouvaille Online-Shop</p>");
 

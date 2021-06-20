@@ -356,6 +356,9 @@ namespace Trouvaille.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+
+                var user = await _context.Users.FindAsync(order.CustomerId);
+                await _mailService.SendOrderChangedEmailAsync(user, order);
             }
             catch (DbUpdateConcurrencyException)
             {

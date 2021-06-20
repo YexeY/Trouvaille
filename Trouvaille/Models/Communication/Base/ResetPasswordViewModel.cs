@@ -17,8 +17,7 @@ namespace Trouvaille.Models.Communication.Base
         [StringLength(50, MinimumLength = 6)]
         public string ConfirmPassword { get; set; }
 
-        [Required]
-        public string CustomerId { get; set; }
+        public string? CustomerId { get; set; }
     }
 }
 

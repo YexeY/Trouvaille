@@ -14,6 +14,7 @@ using AuthoDemoMVC.Data.UserService;
 using AuthoDemoMVC.Models.Communication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Trouvaille.Models.Communication.Base;
 using Trouvaille.Models.Communication.Customer;
 
 namespace Trouvaille.Controllers
@@ -345,7 +346,17 @@ namespace Trouvaille.Controllers
             var getCustomerViewModel = new GetCustomerViewModel(customer);
             return Ok(getCustomerViewModel);
         }
-        
+
+        //POST: api/auth/Customer/ResetPassword
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("Customer/ResetPassword")]
+        public async Task<ActionResult<GetCustomerViewModel>> ResetCustomer([Microsoft.AspNetCore.Mvc.FromBody] ResetPasswordViewModel model)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            var result = await _userService
+
+            return null;
+        }
 
 
         /**

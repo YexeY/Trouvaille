@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Trouvaille.Models.Communication.Base;
 using Trouvaille.Models.Communication.Customer;
 using Trouvaille.Services.MailService;
 using Trouvaille_WebAPI.Models;
@@ -217,7 +218,7 @@ namespace AuthoDemoMVC.Data.CustomerService
             };
         }
         **/
-        /**
+        
         public async Task<UserManagerResponse> ForgetPasswordAsync(string email)
         {
             var user = await _userManger.FindByEmailAsync(email);
@@ -228,26 +229,32 @@ namespace AuthoDemoMVC.Data.CustomerService
                     Message = "No user associated with email",
                 };
 
+            
             var token = await _userManger.GeneratePasswordResetTokenAsync(user);
             var encodedToken = Encoding.UTF8.GetBytes(token);
             var validToken = WebEncoders.Base64UrlEncode(encodedToken);
 
-            string url = $"{_configuration["AppUrl"]}/ResetPassword?email={email}&token={validToken}";
+            var newPassword = GenerateRandomPassword();
 
-            await _mailService.SendEmailAsync(email, "Reset Password", "<h1>Follow the instructions to reset your password</h1>" +
-                $"<p>To reset your password <a href='{url}'>Click here</a></p>");
-
-            return new UserManagerResponse
+            var resetPasswordViewModel = new ResetPasswordViewModel()
             {
-                IsSuccess = true,
-                Message = "Reset password URL has been sent to the email successfully!"
+                CustomerId = user.Id,
+                NewPassword = newPassword,
+                ConfirmPassword = newPassword
             };
+
+            var userManagerResponse = await ResetPasswordAsync(resetPasswordViewModel);
+            if (userManagerResponse.IsSuccess)
+            {
+                await _mailService.SendForgotPasswordEmailAsync(user, resetPasswordViewModel.NewPassword);
+            }
+
+            return await ResetPasswordAsync(resetPasswordViewModel);
         }
-        **/
-        /**
+        
         public async Task<UserManagerResponse> ResetPasswordAsync(ResetPasswordViewModel model)
         {
-            var user = await _userManger.FindByEmailAsync(model.Email);
+            var user = await _userManger.FindByIdAsync(model.CustomerId);
             if (user == null)
                 return new UserManagerResponse
                 {
@@ -262,7 +269,14 @@ namespace AuthoDemoMVC.Data.CustomerService
                     Message = "Password doesn't match its confirmation",
                 };
 
-            var decodedToken = WebEncoders.Base64UrlDecode(model.Token);
+            //----------------------------
+            var token = await _userManger.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = Encoding.UTF8.GetBytes(token);
+            var validToken = WebEncoders.Base64UrlEncode(encodedToken);
+            //----------------------------
+
+            //var decodedToken = WebEncoders.Base64UrlDecode(model.token);
+            var decodedToken = WebEncoders.Base64UrlDecode(token);
             string normalToken = Encoding.UTF8.GetString(decodedToken);
 
             var result = await _userManger.ResetPasswordAsync(user, normalToken, model.NewPassword);
@@ -281,6 +295,55 @@ namespace AuthoDemoMVC.Data.CustomerService
                 Errors = result.Errors.Select(e => e.Description),
             };
         }
-        **/
+
+        private static string GenerateRandomPassword(PasswordOptions opts = null)
+        {
+            if (opts == null) opts = new PasswordOptions()
+            {
+                RequiredLength = 8,
+                RequiredUniqueChars = 4,
+                RequireDigit = true,
+                RequireLowercase = true,
+                RequireNonAlphanumeric = true,
+                RequireUppercase = true
+            };
+
+            string[] randomChars = new[] {
+                "ABCDEFGHJKLMNOPQRSTUVWXYZ",    // uppercase 
+                "abcdefghijkmnopqrstuvwxyz",    // lowercase
+                "0123456789",                   // digits
+                "!@$?_-"                        // non-alphanumeric
+            };
+
+            Random rand = new Random(Environment.TickCount);
+            List<char> chars = new List<char>();
+
+            if (opts.RequireUppercase)
+                chars.Insert(rand.Next(0, chars.Count),
+                    randomChars[0][rand.Next(0, randomChars[0].Length)]);
+
+            if (opts.RequireLowercase)
+                chars.Insert(rand.Next(0, chars.Count),
+                    randomChars[1][rand.Next(0, randomChars[1].Length)]);
+
+            if (opts.RequireDigit)
+                chars.Insert(rand.Next(0, chars.Count),
+                    randomChars[2][rand.Next(0, randomChars[2].Length)]);
+
+            if (opts.RequireNonAlphanumeric)
+                chars.Insert(rand.Next(0, chars.Count),
+                    randomChars[3][rand.Next(0, randomChars[3].Length)]);
+
+            for (int i = chars.Count; i < opts.RequiredLength
+                                      || chars.Distinct().Count() < opts.RequiredUniqueChars; i++)
+            {
+                string rcs = randomChars[rand.Next(0, randomChars.Length)];
+                chars.Insert(rand.Next(0, chars.Count),
+                    rcs[rand.Next(0, rcs.Length)]);
+            }
+
+            return new string(chars.ToArray());
+        }
+
     }
 }

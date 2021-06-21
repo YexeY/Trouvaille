@@ -271,15 +271,7 @@ namespace AuthoDemoMVC.Data.CustomerService
 
             //----------------------------
             var token = await _userManger.GeneratePasswordResetTokenAsync(user);
-            var encodedToken = Encoding.UTF8.GetBytes(token);
-            var validToken = WebEncoders.Base64UrlEncode(encodedToken);
-            //----------------------------
-
-            //var decodedToken = WebEncoders.Base64UrlDecode(model.token);
-            var decodedToken = WebEncoders.Base64UrlDecode(token);
-            string normalToken = Encoding.UTF8.GetString(decodedToken);
-
-            var result = await _userManger.ResetPasswordAsync(user, normalToken, model.NewPassword);
+            var result = await _userManger.ResetPasswordAsync(user, token, model.NewPassword);
 
             if (result.Succeeded)
                 return new UserManagerResponse

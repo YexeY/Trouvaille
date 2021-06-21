@@ -139,13 +139,20 @@ namespace Trouvaille.Controllers
                 var product = _context.Product.Find(VARIABLE.ProductId);
 
                 if (product == null)
-                {    continue;}
+                {
+                    continue;
+                }
 
                 var cardinality = VARIABLE.Cardinality;
 
                 if (product.InStock - cardinality < product.MinStock)
                 {
                     return BadRequest("Don't have that many in stock");
+                }
+
+                if (product.IsDisabled)
+                {
+                    return BadRequest($"Product with ID: {product.ProductId} is Disabled");
                 }
 
                 if (product.InStock - cardinality < product.MinStock)
@@ -223,7 +230,7 @@ namespace Trouvaille.Controllers
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("{from}/{to}")]
         public async Task<ActionResult<ICollection<GetOrderViewModel>>> SearchQueryOrder(int from, int to, Guid? customerId = null,
-            DateTime? fromDateTime = null, DateTime? toDateTime = null,  int? orderState = null)
+            DateTime? fromDateTime = null, DateTime? toDateTime = null,  int? orderState = null, string orderBy = "Date", bool asc = true)
         {
             Boolean and = false;
             Boolean where = false;
@@ -259,10 +266,10 @@ namespace Trouvaille.Controllers
             }
 
             query.AppendLine(where ? " ) " : "");
-            query.AppendLine("  order by O.Date");
-            query.AppendLine("asc");
-            query.AppendLine($"OFFSET {from} ROWS");
-            query.AppendLine($"FETCH NEXT {to - from} ROWS ONLY");
+            query.AppendLine($"  order by O.{orderBy}");
+            query.AppendLine(asc ? "  asc" : "  desc");
+            query.AppendLine($" OFFSET {from} ROWS");
+            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
 
             var orders = await _context.Order.FromSqlRaw(query.ToString())
                 .Include(o => o.DeliveryAddress)

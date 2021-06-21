@@ -70,7 +70,6 @@ namespace Trouvaille.Services.MailService
 
 
             var email = Email
-                //.From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
                 .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(customer.Email)
                 .Subject("Registration")
@@ -104,7 +103,7 @@ namespace Trouvaille.Services.MailService
             template.AppendLine("<p>your Trouvaille Online-Shop</p>");
 
             var email = Email
-                .From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
+                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(customer.Email)
                 .Subject("Order confirmation")
                 .UsingTemplate(template.ToString(),
@@ -141,7 +140,7 @@ namespace Trouvaille.Services.MailService
             //TODO: Address
 
             var email = Email
-                .From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
+                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(manufacturer.Email)
                 .Subject("Restock Order")
                 .UsingTemplate(template.ToString(), new { Minstock = product.MinStock, ProductName = product.Name});
@@ -168,7 +167,7 @@ namespace Trouvaille.Services.MailService
             template.AppendLine("<p>Trouvaille Online-Shop</p>");
 
             var email = Email
-                .From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
+                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(_configuration.GetSection("Email")["RestockEmail"])
                 .Subject("Restock Order")
                 .UsingTemplate(template.ToString(), new { Minstock = product.MinStock, ProductName = product.Name });
@@ -200,10 +199,9 @@ namespace Trouvaille.Services.MailService
 
 
             var email = Email
-                //.From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
                 .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(user.Email)
-                .Subject("Registration")
+                .Subject("Forgot password")
                 .UsingTemplate(template.ToString(), new { });
             try
             {
@@ -233,10 +231,9 @@ namespace Trouvaille.Services.MailService
 
 
             var email = Email
-                //.From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
                 .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(user.Email)
-                .Subject("Registration")
+                .Subject("Password reset")
                 .UsingTemplate(template.ToString(), new { });
             try
             {
@@ -277,10 +274,9 @@ namespace Trouvaille.Services.MailService
 
 
             var email = Email
-                //.From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
                 .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(user.Email)
-                .Subject("Registration")
+                .Subject("Order update")
                 .UsingTemplate(template.ToString(), new { });
             try
             {

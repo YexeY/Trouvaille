@@ -292,24 +292,36 @@ namespace Trouvaille.Controllers
                 query.AppendLine(and ? " and " : "");
                 query.AppendLine($"  OrderState = {orderState.Value}");
             }
-
             query.AppendLine(where ? " ) " : "");
-            /*
-            query.AppendLine($"  order by O.{orderBy}");
-            query.AppendLine(asc ? "  asc" : "  desc");
-            query.AppendLine($" OFFSET {from} ROWS");
-            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
-            */
-            var orders = await _context.Order.FromSqlRaw(query.ToString())
-                .Include(o => o.DeliveryAddress)
-                .Include(o => o.InvoiceAddress)
-                .Include(o => o.DeliveryAddress.City)
-                .Include(o => o.InvoiceAddress.City)
-                .Include(o => o.Products)
-                .OrderBy(o => o.Date)
-                .Skip(from)
-                .Take(to - from)
-                .ToListAsync();
+
+            var orders = new List<Order>();
+            if (asc)
+            {
+                orders = await _context.Order.FromSqlRaw(query.ToString())
+                    .Include(o => o.DeliveryAddress)
+                    .Include(o => o.InvoiceAddress)
+                    .Include(o => o.DeliveryAddress.City)
+                    .Include(o => o.InvoiceAddress.City)
+                    .Include(o => o.Products)
+                    .OrderBy(o => o.Date)
+                    .Skip(from)
+                    .Take(to - from)
+                    .ToListAsync();
+            }
+            else
+            {
+                orders = await _context.Order.FromSqlRaw(query.ToString())
+                    .Include(o => o.DeliveryAddress)
+                    .Include(o => o.InvoiceAddress)
+                    .Include(o => o.DeliveryAddress.City)
+                    .Include(o => o.InvoiceAddress.City)
+                    .Include(o => o.Products)
+                    .OrderByDescending(o => o.Date)
+                    .Skip(from)
+                    .Take(to - from)
+                    .ToListAsync();
+            }
+
             var getOrderViewModel = orders.Select(o => new GetOrderViewModel(o)).ToList();
 
             return Ok(getOrderViewModel);
@@ -355,9 +367,6 @@ namespace Trouvaille.Controllers
             var query = new StringBuilder();
             query.AppendLine($" select * from [Order] O");
             query.AppendLine($" where O.CustomerId = '{id}'");
-            query.AppendLine($" order by O.Date asc");
-            query.AppendLine($" OFFSET {from} ROWS");
-            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
 
             var orders =  _context.Order.FromSqlRaw(query.ToString())
                 .Include(o => o.DeliveryAddress)
@@ -365,6 +374,9 @@ namespace Trouvaille.Controllers
                 .Include(o => o.DeliveryAddress.City)
                 .Include(o => o.InvoiceAddress.City)
                 .Include(o => o.Products)
+                .OrderBy(o => o.Date)
+                .Skip(from)
+                .Take(to -from)
                 .ToList();
 
             //TODO: is this necessary?

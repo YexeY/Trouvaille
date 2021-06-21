@@ -229,10 +229,11 @@ namespace AuthoDemoMVC.Data.CustomerService
                     Message = "No user associated with email",
                 };
 
-            
+            /**
             var token = await _userManger.GeneratePasswordResetTokenAsync(user);
             var encodedToken = Encoding.UTF8.GetBytes(token);
             var validToken = WebEncoders.Base64UrlEncode(encodedToken);
+            **/
 
             var newPassword = GenerateRandomPassword();
 

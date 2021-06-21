@@ -25,7 +25,6 @@ namespace Trouvaille.Services.MailService
             _fluentEmail = fluentEmail;
             Email.DefaultSender = _fluentEmail.Sender;
             _configuration = configuration;
-            //Email.DefaultRenderer = new RazorRenderer();
         }
 
         public async Task<bool> SendEmailAsync(string toEmail, string subject, string content)
@@ -35,7 +34,6 @@ namespace Trouvaille.Services.MailService
                 return false;
             };
             var email = Email
-                //.From("trouvaille.customerservice@gmail.com", "Trouvaille Online-Shop")
                 .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(toEmail)
                 .Subject(subject)
@@ -277,6 +275,65 @@ namespace Trouvaille.Services.MailService
                 .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(user.Email)
                 .Subject("Order update")
+                .UsingTemplate(template.ToString(), new { });
+            try
+            {
+                await email.SendAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> SendInvoiceEmailAsync(ApplicationUser user, Order order)
+        {
+            if (user == null || order == null || user.InvoiceAddress  == null || user.InvoiceAddress.City == null
+            || order.Products == null)
+            {
+                return false;
+            }
+
+            var template = new StringBuilder();
+            template.AppendLine($"Hello {user.FirstName},");
+            template.AppendLine($"<p>Here is your invoice with the ID: {order.Invoice_Id.ToString()}</p>");
+            template.AppendLine($"<p>for your order: {order.OrderId.ToString()}</p>");
+            template.AppendLine($"<p>Date: {DateTime.Now.ToString()}</p>");
+            template.AppendLine($"<p>Service Provider: </p>");
+            template.AppendLine($"<p>Name: {_configuration.GetSection("Invoice")["Name"]} </p>");
+            template.AppendLine($"<p>Address: {_configuration.GetSection("Invoice")["Address"]} </p>");
+            template.AppendLine($"<p>Address: {_configuration.GetSection("Invoice")["Address"]} </p>");
+            template.AppendLine($"<p>Recipient: </p>");
+            template.AppendLine($"<p>Name: {user.LastName},{user.FirstName} </p>");
+            template.AppendLine($"<p>Address: {user.InvoiceAddress.ToString()}</p>");
+            template.AppendLine($"<p>Iteams:</p>");
+            foreach (var orderProduct in order.Products)
+            {
+                if (orderProduct.Product == null)
+                {
+                    return false;
+                }
+                template.AppendLine($"<p>{orderProduct.Cardinality} of {orderProduct.Product.Name}</p>");
+            }
+            template.AppendLine($"<p>Total: {order.TotalCost}</p>");
+            template.AppendLine($"<p>Payment over: Payment in advance</p>");
+            template.AppendLine($"<p>IBAN: {_configuration.GetSection("Invoice")["IBAN"]}</p>");
+            template.AppendLine($"<p>BIC: {_configuration.GetSection("Invoice")["BIC"]}</p>");
+            template.AppendLine($"<p>CustomerID: {user.Id.Substring(0, 27)}</p>");
+            template.AppendLine($"<p>Usage: {order.Invoice_Id.ToString().Substring(0, 27)}</p>");
+            template.AppendLine($"<p>Your order will be send  within 2-3 workday after reception  of payment </p>");
+
+            template.AppendLine("<p>With best regards</p>");
+            template.AppendLine("<p>Trouvaille Online-Shop</p>");
+
+
+            var email = Email
+                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
+                .To(user.Email)
+                .Subject("Invoice")
                 .UsingTemplate(template.ToString(), new { });
             try
             {

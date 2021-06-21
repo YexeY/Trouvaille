@@ -24,5 +24,7 @@ namespace Trouvaille.Services.MailService
         Task<bool> SendResetPasswordEmailAsync(ApplicationUser user);
 
         Task<bool> SendOrderChangedEmailAsync(ApplicationUser user, Order order);
+
+        Task<bool> SendInvoiceEmailAsync(ApplicationUser user, Order order);
     }
 }

@@ -22,6 +22,8 @@ namespace Trouvaille.Models.Communication.Product
         [Column(TypeName = "decimal(16,2)")]
         public decimal? Tax { get; set; }
 
+        public bool? IsDisabled { get; set; }
+
 #nullable enable
         //Manufacturer
         public string? ManufacturerEmail { get; set; }

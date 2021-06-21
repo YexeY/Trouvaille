@@ -41,6 +41,8 @@ namespace Trouvaille_WebAPI.Models
 
         public int RatingCounter { get; set; }
 
+        public virtual bool IsDisabled { get; set; }
+
         public virtual ICollection<Category>? ProductCategories { get; set; }
 
         public virtual ICollection<Rating>? Ratings { get; set; }

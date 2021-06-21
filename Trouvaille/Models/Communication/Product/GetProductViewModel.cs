@@ -38,7 +38,9 @@ namespace Trouvaille.Models.Communication.Product
 
         public decimal? AverageRating { get; set; }
 
-        public int? MinStock { get; set; }
+        public int MinStock { get; set; }
+
+        public bool IsDisabled { get; set; }
 
         //TODO RATING DURCHSCHNITT
         //TODO RATING GUIDS
@@ -55,6 +57,7 @@ namespace Trouvaille.Models.Communication.Product
             Price = product.Price;
             Tax = product.Tax;
             MinStock = product.MinStock;
+            IsDisabled = product.IsDisabled;
             ProductCategories = product.ProductCategories?.Select(p => p.CategoryId).ToList();
             Ratings = product.Ratings?.Select(r => r.RatingId).ToList();
             AverageRating = product.AverageRating;

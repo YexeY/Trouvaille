@@ -181,18 +181,22 @@ namespace Trouvaille.Controllers
             {
                 query.AppendLine("  and IsDisabled = 0");
             }
+
+            /**
             query.AppendLine("  order by Id asc");
             query.AppendLine($" OFFSET {from} ROWS");
             query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
-
+            **/
+            
             var customers = await _context.Users.FromSqlRaw(query.ToString())
-                //.Skip(from)
-                //.Take((to - from))
-                                .Include(c => c.DeliveryAddress)
-                                .Include(c => c.InvoiceAddress)
-                                .Include(c => c.Orders)
-                                .Include(c => c.InvoiceAddress.City)
-                                .Include(c => c.DeliveryAddress.City)
+                .Include(c => c.DeliveryAddress)
+                .Include(c => c.InvoiceAddress)
+                .Include(c => c.Orders)
+                .Include(c => c.InvoiceAddress.City)
+                .Include(c => c.DeliveryAddress.City)
+                .OrderBy( c => c.Id)
+                .Skip(from)
+                .Take(to - from)
                 .ToListAsync();
 
             var getCustomerViewModels = new List<GetCustomerViewModel>();
@@ -231,9 +235,6 @@ namespace Trouvaille.Controllers
             {
                 query.AppendLine("  and IsDisabled = 0");
             }
-            query.AppendLine("  order by Id asc");
-            query.AppendLine($" OFFSET {from} ROWS");
-            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
 
             var customers = await _context.Users.FromSqlRaw(query.ToString())
                 .Include(c => c.DeliveryAddress)
@@ -241,6 +242,9 @@ namespace Trouvaille.Controllers
                 .Include(c => c.Orders)
                 .Include(c => c.InvoiceAddress.City)
                 .Include(c => c.DeliveryAddress.City)
+                .OrderBy(c => c.Id)
+                .Skip(from)
+                .Take(to - from)
                 .ToListAsync();
 
             var getCustomerViewModels = new List<GetCustomerViewModel>();
@@ -354,11 +358,11 @@ namespace Trouvaille.Controllers
             query.AppendLine("  select R.UserId from AspNetUserRoles R");
             query.AppendLine("  where R.RoleId = 2");
             query.AppendLine("  )");
-            query.AppendLine("  order by Id asc");
-            query.AppendLine($" OFFSET {from} ROWS");
-            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
 
             var employees = await _context.Users.FromSqlRaw(query.ToString())
+                .OrderBy(c => c.Id)
+                .Skip(from)
+                .Take(to - from)
                 .ToListAsync();
 
             var getEmployeeViewModel = new List<GetEmployeeViewModel>();

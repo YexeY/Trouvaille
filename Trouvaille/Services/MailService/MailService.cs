@@ -324,7 +324,7 @@ namespace Trouvaille.Services.MailService
             template.AppendLine($"<p>BIC: {_configuration.GetSection("Invoice")["BIC"]}</p>");
             template.AppendLine($"<p>CustomerID: {user.Id.Substring(0, 27)}</p>");
             template.AppendLine($"<p>Usage: {order.Invoice_Id.ToString().Substring(0, 27)}</p>");
-            template.AppendLine($"<p>Your order will be send  within 2-3 workday after reception  of payment </p>");
+            template.AppendLine($"<p>Your order will be send  within 2-3 workdays after reception  of payment </p>");
 
             template.AppendLine("<p>With best regards</p>");
             template.AppendLine("<p>Trouvaille Online-Shop</p>");

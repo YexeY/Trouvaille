@@ -292,7 +292,7 @@ namespace Trouvaille.Services.MailService
         public async Task<bool> SendInvoiceEmailAsync(ApplicationUser user, Order order)
         {
             if (user == null || order == null || user.InvoiceAddress  == null || user.InvoiceAddress.City == null
-            || order.Products == null)
+            || order.Products == null || order.InvoiceAddress == null)
             {
                 return false;
             }
@@ -308,7 +308,7 @@ namespace Trouvaille.Services.MailService
             template.AppendLine($"<p>Address: {_configuration.GetSection("Invoice")["Address"]} </p>");
             template.AppendLine($"<p>Recipient: </p>");
             template.AppendLine($"<p>Name: {user.LastName},{user.FirstName} </p>");
-            template.AppendLine($"<p>Address: {user.InvoiceAddress.ToString()}</p>");
+            template.AppendLine($"<p>Address: {order.InvoiceAddress.ToString()}</p>");
             template.AppendLine($"<p>Iteams:</p>");
             foreach (var orderProduct in order.Products)
             {

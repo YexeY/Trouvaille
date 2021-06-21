@@ -279,20 +279,24 @@ namespace Trouvaille.Controllers
 
             if (fromDateTime != null)
             {
+                /**
                 if (!IsValidDate(fromDateTime, dateFormats))
                 {
                     return BadRequest("Bad DateTime format");
                 }
+                **/
                 query.AppendLine(and ? " and " : "");
                 query.AppendLine($"  Date >= '{fromDateTime}'");
                 and = true;
             }
             if (toDateTime != null)
             {
+                /**
                 if (!IsValidDate(toDateTime, dateFormats))
                 {
                     return BadRequest("Bad DateTime format");
                 }
+                **/
                 query.AppendLine(and ? " and " : "");
                 query.AppendLine($"  Date >= '{toDateTime}'");
                 and = true;

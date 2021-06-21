@@ -200,12 +200,7 @@ namespace Trouvaille.Controllers
             {
                 if (customer == null)
                 {
-                    var response = new HttpResponseMessage(HttpStatusCode.NotFound)
-                    {
-                        Content = new StringContent("Employee doesn't exist", System.Text.Encoding.UTF8, "text/plain"),
-                        StatusCode = HttpStatusCode.NotFound
-                    };
-                    throw new HttpResponseException(response);
+                    return NotFound("Customer doesn't exist");
                 }
                 getCustomerViewModels.Add(new GetCustomerViewModel(customer));
             }
@@ -241,8 +236,6 @@ namespace Trouvaille.Controllers
             query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
 
             var customers = await _context.Users.FromSqlRaw(query.ToString())
-                //.Skip(from)
-                //.Take((to - from))
                 .Include(c => c.DeliveryAddress)
                 .Include(c => c.InvoiceAddress)
                 .Include(c => c.Orders)
@@ -255,12 +248,7 @@ namespace Trouvaille.Controllers
             {
                 if (customer == null)
                 {
-                    var response = new HttpResponseMessage(HttpStatusCode.NotFound)
-                    {
-                        Content = new StringContent("Employee doesn't exist", System.Text.Encoding.UTF8, "text/plain"),
-                        StatusCode = HttpStatusCode.NotFound
-                    };
-                    throw new HttpResponseException(response);
+                    return NotFound("Customer doesn't exist");
                 }
                 getCustomerViewModels.Add(new GetCustomerViewModel(customer));
             }
@@ -378,12 +366,7 @@ namespace Trouvaille.Controllers
             {
                 if (employee == null)
                 {
-                    var response = new HttpResponseMessage(HttpStatusCode.NotFound)
-                    {
-                        Content = new StringContent("Employee doesn't exist", System.Text.Encoding.UTF8, "text/plain"),
-                        StatusCode = HttpStatusCode.NotFound
-                    };
-                    throw new HttpResponseException(response);
+                    return NotFound("Employee doesn't exist");
                 }
                 getEmployeeViewModel.Add(new GetEmployeeViewModel(employee));
             }
@@ -491,7 +474,7 @@ namespace Trouvaille.Controllers
             {
                 return Ok();
             }
-            return BadRequest();
+            return BadRequest(result.Message);
         }
 
 
@@ -506,7 +489,7 @@ namespace Trouvaille.Controllers
             {
                 return Ok();
             }
-            return BadRequest();
+            return BadRequest(result.Message);
         }
 
         private bool validateCustomerWithEmail(string customerEmail)

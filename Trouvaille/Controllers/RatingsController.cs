@@ -112,7 +112,6 @@ namespace Trouvaille.Controllers
             return Ok(getRatingViewModels);
         }
 
-
         // PUT: api/Ratings/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRating(Guid id, PutRatingViewModel putRatingViewModel)

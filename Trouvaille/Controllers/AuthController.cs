@@ -116,12 +116,13 @@ namespace Trouvaille.Controllers
             return Unauthorized("Some properties are not Valid"); //TODO code 401 not authorized
         }
 
+        /**
         [Microsoft.AspNetCore.Mvc.HttpDelete]
         [Microsoft.AspNetCore.Mvc.Route("Customer/Delete/{id}")]
         //[Authorize]
         public async Task<IActionResult> DeleteCustomerAsync(Guid id)
         {
-            /*
+            
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             if (identity != null)
             {
@@ -131,7 +132,7 @@ namespace Trouvaille.Controllers
                     return Unauthorized("Not Authorized");
                 }
             }
-            */
+            
 
             var userRole = _context.UserRoles.SingleOrDefault(ur => ur.UserId == id.ToString());
             var role = _context.Roles.FirstOrDefault(x => x.Id == userRole.RoleId);
@@ -145,6 +146,7 @@ namespace Trouvaille.Controllers
             }
             return Ok();
         }
+    **/
 
         // GET: api/auth/Customer/info
         [Microsoft.AspNetCore.Mvc.HttpGet]

@@ -391,6 +391,26 @@ namespace Trouvaille.Controllers
             return Ok(getOrderViewModels);
         }
 
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Microsoft.AspNetCore.Mvc.Route("History/Count")]
+        [Microsoft.AspNetCore.Authorization.Authorize]
+        public async Task<ActionResult<int>> GetHistoryCount()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                var response = new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                {
+                    Content = new StringContent("Customer Id Could Not Be Found"),
+                    ReasonPhrase = "Unclear why this could be the Case, contact Admin"
+                };
+
+                throw new HttpResponseException(response);
+            }
+            var id = userId.Value;
+            var count = await _context.Order.Where(o => o.CustomerId == id).CountAsync();
+            return Ok(count);
+        }
 
 
         // PUT: api/Orders/5

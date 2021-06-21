@@ -155,7 +155,7 @@ namespace Trouvaille.Controllers
 
                 var cardinality = VARIABLE.Cardinality;
 
-                if (product.InStock - cardinality < product.MinStock)
+                if (product.InStock - cardinality < 0)
                 {
                     return BadRequest("Don't have that many in stock");
                 }

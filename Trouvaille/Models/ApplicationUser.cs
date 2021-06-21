@@ -22,6 +22,8 @@ namespace AuthoDemoMVC.Models
 
         public virtual Address? InvoiceAddress { get; set; }
 
+        public virtual bool IsDisabled { get; set; }
+
         public virtual ICollection<Order>? Orders { get; set; }
 
         public virtual ICollection<Rating>? Ratings { get; set; }

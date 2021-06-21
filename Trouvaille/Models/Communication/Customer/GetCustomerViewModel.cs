@@ -23,6 +23,8 @@ namespace Trouvaille.Models.Communication.Customer
 
         public string LastName { get; set; }
 
+        public Boolean IsDisabled { get; set; }
+
         public AddressViewModel InvoiceAddress { get; set; }
 
         public AddressViewModel DeliveryAddress { get; set; }
@@ -38,8 +40,9 @@ namespace Trouvaille.Models.Communication.Customer
             PhoneNumber = user.PhoneNumber;
             FirstName = user.FirstName;
             LastName = user.LastName;
-            InvoiceAddress = new AddressViewModel(user.InvoiceAddress);
-            DeliveryAddress = new AddressViewModel(user.DeliveryAddress);
+            IsDisabled = user.IsDisabled;
+            InvoiceAddress = user.InvoiceAddress != null ? new AddressViewModel(user.InvoiceAddress) : null;
+            DeliveryAddress = user.DeliveryAddress != null ? new AddressViewModel(user.DeliveryAddress) : null;
             //Orders = user.Orders?.Select(o => new GetOrderViewModel(o)).ToList();
             Orders = user.Orders?.Select(o => o.OrderId).ToList();
         }

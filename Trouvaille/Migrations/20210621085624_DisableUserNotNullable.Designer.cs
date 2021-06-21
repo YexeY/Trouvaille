@@ -4,14 +4,16 @@ using AuthoDemoMVC.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Trouvaille3.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210621085624_DisableUserNotNullable")]
+    partial class DisableUserNotNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,8 +64,8 @@ namespace Trouvaille3.Migrations
                     b.Property<Guid?>("InvoiceAddressId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsDisabled")
-                        .HasColumnType("bit");
+                    b.Property<decimal>("IsDisabled")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");

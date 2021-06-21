@@ -61,7 +61,7 @@ namespace Trouvaille.Controllers
         [Microsoft.AspNetCore.Mvc.Route("Customer/Login")]
         public async Task<IActionResult> LoginCustomerAsync([Microsoft.AspNetCore.Mvc.FromBody] LoginCustomerViewModel model)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && validateCustomerWithEmail(model.Email))
             {
                 var result = await _customerService.LoginCustomerAsync(model);
 
@@ -153,6 +153,10 @@ namespace Trouvaille.Controllers
         public async Task<IActionResult> GetCustomerInfo()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (!validateCustomerWithId(userId.Value))
+            {
+                return Unauthorized();
+            }
             var result = await _customerService.GetCustomerInfo(userId.Value);
 
             return Ok(result);
@@ -161,7 +165,7 @@ namespace Trouvaille.Controllers
         // GET: api/auth/Customer/5/10
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Customer/{from}/{to}")]
-        public async Task<ActionResult<ICollection<GetCustomerViewModel>>> GetCustomers(int from, int to)
+        public async Task<ActionResult<ICollection<GetCustomerViewModel>>> GetCustomers(int from, int to, bool onlyActive = true)
         {
             StringBuilder query = new StringBuilder();
 
@@ -169,9 +173,14 @@ namespace Trouvaille.Controllers
             query.AppendLine("  select * from AspNetUsers where Id IN (");
             query.AppendLine("  select R.UserId from AspNetUserRoles R");
             query.AppendLine("  where R.RoleId = 1");
-            query.AppendLine("  ) order by Id asc");
-            query.AppendLine($"OFFSET {from} ROWS");
-            query.AppendLine($"FETCH NEXT {to - from} ROWS ONLY");
+            query.AppendLine("  )");
+            if (onlyActive)
+            {
+                query.AppendLine("  and IsDisabled = 0");
+            }
+            query.AppendLine("  order by Id asc");
+            query.AppendLine($" OFFSET {from} ROWS");
+            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
 
             var customers = await _context.Users.FromSqlRaw(query.ToString())
                 //.Skip(from)
@@ -203,7 +212,7 @@ namespace Trouvaille.Controllers
         // GET: api/auth/Customer/5/10
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Customer/SearchQuery/{from}/{to}")]
-        public async Task<ActionResult<ICollection<GetCustomerViewModel>>> GetCustomersSearchQuery(int from, int to, Guid? customerId, string? customerEmail)
+        public async Task<ActionResult<ICollection<GetCustomerViewModel>>> GetCustomersSearchQuery(int from, int to, Guid? customerId, string? customerEmail, bool onlyActive = true)
         {
             StringBuilder query = new StringBuilder();
 
@@ -220,9 +229,13 @@ namespace Trouvaille.Controllers
             {
                 query.AppendLine($"  and U.Email = '{customerEmail}' ");
             }
+            if (onlyActive)
+            {
+                query.AppendLine("  and IsDisabled = 0");
+            }
             query.AppendLine("  order by Id asc");
-            query.AppendLine($"OFFSET {from} ROWS");
-            query.AppendLine($"FETCH NEXT {to - from} ROWS ONLY");
+            query.AppendLine($" OFFSET {from} ROWS");
+            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
 
             var customers = await _context.Users.FromSqlRaw(query.ToString())
                 //.Skip(from)
@@ -253,15 +266,20 @@ namespace Trouvaille.Controllers
 
         // GET: api/auth/Customer/Count
         [Microsoft.AspNetCore.Mvc.HttpGet]
-        [Microsoft.AspNetCore.Mvc.Route("Count")]
-        public async Task<ActionResult<int>> GetNumberOfCustomers()
+        [Microsoft.AspNetCore.Mvc.Route("Customer/Count")]
+        public async Task<ActionResult<int>> GetNumberOfCustomers(bool onlyActive = true)
         {
-            string query =   " select Count(*) from AspNetUsers U where Id IN ("
-                           + " select R.UserId from AspNetUserRoles R"
-                           + " where R.RoleId = 1"
-                           + " )";
+            var customerIds = await _context.UserRoles.Where(u => u.RoleId == "1").Select(u => u.UserId).ToListAsync();
+            int count;
+            if (onlyActive)
+            {
+                count = await _context.Users.Where(u => u.IsDisabled == false && customerIds.Contains(u.Id)).CountAsync();
+            }
+            else
+            {
+                count = await _context.Users.Where(u => customerIds.Contains(u.Id)).CountAsync();
+            }
 
-            var count = await _context.Database.ExecuteSqlRawAsync(query);
             return Ok(count);
         }
 
@@ -295,7 +313,8 @@ namespace Trouvaille.Controllers
             customer.FirstName = putCustomerViewModel.FirstName ?? customer.FirstName;
             customer.LastName = putCustomerViewModel.LastName ?? customer.LastName;
             customer.PhoneNumber = putCustomerViewModel.PhoneNumber ?? customer.PhoneNumber;
-            customer.Email = putCustomerViewModel.Email ?? customer.Email; 
+            customer.Email = putCustomerViewModel.Email ?? customer.Email;
+            customer.IsDisabled = putCustomerViewModel.IsDisabled ?? customer.IsDisabled;
 
             if (putCustomerViewModel.DeliveryAddress != null)
             {
@@ -383,7 +402,25 @@ namespace Trouvaille.Controllers
             return BadRequest();
         }
 
+        private bool validateCustomerWithEmail(string customerEmail)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Email == customerEmail);
+            if (user == null)
+            {
+                return false;
+            }
+            return !user.IsDisabled;
+        }
 
+        private bool validateCustomerWithId(string customerID)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Id == customerID);
+            if (user == null)
+            {
+                return false;
+            }
+            return !user.IsDisabled;
+        }
         /**
         // POST: api/auth/register
         [HttpPost]

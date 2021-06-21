@@ -19,8 +19,10 @@ namespace Trouvaille.Models.Communication.Customer
 
         public string? LastName { get; set; }
 
-        public PutAddressViewModel InvoiceAddress { get; set; }
+        public Boolean? IsDisabled { get; set; }
 
-        public PutAddressViewModel DeliveryAddress { get; set; }
+        public PutAddressViewModel? InvoiceAddress { get; set; }
+
+        public PutAddressViewModel? DeliveryAddress { get; set; }
     }
 }

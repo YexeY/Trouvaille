@@ -217,7 +217,7 @@ namespace Trouvaille.Controllers
             }
 
             _mailService.SendOrderConfirmationEmailAsync(user, order);
-            sendInvoiceEmail(order, userId);
+            sendInvoiceEmail(order, user.Id);
 
             var getOrderViewModel = new GetOrderViewModel(order);
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, getOrderViewModel);
@@ -482,12 +482,12 @@ namespace Trouvaille.Controllers
                 return false;
         }
 
-        private async Task sendInvoiceEmail(Order order, Guid userId)
+        private async Task sendInvoiceEmail(Order order, string userId)
         {
             var user = await _context.Users
                 .Include(u => u.InvoiceAddress)
                 .Include(u => u.InvoiceAddress.City)
-                .FirstOrDefaultAsync(u => u.Id == userId.ToString());
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
             _mailService.SendInvoiceEmailAsync(user, order);
         }

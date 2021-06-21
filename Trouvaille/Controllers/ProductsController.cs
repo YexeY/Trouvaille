@@ -506,10 +506,6 @@ namespace Trouvaille.Controllers
                 {
                     query.AppendLine("  and IsDisabled = 0");
                 }
-                query.AppendLine($"  order by {orderBy}");
-                query.AppendLine(asc ? "  asc" : "  desc");
-                query.AppendLine($" OFFSET {from} ROWS");
-                query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
             }
             else
             {
@@ -520,31 +516,34 @@ namespace Trouvaille.Controllers
                 {
                     query.AppendLine("  and IsDisabled = 0");
                 }
-                query.AppendLine($"  order by {orderBy}");
-                query.AppendLine(asc ? "  asc" : "  desc");
-                query.AppendLine($" OFFSET {from} ROWS");
-                query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
-
             }
 
-            var products = await _context.Product.FromSqlRaw(query.ToString())
-                //.Skip(from)
-                //.Take((to - from))
-                //.Include(b => b.ProductCategories)
-                .Include(p => p.Picture)
-                //.Include(p => p.Ratings)
-                .ToListAsync();
+            var products = new List<Product>();
+            if (asc)
+            {
+                products = await _context.Product.FromSqlRaw(query.ToString())
+                    .Include(p => p.Picture)
+                    .OrderBy(p => p.Price)
+                    .Skip(from)
+                    .Take(to - from)
+                    .ToListAsync();
+            }
+            else
+            {
+                products = await _context.Product.FromSqlRaw(query.ToString())
+                    .Include(p => p.Picture)
+                    .OrderByDescending(p => p.Price)
+                    .Skip(from)
+                    .Take(to - from)
+                    .ToListAsync();
+            }
+
             var getProductsViewModels = new List<GetProductViewModel>();
             foreach (var product in products)
             {
                 if (product == null)
                 {
-                    var response = new HttpResponseMessage(HttpStatusCode.NotFound)
-                    {
-                        Content = new StringContent("Employee doesn't exist", System.Text.Encoding.UTF8, "text/plain"),
-                        StatusCode = HttpStatusCode.NotFound
-                    };
-                    throw new HttpResponseException(response);
+                    return NotFound("product not found");
                 }
                 getProductsViewModels.Add(new GetProductViewModel(product));
             }

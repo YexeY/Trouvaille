@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +15,7 @@ using AuthoDemoMVC.Data;
 using AuthoDemoMVC.Models;
 using AuthoDemoMVC.Models.Communication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Trouvaille.Models.Communication.Order;
@@ -245,8 +249,9 @@ namespace Trouvaille.Controllers
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("{from}/{to}")]
         public async Task<ActionResult<ICollection<GetOrderViewModel>>> SearchQueryOrder(int from, int to, Guid? customerId = null,
-            DateTime? fromDateTime = null, DateTime? toDateTime = null,  int? orderState = null, string orderBy = "Date", bool asc = true)
+            string? fromDateTime = null, string? toDateTime = null,  int? orderState = null, string orderBy = "Date", bool asc = true)
         {
+            string dateFormats = "yyyy-MM-dd";
             Boolean and = false;
             Boolean where = false;
             StringBuilder query = new StringBuilder();
@@ -264,14 +269,22 @@ namespace Trouvaille.Controllers
 
             if (fromDateTime != null)
             {
+                if (!IsValidDate(fromDateTime, dateFormats))
+                {
+                    return BadRequest("Bad DateTime format");
+                }
                 query.AppendLine(and ? " and " : "");
-                query.AppendLine($"  Date >= '{fromDateTime.Value:yyyy-MM-dd}'");
+                query.AppendLine($"  Date >= '{fromDateTime}'");
                 and = true;
             }
             if (toDateTime != null)
             {
+                if (!IsValidDate(toDateTime, dateFormats))
+                {
+                    return BadRequest("Bad DateTime format");
+                }
                 query.AppendLine(and ? " and " : "");
-                query.AppendLine($"  Date >= '{toDateTime.Value:yyyy-MM-dd}'");
+                query.AppendLine($"  Date >= '{toDateTime}'");
                 and = true;
             }
             if (orderState != null)
@@ -281,19 +294,21 @@ namespace Trouvaille.Controllers
             }
 
             query.AppendLine(where ? " ) " : "");
+            /*
             query.AppendLine($"  order by O.{orderBy}");
             query.AppendLine(asc ? "  asc" : "  desc");
             query.AppendLine($" OFFSET {from} ROWS");
             query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
-
+            */
             var orders = await _context.Order.FromSqlRaw(query.ToString())
                 .Include(o => o.DeliveryAddress)
                 .Include(o => o.InvoiceAddress)
                 .Include(o => o.DeliveryAddress.City)
                 .Include(o => o.InvoiceAddress.City)
                 .Include(o => o.Products)
-                //.Skip(from)
-                //.Take((to - from))
+                .OrderBy(o => o.Date)
+                .Skip(from)
+                .Take(to - from)
                 .ToListAsync();
             var getOrderViewModel = orders.Select(o => new GetOrderViewModel(o)).ToList();
 
@@ -344,13 +359,13 @@ namespace Trouvaille.Controllers
             query.AppendLine($" OFFSET {from} ROWS");
             query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
 
-            var orders = await _context.Order.FromSqlRaw(query.ToString())
+            var orders =  _context.Order.FromSqlRaw(query.ToString())
                 .Include(o => o.DeliveryAddress)
                 .Include(o => o.InvoiceAddress)
                 .Include(o => o.DeliveryAddress.City)
                 .Include(o => o.InvoiceAddress.City)
                 .Include(o => o.Products)
-                .ToListAsync();
+                .ToList();
 
             //TODO: is this necessary?
             if (!orders.Any())
@@ -409,6 +424,16 @@ namespace Trouvaille.Controllers
                 _mailService.SendRestockOrderSelfEmailAsync(toOrderProduct);
             }
             
+        }
+        
+        private static bool IsValidDate(string value, string dateFormats)
+        {
+            DateTime tempDate;
+            bool validDate = DateTime.TryParseExact(value, dateFormats, DateTimeFormatInfo.InvariantInfo, DateTimeStyles.None, out tempDate);
+            if (validDate)
+                return true;
+            else
+                return false;
         }
     }
 }

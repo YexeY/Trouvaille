@@ -487,20 +487,28 @@ namespace Trouvaille.Controllers
                 query.AppendLine($"     P.Description	LIKE	'%{searchWord}%'");
                 query.AppendLine($"  OR	P.Name			LIKE	'%{searchWord}%'");
                 query.AppendLine("  )");
+                if (onlyActive)
+                {
+                    query.AppendLine("  and IsDisabled = 0");
+                }
                 query.AppendLine($"  order by {orderBy}");
                 query.AppendLine(asc ? "  asc" : "  desc");
-                query.AppendLine($"OFFSET {from} ROWS");
-                query.AppendLine($"FETCH NEXT {to - from} ROWS ONLY");
+                query.AppendLine($" OFFSET {from} ROWS");
+                query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
             }
             else
             {
                 query.AppendLine("  select * from Product P where");
                 query.AppendLine($"     P.Description	LIKE	'%{searchWord}%'");
                 query.AppendLine($"  OR	P.Name			LIKE	'%{searchWord}%'");
+                if (onlyActive)
+                {
+                    query.AppendLine("  and IsDisabled = 0");
+                }
                 query.AppendLine($"  order by {orderBy}");
                 query.AppendLine(asc ? "  asc" : "  desc");
-                query.AppendLine($"OFFSET {from} ROWS");
-                query.AppendLine($"FETCH NEXT {to - from} ROWS ONLY");
+                query.AppendLine($" OFFSET {from} ROWS");
+                query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
 
             }
 

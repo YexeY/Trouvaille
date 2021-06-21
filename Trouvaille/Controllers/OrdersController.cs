@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Results;
 using AuthoDemoMVC.Data;
 using AuthoDemoMVC.Models;
 using AuthoDemoMVC.Models.Communication;
@@ -87,7 +88,7 @@ namespace Trouvaille.Controllers
         }
 
         // POST: api/Orders
-        [Microsoft.AspNetCore.Authorization.Authorize]
+        //[Microsoft.AspNetCore.Authorization.Authorize]
         [Microsoft.AspNetCore.Mvc.HttpPost]
         public async Task<ActionResult<GetOrderViewModel>> PostOrder(PostOrderViewModel model)
         {
@@ -196,8 +197,15 @@ namespace Trouvaille.Controllers
             }
 
             //------------------------------------------
-            await _context.Order.AddAsync(order);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.Order.AddAsync(order);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
 
             _mailService.SendOrderConfirmationEmailAsync(user, order);
 

@@ -137,7 +137,7 @@ namespace Trouvaille.Controllers
             ICollection<Product> products = new List<Product>();
             foreach (var VARIABLE in model.Products)
             {
-                var product = _context.Product.Find(VARIABLE.ProductId);
+                var product = await _context.Product.FindAsync(VARIABLE.ProductId);
 
                 if (product == null)
                 {

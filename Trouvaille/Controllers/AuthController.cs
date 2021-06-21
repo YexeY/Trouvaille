@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Trouvaille.Models.Communication.Base;
 using Trouvaille.Models.Communication.Customer;
+using Trouvaille.Models.Communication.Employee;
 
 namespace Trouvaille.Controllers
 {
@@ -283,6 +284,110 @@ namespace Trouvaille.Controllers
             }
 
             return Ok(count);
+        }
+
+         // GET: api/auth/Employee/Count
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Microsoft.AspNetCore.Mvc.Route("Employee/Count")]
+        public async Task<ActionResult<int>> GetNumberOfEmployees(bool onlyActive = true)
+        {
+            var employeeIds = await _context.UserRoles.Where(u => u.RoleId == "2").Select(u => u.UserId).ToListAsync();
+            int count;
+            if (onlyActive)
+            {
+                count = await _context.Users.Where(u => u.IsDisabled == false && employeeIds.Contains(u.Id)).CountAsync();
+            }
+            else
+            {
+                count = await _context.Users.Where(u => employeeIds.Contains(u.Id)).CountAsync();
+            }
+
+            return Ok(count);
+        }
+
+        // PUT: api/auth/Employee
+        [Microsoft.AspNetCore.Mvc.HttpPut]
+        [Microsoft.AspNetCore.Mvc.Route("Employee")]
+        [Authorize]
+        public async Task<ActionResult<GetEmployeeViewModel>> PutEmployee([Microsoft.AspNetCore.Mvc.FromBody] PutEmployeeViewModel putEmployeeViewModel, Guid? employeeId = null)
+        {
+            string id;
+            if (employeeId == null)
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+                id = userId.Value;
+            }
+            else
+            {
+                id = employeeId.ToString();
+            }
+
+            var employee = await _context.Users.FindAsync(id);
+            if (employee == null)
+            {
+                return NotFound("employee not found");
+            }
+
+            var role = await _context.UserRoles.FirstOrDefaultAsync(r => r.UserId == employee.Id);
+            if (role == null || role.RoleId != "2")
+            {
+                return NotFound("not an employee");
+            }
+
+            employee.Email = putEmployeeViewModel.Email ?? employee.Email;
+            employee.FirstName = putEmployeeViewModel.FirstName ?? employee.FirstName;
+            employee.LastName = putEmployeeViewModel.LastName ?? employee.LastName;
+            _context.Entry(employee).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                //TODO: proper error handling
+                Console.WriteLine(e);
+                throw;
+            }
+
+            var getEmployeeViewModel = new GetEmployeeViewModel(employee);
+            return Ok(getEmployeeViewModel);
+        }
+
+        // GET: api/auth/Employee/5/10
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Microsoft.AspNetCore.Mvc.Route("Employee/{from}/{to}")]
+        public async Task<ActionResult<ICollection<GetEmployeeViewModel>>> GetEmployee(int from, int to)
+        {
+            StringBuilder query = new StringBuilder();
+
+
+            query.AppendLine("  select * from AspNetUsers where Id IN (");
+            query.AppendLine("  select R.UserId from AspNetUserRoles R");
+            query.AppendLine("  where R.RoleId = 2");
+            query.AppendLine("  )");
+            query.AppendLine("  order by Id asc");
+            query.AppendLine($" OFFSET {from} ROWS");
+            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
+
+            var employees = await _context.Users.FromSqlRaw(query.ToString())
+                .ToListAsync();
+
+            var getEmployeeViewModel = new List<GetEmployeeViewModel>();
+            foreach (var employee in employees)
+            {
+                if (employee == null)
+                {
+                    var response = new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent("Employee doesn't exist", System.Text.Encoding.UTF8, "text/plain"),
+                        StatusCode = HttpStatusCode.NotFound
+                    };
+                    throw new HttpResponseException(response);
+                }
+                getEmployeeViewModel.Add(new GetEmployeeViewModel(employee));
+            }
+            return Ok(getEmployeeViewModel);
         }
 
         // PUT: api/auth/Customer

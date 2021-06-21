@@ -78,11 +78,13 @@ namespace Trouvaille.Controllers
 
             query.AppendLine($" select * from Rating R");
             query.AppendLine($" where R.ProductId = '{productId.ToString()}'");
-            query.AppendLine($" Order by R.StarCount");
-            query.AppendLine($" OFFSET {from} ROWS");
-            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
 
-            var ratings = await _context.Rating.FromSqlRaw(query.ToString()).ToListAsync();
+
+            var ratings = await _context.Rating.FromSqlRaw(query.ToString())
+                .OrderBy(r => r.StarCount)
+                .Skip(from)
+                .Take(to - from)
+                .ToListAsync();
             var getRatingViewModels = ratings.Select(r => new GetRatingViewModel(r)).ToList();
 
             return Ok(getRatingViewModels);
@@ -102,11 +104,12 @@ namespace Trouvaille.Controllers
             }
             query.AppendLine($" select * from Rating R");
             query.AppendLine($" where R.CustomerId = '{customerId.ToString()}'");
-            query.AppendLine($" Order by R.StarCount");
-            query.AppendLine($" OFFSET {from} ROWS");
-            query.AppendLine($" FETCH NEXT {to - from} ROWS ONLY");
 
-            var ratings = await _context.Rating.FromSqlRaw(query.ToString()).ToListAsync();
+            var ratings = await _context.Rating.FromSqlRaw(query.ToString())
+                .OrderBy(r => r.StarCount)
+                .Skip(from)
+                .Take(to - from)
+                .ToListAsync();
             var getRatingViewModels = ratings.Select(r => new GetRatingViewModel(r)).ToList();
 
             return Ok(getRatingViewModels);

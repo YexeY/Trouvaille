@@ -224,7 +224,14 @@ namespace Trouvaille.Controllers
             }
 
             _context.Order.Remove(order);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
 
             return NoContent();
         }

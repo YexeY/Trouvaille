@@ -138,7 +138,7 @@ namespace Trouvaille.Controllers
 
             if (product == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
             product.Name = model.Name ?? product.Name;
@@ -340,7 +340,15 @@ namespace Trouvaille.Controllers
             }
 
             _context.Entry(product).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            { 
+                throw;
+            }
             return Ok();
         }
 
@@ -433,8 +441,15 @@ namespace Trouvaille.Controllers
             };
 
             //Add Product and save
-            await _context.Product.AddAsync(product);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.Product.AddAsync(product);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
 
             var getProductView = new GetProductViewModel(product);
 

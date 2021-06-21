@@ -62,6 +62,7 @@ namespace Trouvaille.Controllers
             return rating;
         }
 
+        // GET: api/Ratings/Product/{ProductID}/10/15
         [HttpGet]
         [Route("Product/{id}/{from}/{to}")]
         public async Task<ActionResult<IEnumerable<GetRatingViewModel>>> GetRatingOfProduct(int from, int to, Guid productId)
@@ -87,6 +88,7 @@ namespace Trouvaille.Controllers
             return Ok(getRatingViewModels);
         }
 
+        // GET: api/Ratings/Customer/{CustomerID}/10/15
         [HttpGet]
         [Route("Customer/{id}/{from}/{to}")]
         public async Task<ActionResult<IEnumerable<GetRatingViewModel>>> GetRatingOfCustomer(int from, int to, Guid customerId)
@@ -175,8 +177,15 @@ namespace Trouvaille.Controllers
             product.RatingCounter += 1;
             _context.Entry(product).State = EntityState.Modified;
 
-            await _context.Rating.AddAsync(rating);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.Rating.AddAsync(rating);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
 
             var getRatingVieModel = new GetRatingViewModel(rating);
 
@@ -199,8 +208,16 @@ namespace Trouvaille.Controllers
                                     product.AverageRating;
             _context.Entry(product).State = EntityState.Modified;
 
-            _context.Rating.Remove(rating);
-            await _context.SaveChangesAsync();
+            
+            try
+            {
+                _context.Rating.Remove(rating);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
 
             return NoContent();
         }

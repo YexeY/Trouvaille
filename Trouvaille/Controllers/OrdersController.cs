@@ -217,6 +217,7 @@ namespace Trouvaille.Controllers
             }
 
             _mailService.SendOrderConfirmationEmailAsync(user, order);
+            sendInvoiceEmail(order, userId);
 
             var getOrderViewModel = new GetOrderViewModel(order);
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, getOrderViewModel);
@@ -479,6 +480,16 @@ namespace Trouvaille.Controllers
                 return true;
             else
                 return false;
+        }
+
+        private async Task sendInvoiceEmail(Order order, Guid userId)
+        {
+            var user = await _context.Users
+                .Include(u => u.InvoiceAddress)
+                .Include(u => u.InvoiceAddress.City)
+                .FirstOrDefaultAsync(u => u.Id == userId.ToString());
+
+            _mailService.SendInvoiceEmailAsync(user, order);
         }
     }
 }

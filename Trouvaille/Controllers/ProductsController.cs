@@ -52,18 +52,14 @@ namespace Trouvaille.Controllers
         public async Task<ActionResult<ICollection<GetProductViewModel>>> GetProductFromTo(int from, int to)
         {
             var products = await _context.Product
+                .OrderBy(p => p.ProductId)
                 .Skip(from)
                 .Take((to - from))
                 //.Include(b => b.ProductCategories)
                 .Include(p => p.Picture)
                 //.Include(p => p.Ratings)
                 .ToListAsync();
-            ICollection<GetProductViewModel> getProductViewModels = new List<GetProductViewModel>();
-            foreach (var product in products)
-            {
-                var productView = new GetProductViewModel(product);
-                getProductViewModels.Add(productView);
-            }
+            var getProductViewModels = products.Select(p => new GetProductViewModel(p)).ToList();
 
             return Ok(getProductViewModels);
         }
@@ -92,14 +88,8 @@ namespace Trouvaille.Controllers
 
             if (finalCollection == null) return Ok((ICollection<Product>) null);
 
-            ICollection<GetProductViewModel> getProductViews = new List<GetProductViewModel>();
-            foreach (var product in finalCollection)
-            {
-                var productViewModel = new GetProductViewModel(product);
-                getProductViews.Add(productViewModel);
-            }
-
-            return Ok(getProductViews);
+            var getProductViewModels = finalCollection.Select(p => new GetProductViewModel(p)).ToList();
+            return Ok(getProductViewModels);
         }
 
         // GET: api/Products/5

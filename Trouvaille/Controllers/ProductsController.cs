@@ -51,6 +51,10 @@ namespace Trouvaille.Controllers
         [Microsoft.AspNetCore.Mvc.Route("{from}/{to}")]
         public async Task<ActionResult<ICollection<GetProductViewModel>>> GetProductFromTo(int from, int to, bool onlyActive = true)
         {
+            if (to <= from)
+            {
+                return BadRequest("to must be greater then from");
+            }
             if (onlyActive)
             {
                 var products = await _context.Product
@@ -480,9 +484,12 @@ namespace Trouvaille.Controllers
         public async Task<ActionResult<ICollection<GetProductViewModel>>> SearchQueryProduct(int from, int to, string searchWord = "",
               bool asc = true, ICollection<Guid>? categoryIds = null, string orderBy = "Price", bool onlyActive = true)
         {
+            if (to <= from)
+            {
+                return BadRequest("to must be greater then from");
+            }
             StringBuilder query = new StringBuilder();
             //Check Order By
-
             if (categoryIds != null && categoryIds.Count > 0)
             {
                 query.AppendLine("  select * from Product P where ProductId IN (");

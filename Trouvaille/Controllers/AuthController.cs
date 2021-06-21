@@ -170,9 +170,11 @@ namespace Trouvaille.Controllers
         [Microsoft.AspNetCore.Mvc.Route("Customer/{from}/{to}")]
         public async Task<ActionResult<ICollection<GetCustomerViewModel>>> GetCustomers(int from, int to, bool onlyActive = true)
         {
+            if (to <= from)
+            {
+                return BadRequest("to must be greater then from");
+            }
             StringBuilder query = new StringBuilder();
-
-
             query.AppendLine("  select * from AspNetUsers where Id IN (");
             query.AppendLine("  select R.UserId from AspNetUserRoles R");
             query.AppendLine("  where R.RoleId = 1");
@@ -216,9 +218,11 @@ namespace Trouvaille.Controllers
         [Microsoft.AspNetCore.Mvc.Route("Customer/SearchQuery/{from}/{to}")]
         public async Task<ActionResult<ICollection<GetCustomerViewModel>>> GetCustomersSearchQuery(int from, int to, Guid? customerId, string? customerEmail, bool onlyActive = true)
         {
+            if (to <= from)
+            {
+                return BadRequest("to must be greater then from");
+            }
             StringBuilder query = new StringBuilder();
-
-
             query.AppendLine("  select * from AspNetUsers U where Id IN (");
             query.AppendLine("  select R.UserId from AspNetUserRoles R");
             query.AppendLine("  where R.RoleId = 1");
@@ -351,9 +355,11 @@ namespace Trouvaille.Controllers
         [Microsoft.AspNetCore.Mvc.Route("Employee/{from}/{to}")]
         public async Task<ActionResult<ICollection<GetEmployeeViewModel>>> GetEmployee(int from, int to)
         {
+            if (to <= from)
+            {
+                return BadRequest("to must be greater then from");
+            }
             StringBuilder query = new StringBuilder();
-
-
             query.AppendLine("  select * from AspNetUsers where Id IN (");
             query.AppendLine("  select R.UserId from AspNetUserRoles R");
             query.AppendLine("  where R.RoleId = 2");

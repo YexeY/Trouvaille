@@ -69,6 +69,10 @@ namespace Trouvaille.Controllers
         [HttpGet("{from}/{to}")]
         public async Task<ActionResult<ICollection<GetCategoryViewModel>>> GetCategoryFromTo(int from, int to)
         {
+            if (to <= from)
+            {
+                return BadRequest("to must be greater then from");
+            }
             var category = await _context.Category
                 .Skip(from)
                 .Take(to - from)

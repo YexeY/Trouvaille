@@ -57,6 +57,11 @@ namespace Trouvaille.Controllers
         [Microsoft.AspNetCore.Mvc.HttpGet("{from}/{to}")]
         public async Task<ActionResult<ICollection<GetOrderViewModel>>> GetOrderFromTo(int from, int to)
         {
+            if (to <= from)
+            {
+                return BadRequest("to must be greater then from");
+            }
+
             var orders = await _context.Order
                 .Skip(from)
                 .Take(to - from)
@@ -251,6 +256,10 @@ namespace Trouvaille.Controllers
         public async Task<ActionResult<ICollection<GetOrderViewModel>>> SearchQueryOrder(int from, int to, Guid? customerId = null,
             string? fromDateTime = null, string? toDateTime = null,  int? orderState = null, string orderBy = "Date", bool asc = true)
         {
+            if (to <= from)
+            {
+                return BadRequest("to must be greater then from");
+            }
             string dateFormats = "yyyy-MM-dd";
             Boolean and = false;
             Boolean where = false;
@@ -343,6 +352,10 @@ namespace Trouvaille.Controllers
         public async Task<ActionResult<ICollection<GetOrderViewModel>>> GetHistory(int from, int to
             , Guid? customerId = null)
         {
+            if (to <= from)
+            {
+                return BadRequest("to must be greater then from");
+            }
             string id;
             if (customerId == null)
             {

@@ -38,6 +38,10 @@ namespace Trouvaille.Controllers
         [Route("{from}/{to}")]
         public async Task<ActionResult<IEnumerable<GetRatingViewModel>>> GetRatingsFromTo(int from, int to)
         {
+            if (to <= from)
+            {
+                return BadRequest("to must be greater then from");
+            }
             var ratings = await _context.Rating
                 .OrderBy(r => r.ProductId)
                 .Skip(from)
@@ -67,6 +71,10 @@ namespace Trouvaille.Controllers
         [Route("Product/{id}/{from}/{to}")]
         public async Task<ActionResult<IEnumerable<GetRatingViewModel>>> GetRatingOfProduct(int from, int to, Guid productId)
         {
+            if (to <= from)
+            {
+                return BadRequest("to must be greater then from");
+            }
             var query = new StringBuilder();
             var product = await _context.Product
                 .FirstOrDefaultAsync(p => p.ProductId == productId);
@@ -95,6 +103,10 @@ namespace Trouvaille.Controllers
         [Route("Customer/{id}/{from}/{to}")]
         public async Task<ActionResult<IEnumerable<GetRatingViewModel>>> GetRatingOfCustomer(int from, int to, Guid customerId)
         {
+            if (to <= from)
+            {
+                return BadRequest("to must be greater then from");
+            }
             var query = new StringBuilder();
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Id == customerId.ToString());

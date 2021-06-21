@@ -49,21 +49,36 @@ namespace Trouvaille.Controllers
         // GET: api/Products/10/20
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("{from}/{to}")]
-        public async Task<ActionResult<ICollection<GetProductViewModel>>> GetProductFromTo(int from, int to)
+        public async Task<ActionResult<ICollection<GetProductViewModel>>> GetProductFromTo(int from, int to, bool onlyActive = true)
         {
-            var products = await _context.Product
-                .OrderBy(p => p.ProductId)
-                .Skip(from)
-                .Take((to - from))
-                //.Include(b => b.ProductCategories)
-                .Include(p => p.Picture)
-                //.Include(p => p.Ratings)
-                .ToListAsync();
-            var getProductViewModels = products.Select(p => new GetProductViewModel(p)).ToList();
+            if (onlyActive)
+            {
+                var products = await _context.Product
+                    .Where(p => p.IsDisabled == false)
+                    .OrderBy(p => p.ProductId)
+                    .Skip(from)
+                    .Take((to - from))
+                    .Include(p => p.Picture)
+                    .ToListAsync();
+                var getProductViewModels = products.Select(p => new GetProductViewModel(p)).ToList();
 
-            return Ok(getProductViewModels);
+                return Ok(getProductViewModels);
+            }
+            else
+            {
+                var products = await _context.Product
+                    .OrderBy(p => p.ProductId)
+                    .Skip(from)
+                    .Take((to - from))
+                    .Include(p => p.Picture)
+                    .ToListAsync();
+                var getProductViewModels = products.Select(p => new GetProductViewModel(p)).ToList();
+
+                return Ok(getProductViewModels);
+            }
         }
 
+        /**
         // POST: api/Products/filtered
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("filtered")]
@@ -91,12 +106,12 @@ namespace Trouvaille.Controllers
             var getProductViewModels = finalCollection.Select(p => new GetProductViewModel(p)).ToList();
             return Ok(getProductViewModels);
         }
+        **/
 
         // GET: api/Products/5
         [Microsoft.AspNetCore.Mvc.HttpGet("{id}")]
         public async Task<ActionResult<GetProductViewModel>> GetProduct(Guid id)
         {
-            //var product = await _context.Product.Include(b => b.ProductCategories).FindAsync(id);
             var product = await _context.Product
                 .Include(b => b.ProductCategories)
                 .Include(p => p.Picture)
@@ -132,6 +147,7 @@ namespace Trouvaille.Controllers
             product.Price = model.Price ?? product.Price;
             product.Tax = model.Tax ?? product.Tax;
             product.InStock = model.InStock ?? product.InStock;
+            product.IsDisabled = model.IsDisabled ?? product.IsDisabled;
 
             //Manufacturer
             if (model.ManufacturerCatalogId != null || model.ManufacturerEmail != null)
@@ -280,10 +296,18 @@ namespace Trouvaille.Controllers
         // GET: api/Products/Count
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Count")]
-        public async Task<ActionResult<int>> GetNumberOfProducts()
+        public async Task<ActionResult<int>> GetNumberOfProducts(bool onlyActive = true)
         {
-            var count = await _context.Product.CountAsync();
-            return Ok(count);
+            if (onlyActive)
+            {
+                var count = await _context.Product.Where(p => p.IsDisabled == false).CountAsync();
+                return Ok(count);
+            }
+            else
+            {
+                var count = await _context.Product.CountAsync();
+                return Ok(count);
+            }
         }
 
         // POST: api/Products/5/addCategory
@@ -417,6 +441,7 @@ namespace Trouvaille.Controllers
             return CreatedAtAction("GetProduct", new { id = product.ProductId }, getProductView);
         }
 
+        /**
         // DELETE: api/Products/5
         [Microsoft.AspNetCore.Mvc.HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(Guid id)
@@ -432,12 +457,13 @@ namespace Trouvaille.Controllers
 
             return NoContent();
         }
-        
+        **/
+
         // POST: api/Products/SearchQuery/5/10
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("SearchQuery/{from}/{to}")]
         public async Task<ActionResult<ICollection<GetProductViewModel>>> SearchQueryProduct(int from, int to, string searchWord = "",
-              bool asc = true, ICollection<Guid>? categoryIds = null, string orderBy = "Price")
+              bool asc = true, ICollection<Guid>? categoryIds = null, string orderBy = "Price", bool onlyActive = true)
         {
             StringBuilder query = new StringBuilder();
             //Check Order By

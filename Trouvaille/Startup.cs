@@ -21,9 +21,11 @@ using AuthoDemoMVC.Data.UserService;
 using AuthoDemoMVC.Models;
 using FluentEmail.Smtp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Trouvaille.Security;
 using Trouvaille.Services.MailService;
 
 
@@ -77,6 +79,17 @@ namespace Trouvaille3
                     ValidateIssuerSigningKey = true
                 };
             });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("IsAdmin",
+                    policy => policy.AddRequirements(new ManageAdminRolesAndClaimsRequirement()));
+                options.AddPolicy("IsActiveCustomer",
+                    policy => policy.AddRequirements(new ManageCustomerRolesAndClaimsRequirement()));
+            });
+            services.AddScoped<IAuthorizationHandler, IsAnAdminRolesAndClaimsHandler>();
+            services.AddScoped<IAuthorizationHandler, IsAnActiveCustomerRolesAndClaimsHandler>();
+
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICustomerService, CustomerService>();

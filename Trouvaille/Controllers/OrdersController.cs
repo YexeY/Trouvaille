@@ -97,7 +97,8 @@ namespace Trouvaille.Controllers
         }
 
         // POST: api/Orders
-        //[Microsoft.AspNetCore.Authorization.Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsActiveCustomer")]
+        //[Microsoft.AspNetCore.Authorization.Authorize()]
         [Microsoft.AspNetCore.Mvc.HttpPost]
         public async Task<ActionResult<GetOrderViewModel>> PostOrder(PostOrderViewModel model)
         {

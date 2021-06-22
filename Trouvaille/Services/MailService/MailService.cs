@@ -291,8 +291,7 @@ namespace Trouvaille.Services.MailService
 
         public async Task<bool> SendInvoiceEmailAsync(ApplicationUser user, Order order)
         {
-            if (user == null || order == null || user.InvoiceAddress  == null || user.InvoiceAddress.City == null
-            || order.Products == null || order.InvoiceAddress == null)
+            if (user == null || order?.Products == null || order.InvoiceAddress?.City == null)
             {
                 return false;
             }

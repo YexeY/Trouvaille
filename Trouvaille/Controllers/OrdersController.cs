@@ -98,7 +98,6 @@ namespace Trouvaille.Controllers
 
         // POST: api/Orders
         [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsActiveCustomer")]
-        //[Microsoft.AspNetCore.Authorization.Authorize()]
         [Microsoft.AspNetCore.Mvc.HttpPost]
         public async Task<ActionResult<GetOrderViewModel>> PostOrder(PostOrderViewModel model)
         {
@@ -106,18 +105,6 @@ namespace Trouvaille.Controllers
             //-------------------------------------------
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
             var user = await _context.Users.Include(u => u.Products).FirstOrDefaultAsync(u => u.Id == userId.Value);
-            //TODO Verify Role
-            /**
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-            if (identity != null)
-            {
-                var value = identity.FindFirst("Role").Value;
-                if (value != "Customer")
-                {
-                    return Unauthorized("Not Authorized");
-                }
-            }
-            **/
             //-------------------------------------------
             //Extract Adresses
             //-------------------------------------------
@@ -218,7 +205,8 @@ namespace Trouvaille.Controllers
             }
 
             _mailService.SendOrderConfirmationEmailAsync(user, order);
-            sendInvoiceEmail(order, user.Id);
+            _mailService.SendInvoiceEmailAsync(user, order);
+            //sendInvoiceEmail(order, user.Id);
 
             var getOrderViewModel = new GetOrderViewModel(order);
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, getOrderViewModel);
@@ -490,11 +478,9 @@ namespace Trouvaille.Controllers
         private async Task sendInvoiceEmail(Order order, string userId)
         {
             var user = await _context.Users
-                .Include(u => u.InvoiceAddress)
-                .Include(u => u.InvoiceAddress.City)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
-            _mailService.SendInvoiceEmailAsync(user, order);
+            await _mailService.SendInvoiceEmailAsync(user, order);
         }
     }
 }

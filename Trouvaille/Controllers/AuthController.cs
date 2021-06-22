@@ -152,7 +152,7 @@ namespace Trouvaille.Controllers
         // GET: api/auth/Customer/info
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Customer/info")]
-        [Microsoft.AspNetCore.Authorization.Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsActiveCustomer")]
         public async Task<IActionResult> GetCustomerInfo()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);

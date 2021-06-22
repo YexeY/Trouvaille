@@ -557,6 +557,71 @@ namespace Trouvaille.Controllers
             return Ok(getProductsViewModels);
         }
 
+        // POST: api/Products/SearchQueryCount/5/10
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("SearchQueryCount")]
+        public async Task<ActionResult<int>> SearchQueryProductCount(string searchWord = "",
+              bool asc = true, ICollection<Guid>? categoryIds = null, string orderBy = "Price", bool onlyActive = true)
+        {
+            StringBuilder query = new StringBuilder();
+            //Check Order By
+            if (categoryIds != null && categoryIds.Count > 0)
+            {
+                query.AppendLine("  select Count(*) from Product P where ProductId IN (");
+                //---------------------------------
+                query.AppendLine(
+                    $"  select ProductsProductId from CategoryProduct  where ProductCategoriesCategoryId = '{categoryIds.ElementAt(0).ToString()}' ");
+                for (int i = 1; i < categoryIds.Count; i++)
+                {
+                    var categoryId = categoryIds.ElementAt(i).ToString();
+                    query.AppendLine("  Intersect");
+                    query.AppendLine(
+                        $"  select ProductsProductId from CategoryProduct where ProductCategoriesCategoryId = '{categoryIds.ElementAt(i).ToString()}'");
+                }
+
+                query.AppendLine("  )");
+                query.AppendLine("  and (");
+                query.AppendLine($"     P.Description	LIKE	'%{searchWord}%'");
+                query.AppendLine($"  OR	P.Name			LIKE	'%{searchWord}%'");
+                query.AppendLine("  )");
+                if (onlyActive)
+                {
+                    query.AppendLine("  and IsDisabled = 0");
+                }
+            }
+            else
+            {
+                query.AppendLine("  select * from Product P where");
+                query.AppendLine($"     P.Description	LIKE	'%{searchWord}%'");
+                query.AppendLine($"  OR	P.Name			LIKE	'%{searchWord}%'");
+                if (onlyActive)
+                {
+                    query.AppendLine("  and IsDisabled = 0");
+                }
+            }
+
+            var count = IntFromSQL(context: _context, query.ToString());
+
+            return Ok(count);
+        }
+
+        public static int IntFromSQL(ApplicationDbContext context, string sql)
+        {
+            int count;
+            using (var connection = context.Database.GetDbConnection())
+            {
+                connection.Open();
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = sql;
+                    string result = command.ExecuteScalar().ToString();
+
+                    int.TryParse(result, out count);
+                }
+            }
+            return count;
+        }
 
         // Get: api/Manufacturer/{id}
         [Microsoft.AspNetCore.Mvc.HttpGet("/api/Manufacturer/{id}")]

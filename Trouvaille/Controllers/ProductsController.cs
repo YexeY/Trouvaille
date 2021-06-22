@@ -392,7 +392,7 @@ namespace Trouvaille.Controllers
 
         // POST: api/Products
         [Microsoft.AspNetCore.Mvc.HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(PostProductViewModel model)
+        public async Task<ActionResult<GetProductViewModel>> PostProduct(PostProductViewModel model)
         {
             //Get Manufacturer
             var manufacturer = new Manufacturer()
@@ -557,7 +557,7 @@ namespace Trouvaille.Controllers
             return Ok(getProductsViewModels);
         }
 
-        // POST: api/Products/SearchQueryCount/5/10
+        // POST: api/Products/SearchQueryCount
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("SearchQueryCount")]
         public async Task<ActionResult<int>> SearchQueryProductCount(string searchWord = "",
@@ -591,7 +591,7 @@ namespace Trouvaille.Controllers
             }
             else
             {
-                query.AppendLine("  select * from Product P where");
+                query.AppendLine("  select Count(*) from Product P where");
                 query.AppendLine($"     P.Description	LIKE	'%{searchWord}%'");
                 query.AppendLine($"  OR	P.Name			LIKE	'%{searchWord}%'");
                 if (onlyActive)

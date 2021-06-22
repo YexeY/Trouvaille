@@ -86,10 +86,15 @@ namespace Trouvaille3
                     policy => policy.AddRequirements(new ManageAdminRolesAndClaimsRequirement()));
                 options.AddPolicy("IsActiveCustomer",
                     policy => policy.AddRequirements(new ManageCustomerRolesAndClaimsRequirement()));
+                options.AddPolicy("IsEmployee",
+                    policy => policy.AddRequirements(new ManageEmployeeRolesAndClaimsRequirements()));
+                options.AddPolicy("IsUser",
+                    policy => policy.AddRequirements(new ManageUserRolesAndClaimsRequirements()));
             });
             services.AddScoped<IAuthorizationHandler, IsAnAdminRolesAndClaimsHandler>();
             services.AddScoped<IAuthorizationHandler, IsAnActiveCustomerRolesAndClaimsHandler>();
-
+            services.AddScoped<IAuthorizationHandler, IsAnEmployeeRolesAndClaimsHandler>();
+            services.AddScoped<IAuthorizationHandler, IsAnActiveUserRolesAndClaimsHandler>();
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICustomerService, CustomerService>();

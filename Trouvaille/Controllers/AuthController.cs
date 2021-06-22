@@ -229,11 +229,11 @@ namespace Trouvaille.Controllers
             query.AppendLine("  ) ");
             if (customerId != null)
             {
-                query.AppendLine($"  and U.Id = '{customerId.ToString()}' ");
+                query.AppendLine($"  and U.Id LIKE '%{customerId.ToString()}%' ");
             }
             if (customerEmail != null)
             {
-                query.AppendLine($"  and U.Email = '{customerEmail}' ");
+                query.AppendLine($"  and U.Email LIKE '%{customerEmail}%' ");
             }
             if (onlyActive)
             {

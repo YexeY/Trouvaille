@@ -10,6 +10,8 @@ namespace Trouvaille.Models.Communication.Employee
 {
     public class GetEmployeeViewModel
     {
+        public string Id { get; set; }
+
         [StringLength(50)]
         [EmailAddress]
         public string Email { get; set; }
@@ -25,6 +27,7 @@ namespace Trouvaille.Models.Communication.Employee
             Email = model.Email;
             FirstName = model.FirstName;
             LastName = model.LastName;
+            Id = model.Id;
         }
     }
 }

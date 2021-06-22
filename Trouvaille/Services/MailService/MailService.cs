@@ -135,13 +135,12 @@ namespace Trouvaille.Services.MailService
             }
             template.AppendLine("<p>With the best Regard</p>");
             template.AppendLine("<p>Trouvaille Online-Shop</p>");
-            //TODO: Address
 
             var email = Email
                 .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(manufacturer.Email)
                 .Subject("Restock Order")
-                .UsingTemplate(template.ToString(), new { Minstock = product.MinStock, ProductName = product.Name});
+                .UsingTemplate(template.ToString(), new { });
             try
             {
                 await email.SendAsync();
@@ -166,9 +165,9 @@ namespace Trouvaille.Services.MailService
 
             var email = Email
                 .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
-                .To(_configuration.GetSection("Email")["RestockEmail"])
+                .To(_configuration.GetSection("Mail")["RestockEmail"])
                 .Subject("Restock Order")
-                .UsingTemplate(template.ToString(), new { Minstock = product.MinStock, ProductName = product.Name });
+                .UsingTemplate(template.ToString(), new {});
             try
             {
                 await email.SendAsync();

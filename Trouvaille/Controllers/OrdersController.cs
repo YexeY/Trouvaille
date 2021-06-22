@@ -155,7 +155,7 @@ namespace Trouvaille.Controllers
 
                 if (product.InStock - cardinality < product.MinStock)
                 {
-                    SendRestockEmailAsync(product.ManufacturerId, product);
+                    await SendRestockEmailAsync(product.ManufacturerId, product);
                 }
 
                 product.InStock -= cardinality;
@@ -204,9 +204,8 @@ namespace Trouvaille.Controllers
                 throw;
             }
 
-            _mailService.SendOrderConfirmationEmailAsync(user, order);
-            _mailService.SendInvoiceEmailAsync(user, order);
-            //sendInvoiceEmail(order, user.Id);
+            await _mailService.SendOrderConfirmationEmailAsync(user, order);
+            await _mailService.SendInvoiceEmailAsync(user, order);
 
             var getOrderViewModel = new GetOrderViewModel(order);
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, getOrderViewModel);

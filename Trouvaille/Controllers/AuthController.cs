@@ -305,18 +305,10 @@ namespace Trouvaille.Controllers
         [Microsoft.AspNetCore.Mvc.HttpPut]
         [Microsoft.AspNetCore.Mvc.Route("Employee")]
         [Authorize]
-        public async Task<ActionResult<GetEmployeeViewModel>> PutEmployee([Microsoft.AspNetCore.Mvc.FromBody] PutEmployeeViewModel putEmployeeViewModel, Guid? employeeId = null)
+        public async Task<ActionResult<GetEmployeeViewModel>> PutEmployee([Microsoft.AspNetCore.Mvc.FromBody] PutEmployeeViewModel putEmployeeViewModel, Guid employeeId)
         {
-            string id;
-            if (employeeId == null)
-            {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier);
-                id = userId.Value;
-            }
-            else
-            {
-                id = employeeId.ToString();
-            }
+            var id = employeeId.ToString();
+            
 
             var employee = await _context.Users.FindAsync(id);
             if (employee == null)
@@ -348,6 +340,37 @@ namespace Trouvaille.Controllers
 
             var getEmployeeViewModel = new GetEmployeeViewModel(employee);
             return Ok(getEmployeeViewModel);
+        }
+
+        // GET: api/auth/GetRole
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Microsoft.AspNetCore.Mvc.Route("GetRole")]
+        [Authorize]
+        public async Task<ActionResult<string>> GetRole()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return NotFound();
+            }
+            var userRole = await _context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == userId.Value);
+            if (userRole == null)
+            {
+                return NotFound();
+            }
+
+            if (userRole.RoleId == "1")
+            {
+                return Ok("Customer");
+            } else if (userRole.RoleId == "2")
+            {
+                return Ok("Employee");
+            } else if (userRole.RoleId == "3")
+            {
+                return Ok("Admin");
+            }
+
+            return BadRequest();
         }
 
         // GET: api/auth/Employee/5/10

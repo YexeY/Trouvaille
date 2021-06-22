@@ -119,6 +119,15 @@ namespace AuthoDemoMVC.Data.EmployeeService
             var userRole = _context.UserRoles.SingleOrDefault(ur => ur.UserId == user.Id);
             var role = _context.Roles.FirstOrDefault(x => x.Id == userRole.RoleId);
 
+            if (role.Name != "Admin" || role.Name != "Employee")
+            {
+                return new UserManagerResponse
+                {
+                    Message = "Unauthorized",
+                    IsSuccess = false,
+                };
+            }
+
             var claims = new[]
             {
                 new Claim("Email", model.Email),

@@ -129,9 +129,20 @@ namespace Trouvaille.Controllers
 
         // PUT: api/Ratings/5
         [HttpPut("{id}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsUser")]
         public async Task<IActionResult> PutRating(Guid id, PutRatingViewModel putRatingViewModel)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userRole = await _context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == userId.Value);
             var rating = await _context.Rating.FindAsync(id);
+            if (rating == null)
+            {
+                return NotFound();
+            }
+            if (userRole.RoleId == "1" && rating.CustomerId != userId.Value)
+            {
+                return Unauthorized();
+            }
 
             rating.StarCount = putRatingViewModel.StarCount ?? rating.StarCount;
             rating.Description = putRatingViewModel.Description ?? rating.Description;
@@ -161,6 +172,7 @@ namespace Trouvaille.Controllers
         // POST: api/Ratings
         [HttpPost]
         [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsActiveCustomer")]
         public async Task<ActionResult<GetRatingViewModel>> PostRating(PostRatingViewModel model)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -208,14 +220,20 @@ namespace Trouvaille.Controllers
 
         // DELETE: api/Ratings/5
         [HttpDelete("{id}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsUser")]
         public async Task<IActionResult> DeleteRating(Guid id)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userRole = await _context.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == userId.Value);
             var rating = await _context.Rating.FindAsync(id);
             if (rating == null)
             {
                 return NotFound();
             }
-
+            if (userRole.RoleId == "1" && rating.CustomerId != userId.Value)
+            {
+                return Unauthorized();
+            }
             var product = await _context.Product.FindAsync(rating.ProductId);
             product.RatingCounter -= 1;
             product.AverageRating = (product.AverageRating * (product.RatingCounter + 1) - rating.StarCount) /
@@ -239,6 +257,7 @@ namespace Trouvaille.Controllers
 
         [HttpGet]
         [Route("CanRate/{id}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsActiveCustomer")]
         public async Task<IActionResult> CanRate(Guid id)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);

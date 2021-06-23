@@ -40,6 +40,7 @@ namespace Trouvaille.Controllers
 
         // GET: api/Orders
         [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<ActionResult<ICollection<GetOrderViewModel>>> GetOrder()
         {
             var orders = await _context.Order
@@ -55,6 +56,7 @@ namespace Trouvaille.Controllers
 
         // GET: api/Orders/6/11
         [Microsoft.AspNetCore.Mvc.HttpGet("{from}/{to}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<ActionResult<ICollection<GetOrderViewModel>>> GetOrderFromTo(int from, int to)
         {
             if (to <= from)
@@ -77,6 +79,7 @@ namespace Trouvaille.Controllers
 
         // GET: api/Orders/5
         [Microsoft.AspNetCore.Mvc.HttpGet("{id}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<ActionResult<GetOrderViewModel>> GetOrder(Guid id)
         {
             var order = await _context.Order
@@ -213,6 +216,7 @@ namespace Trouvaille.Controllers
 
         // DELETE: api/Orders/5
         [Microsoft.AspNetCore.Mvc.HttpDelete("{id}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<IActionResult> DeleteOrder(Guid id)
         {
             var order = await _context.Order.FindAsync(id);
@@ -242,6 +246,7 @@ namespace Trouvaille.Controllers
         // POST: api/Orders/SearchQuery
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("{from}/{to}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<ActionResult<ICollection<GetOrderViewModel>>> SearchQueryOrder(int from, int to, Guid? customerId = null,
             string? fromDateTime = null, string? toDateTime = null,  int? orderState = null, string orderBy = "Date", bool asc = true)
         {
@@ -332,6 +337,7 @@ namespace Trouvaille.Controllers
         // GET: api/Orders/Count
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Count")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<ActionResult<int>> GetNumberOfOrders()
         {
             var count = await _context.Order.CountAsync();
@@ -341,6 +347,7 @@ namespace Trouvaille.Controllers
         //Post: api/Orders/History/0/5
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("History/{from}/{to}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsUser")]
         //[Microsoft.AspNetCore.Authorization.Authorize]
         public async Task<ActionResult<ICollection<GetOrderViewModel>>> GetHistory(int from, int to
             , Guid? customerId = null)
@@ -397,9 +404,10 @@ namespace Trouvaille.Controllers
             return Ok(getOrderViewModels);
         }
 
+
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("History/Count")]
-        [Microsoft.AspNetCore.Authorization.Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsUser")]
         public async Task<ActionResult<int>> GetHistoryCount()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -421,6 +429,7 @@ namespace Trouvaille.Controllers
 
         // PUT: api/Orders/5
         [Microsoft.AspNetCore.Mvc.HttpPut("{id}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<IActionResult> PutOrder(Guid id, Globals.OrderState orderState)
         {
 

@@ -80,6 +80,7 @@ namespace Trouvaille.Controllers
         // POST: api/auth/Employee/register
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("Employee/Register")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> RegisterEmployeeAsync([Microsoft.AspNetCore.Mvc.FromBody] RegisterEmployeeViewModel model)
         {
             if (ModelState.IsValid)
@@ -168,6 +169,7 @@ namespace Trouvaille.Controllers
         // GET: api/auth/Customer/5/10
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Customer/{from}/{to}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<ActionResult<ICollection<GetCustomerViewModel>>> GetCustomers(int from, int to, bool onlyActive = true)
         {
             if (to <= from)
@@ -216,6 +218,7 @@ namespace Trouvaille.Controllers
         // GET: api/auth/Customer/5/10
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Customer/SearchQuery/{from}/{to}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<ActionResult<ICollection<GetCustomerViewModel>>> GetCustomersSearchQuery(int from, int to, Guid? customerId, string? customerEmail, bool onlyActive = true)
         {
             if (to <= from)
@@ -266,6 +269,7 @@ namespace Trouvaille.Controllers
         // GET: api/auth/Customer/Count
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Customer/Count")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<ActionResult<int>> GetNumberOfCustomers(bool onlyActive = true)
         {
             var customerIds = await _context.UserRoles.Where(u => u.RoleId == "1").Select(u => u.UserId).ToListAsync();
@@ -285,6 +289,7 @@ namespace Trouvaille.Controllers
          // GET: api/auth/Employee/Count
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Employee/Count")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsAdmin")]
         public async Task<ActionResult<int>> GetNumberOfEmployees(bool onlyActive = true)
         {
             var employeeIds = await _context.UserRoles.Where(u => u.RoleId == "2").Select(u => u.UserId).ToListAsync();
@@ -304,7 +309,7 @@ namespace Trouvaille.Controllers
         // PUT: api/auth/Employee
         [Microsoft.AspNetCore.Mvc.HttpPut]
         [Microsoft.AspNetCore.Mvc.Route("Employee")]
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsAdmin")]
         public async Task<ActionResult<GetEmployeeViewModel>> PutEmployee([Microsoft.AspNetCore.Mvc.FromBody] PutEmployeeViewModel putEmployeeViewModel, Guid employeeId)
         {
             var id = employeeId.ToString();
@@ -345,7 +350,7 @@ namespace Trouvaille.Controllers
         // GET: api/auth/GetRole
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("GetRole")]
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsUser")]
         public async Task<ActionResult<string>> GetRole()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -376,6 +381,7 @@ namespace Trouvaille.Controllers
         // GET: api/auth/Employee/5/10
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("Employee/{from}/{to}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsAdmin")]
         public async Task<ActionResult<ICollection<GetEmployeeViewModel>>> GetEmployee(int from, int to)
         {
             if (to <= from)
@@ -409,7 +415,7 @@ namespace Trouvaille.Controllers
         // PUT: api/auth/Customer
         [Microsoft.AspNetCore.Mvc.HttpPut]
         [Microsoft.AspNetCore.Mvc.Route("Customer")]
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<ActionResult<GetCustomerViewModel>> PutCustomer([Microsoft.AspNetCore.Mvc.FromBody] PutCustomerViewModel putCustomerViewModel, Guid? customerId = null)
         {
             string id;
@@ -493,7 +499,7 @@ namespace Trouvaille.Controllers
         //POST: api/auth/Customer/ResetPassword
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("Customer/ResetPassword")]
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsActiveCustomer")]
         public async Task<IActionResult> ResetPasswordCustomer([Microsoft.AspNetCore.Mvc.FromBody] ResetPasswordViewModel model)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -514,7 +520,6 @@ namespace Trouvaille.Controllers
         //POST: api/auth/Customer/ForgotPassword
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("Customer/ForgotPassword")]
-        [Authorize]
         public async Task<IActionResult> ForgotPasswordCustomer(string customerEmail)
         {
             var result = await _customerService.ForgetPasswordAsync(customerEmail);

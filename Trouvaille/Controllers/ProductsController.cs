@@ -133,6 +133,7 @@ namespace Trouvaille.Controllers
 
         // PUT: api/Products/5
         [Microsoft.AspNetCore.Mvc.HttpPut("{id}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<IActionResult> PutProduct(Guid id, PutProductViewModel model)
         {
             var product = await _context.Product
@@ -224,6 +225,7 @@ namespace Trouvaille.Controllers
         // PUT: api/Products/5/image
         [Microsoft.AspNetCore.Mvc.HttpPut]
         [Microsoft.AspNetCore.Mvc.Route("{id}/image")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<IActionResult> PutProductImage(Guid id, PostProductViewModel model)
         {
             var product = await _context.Product
@@ -317,6 +319,7 @@ namespace Trouvaille.Controllers
         // POST: api/Products/5/addCategory
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("{id}/addCategory")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<IActionResult> AddCategoryToProduct(Guid id,[Microsoft.AspNetCore.Mvc.FromBody]ICollection<Guid> categoryIds)
         {
             var product = await _context.Product
@@ -359,6 +362,7 @@ namespace Trouvaille.Controllers
         // POST: api/Products/5/deleteCategory
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("{id}/deleteCategory")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<IActionResult> DeleteCategoryToProduct(Guid id, [Microsoft.AspNetCore.Mvc.FromBody] ICollection<Guid> categoryIds)
         {
             var product = await _context.Product
@@ -392,6 +396,7 @@ namespace Trouvaille.Controllers
 
         // POST: api/Products
         [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<ActionResult<GetProductViewModel>> PostProduct(PostProductViewModel model)
         {
             //Get Manufacturer
@@ -625,6 +630,7 @@ namespace Trouvaille.Controllers
 
         // Get: api/Manufacturer/{id}
         [Microsoft.AspNetCore.Mvc.HttpGet("/api/Manufacturer/{id}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<ActionResult<GetManufacturerViewModel>> GetManufacturer(Guid id)
         {
             var manufacturer = await _context.Manufacturer.FindAsync(id);

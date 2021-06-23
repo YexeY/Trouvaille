@@ -148,6 +148,7 @@ namespace Trouvaille.Controllers
 
         // PUT: api/Categories/{id}/ChangeName
         [HttpPut("{id}/ChangeName")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<IActionResult> PutCategory(Guid id, string name)
         {
             var category = await _context.Category
@@ -181,6 +182,7 @@ namespace Trouvaille.Controllers
 
         // POST: api/Categories
         [HttpPost]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<ActionResult<Category>> PostCategory(PostCategoryViewModel model)
         {
             var category = new Category()
@@ -201,6 +203,7 @@ namespace Trouvaille.Controllers
 
         // DELETE: api/Categories/5
         [HttpDelete("{id}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
             var category = await _context.Category.FindAsync(id);

@@ -48,17 +48,21 @@ namespace Trouvaille.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<GetCategoryViewModel>> GetCategory(Guid id)
         {
-            var category = await _context.Category.FindAsync(id);
+            var category = await _context.Category
+                .Include(c => c.Products)
+                .FirstOrDefaultAsync(c  => c.CategoryId  == id);
             if (category == null)
             {
                 return NotFound();
             }
 
             ICollection<Guid> products = new List<Guid>();
+            /*
             foreach (var VARIABLE in category.Products)
             {
                 products.Add(VARIABLE.ProductId);
             }
+            */
 
             var getCategory = new GetCategoryViewModel(category);
 
@@ -193,7 +197,14 @@ namespace Trouvaille.Controllers
             };
 
             _context.Category.Add(category);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+               throw;
+            }
 
 
             var getCategoryViewModel = new GetCategoryViewModel(category);
@@ -213,7 +224,14 @@ namespace Trouvaille.Controllers
             }
 
             _context.Category.Remove(category);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
 
             return NoContent();
         }

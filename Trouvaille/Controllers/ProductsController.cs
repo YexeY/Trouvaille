@@ -46,6 +46,7 @@ namespace Trouvaille.Controllers
             return Ok(getProductViewModels);
         }
 
+        /**
         // GET: api/Products/10/20
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Microsoft.AspNetCore.Mvc.Route("{from}/{to}")]
@@ -81,6 +82,7 @@ namespace Trouvaille.Controllers
                 return Ok(getProductViewModels);
             }
         }
+        **/
 
         /**
         // POST: api/Products/filtered
@@ -487,7 +489,7 @@ namespace Trouvaille.Controllers
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Microsoft.AspNetCore.Mvc.Route("SearchQuery/{from}/{to}")]
         public async Task<ActionResult<ICollection<GetProductViewModel>>> SearchQueryProduct(int from, int to, string searchWord = "",
-              bool asc = true, ICollection<Guid>? categoryIds = null, string orderBy = "Price", bool onlyActive = true)
+              bool asc = true, ICollection<Guid>? categoryIds = null, string orderBy = "Price", bool onlyActive = true, bool getCategories = false)
         {
             if (to <= from)
             {
@@ -521,33 +523,62 @@ namespace Trouvaille.Controllers
             }
             else
             {
-                query.AppendLine("  select * from Product P where");
+                query.AppendLine("  select * from Product P where ");
+                query.AppendLine("  (");
                 query.AppendLine($"     P.Description	LIKE	'%{searchWord}%'");
                 query.AppendLine($"  OR	P.Name			LIKE	'%{searchWord}%'");
+                query.AppendLine($"  )");
                 if (onlyActive)
                 {
-                    query.AppendLine("  and IsDisabled = 0");
+                    query.AppendLine("   and IsDisabled = 0");
                 }
             }
 
             var products = new List<Product>();
             if (asc)
             {
-                products = await _context.Product.FromSqlRaw(query.ToString())
-                    .Include(p => p.Picture)
-                    .OrderBy(p => p.Price)
-                    .Skip(from)
-                    .Take(to - from)
-                    .ToListAsync();
+                if (getCategories == false)
+                {
+                    products = await _context.Product.FromSqlRaw(query.ToString())
+                        .Include(p => p.Picture)
+                        .OrderBy(p => p.Price)
+                        .Skip(from)
+                        .Take(to - from)
+                        .ToListAsync();
+                }
+                else
+                {
+                    products = await _context.Product.FromSqlRaw(query.ToString())
+                        .Include(p => p.Picture)
+                        .Include(p => p.ProductCategories)
+                        .OrderBy(p => p.Price)
+                        .Skip(from)
+                        .Take(to - from)
+                        .ToListAsync();
+                }
             }
             else
             {
-                products = await _context.Product.FromSqlRaw(query.ToString())
-                    .Include(p => p.Picture)
-                    .OrderByDescending(p => p.Price)
-                    .Skip(from)
-                    .Take(to - from)
-                    .ToListAsync();
+                if (getCategories == false)
+                {
+                    products = await _context.Product.FromSqlRaw(query.ToString())
+                        .Include(p => p.Picture)
+                        .OrderByDescending(p => p.Price)
+                        .Skip(from)
+                        .Take(to - from)
+                        .ToListAsync();
+                }
+                else
+                {
+                    products = await _context.Product.FromSqlRaw(query.ToString())
+                        .Include(p => p.Picture)
+                        .Include(p => p.ProductCategories)
+                        .OrderByDescending(p => p.Price)
+                        .Skip(from)
+                        .Take(to - from)
+                        .ToListAsync();
+                }
+                   
             }
 
             var getProductsViewModels = new List<GetProductViewModel>();

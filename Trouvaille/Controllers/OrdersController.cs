@@ -291,7 +291,7 @@ namespace Trouvaille.Controllers
                 }
                 **/
                 query.AppendLine(and ? " and " : "");
-                query.AppendLine($"  Date >= '{toDateTime}'");
+                query.AppendLine($"  Date <= '{toDateTime}'");
                 and = true;
             }
             if (orderState != null)
@@ -299,6 +299,7 @@ namespace Trouvaille.Controllers
                 query.AppendLine(and ? " and " : "");
                 query.AppendLine($"  OrderState = {orderState.Value}");
             }
+
             query.AppendLine(where ? " ) " : "");
 
             var orders = new List<Order>();

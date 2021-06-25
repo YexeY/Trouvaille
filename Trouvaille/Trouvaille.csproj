@@ -3,6 +3,7 @@
   <PropertyGroup>
 	  <TargetFramework>net5.0</TargetFramework>
 	  <PreserveCompilationContext>true</PreserveCompilationContext>
+	  <UserSecretsId>0d672ad6-b094-471e-80b3-7713f44bdf5c</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

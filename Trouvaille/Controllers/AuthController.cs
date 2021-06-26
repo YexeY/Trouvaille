@@ -118,37 +118,31 @@ namespace Trouvaille.Controllers
             return Unauthorized("Some properties are not Valid"); //TODO code 401 not authorized
         }
 
-        /**
-        [Microsoft.AspNetCore.Mvc.HttpDelete]
-        [Microsoft.AspNetCore.Mvc.Route("Customer/Delete/{id}")]
-        //[Authorize]
-        public async Task<IActionResult> DeleteCustomerAsync(Guid id)
-        {
-            
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-            if (identity != null)
-            {
-                var value = identity.FindFirst("Role").Value;
-                if (value != "Employee" && value != "Admin")
-                {
-                    return Unauthorized("Not Authorized");
-                }
-            }
-            
 
+        [Microsoft.AspNetCore.Mvc.HttpDelete]
+        [Microsoft.AspNetCore.Mvc.Route("Employee/Delete/{id}")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsAdmin")]
+        public async Task<IActionResult> DeleteEmployeeAsync(Guid id)
+        {
             var userRole = _context.UserRoles.SingleOrDefault(ur => ur.UserId == id.ToString());
             var role = _context.Roles.FirstOrDefault(x => x.Id == userRole.RoleId);
-            //role.name
             
-            if (role.Name == "customer")
+            if (role.Name == "Employee")
             {
                 var customer = await _context.Users.FindAsync(id.ToString());
                 _context.Users.Remove(customer);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    throw;
+                }
             }
             return Ok();
         }
-    **/
+    
 
         // GET: api/auth/Customer/info
         [Microsoft.AspNetCore.Mvc.HttpGet]

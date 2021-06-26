@@ -26,7 +26,7 @@ namespace Trouvaille.Security
                 context.Fail();
                 return Task.CompletedTask;
             }
-            if (roles.RoleId == "2")
+            if (roles.RoleId == "2"  || roles.RoleId == "3")
             {
                 context.Succeed(requirement);
             }

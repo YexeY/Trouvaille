@@ -118,7 +118,7 @@ namespace Trouvaille.Controllers
             return Unauthorized("Some properties are not Valid"); //TODO code 401 not authorized
         }
 
-
+        // GET: api/auth/Employee/Delete/214
         [Microsoft.AspNetCore.Mvc.HttpDelete]
         [Microsoft.AspNetCore.Mvc.Route("Employee/Delete/{id}")]
         [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsAdmin")]
@@ -320,6 +320,13 @@ namespace Trouvaille.Controllers
             {
                 return NotFound("not an employee");
             }
+            if(putEmployeeViewModel.Email != null)
+            {
+                if (await _context.Users.FirstOrDefaultAsync( p =>p.Email == putEmployeeViewModel.Email) != null )
+                {
+                    return Conflict("Email already in use");
+                }
+            }
 
             employee.Email = putEmployeeViewModel.Email ?? employee.Email;
             employee.FirstName = putEmployeeViewModel.FirstName ?? employee.FirstName;
@@ -426,6 +433,14 @@ namespace Trouvaille.Controllers
                     return Unauthorized("Only Employess or Admin  is allowed to change other customers");
                 }
                 id = customerId.ToString();
+            }
+
+            if (putCustomerViewModel.Email != null)
+            {
+                if (await _context.Users.FirstOrDefaultAsync(p => p.Email == putCustomerViewModel.Email) != null)
+                {
+                    return Conflict("Email already in use");
+                }
             }
 
             var customer = await _context.Users

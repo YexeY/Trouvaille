@@ -409,17 +409,22 @@ namespace Trouvaille.Controllers
         // PUT: api/auth/Customer
         [Microsoft.AspNetCore.Mvc.HttpPut]
         [Microsoft.AspNetCore.Mvc.Route("Customer")]
-        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsUser")]
         public async Task<ActionResult<GetCustomerViewModel>> PutCustomer([Microsoft.AspNetCore.Mvc.FromBody] PutCustomerViewModel putCustomerViewModel, Guid? customerId = null)
         {
             string id;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
             if (customerId == null)
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier);
                 id = userId.Value;
             }
             else
             {
+                var role = await _context.UserRoles.FirstOrDefaultAsync(r => r.UserId == userId.Value);
+                if(role.RoleId != "2" && role.RoleId != "3")
+                {
+                    return Unauthorized("Only Employess or Admin  is allowed to change other customers");
+                }
                 id = customerId.ToString();
             }
 

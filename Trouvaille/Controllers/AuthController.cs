@@ -459,6 +459,19 @@ namespace Trouvaille.Controllers
             customer.Email = putCustomerViewModel.Email ?? customer.Email;
             customer.IsDisabled = putCustomerViewModel.IsDisabled ?? customer.IsDisabled;
 
+
+            _context.Entry(customer).State = EntityState.Modified;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                //TODO: proper error handling
+                Console.WriteLine(e);
+                throw;
+            }
+
             if (putCustomerViewModel.DeliveryAddress != null)
             {
                 customer.DeliveryAddress.State =
@@ -473,6 +486,17 @@ namespace Trouvaille.Controllers
                     putCustomerViewModel.DeliveryAddress.CityName ?? customer.DeliveryAddress.City.Name;
                 customer.DeliveryAddress.City.PostalCode=
                     putCustomerViewModel.DeliveryAddress.PostalCode ?? customer.DeliveryAddress.City.PostalCode;
+            }
+            _context.Entry(customer.DeliveryAddress).State = EntityState.Modified;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                //TODO: proper error handling
+                Console.WriteLine(e);
+                throw;
             }
 
             if (putCustomerViewModel.InvoiceAddress != null)
@@ -491,10 +515,7 @@ namespace Trouvaille.Controllers
                     putCustomerViewModel.InvoiceAddress.PostalCode ?? customer.InvoiceAddress.City.PostalCode;
             }
 
-            _context.Entry(customer).State = EntityState.Modified;
-            _context.Entry(customer.DeliveryAddress).State = EntityState.Modified;
             _context.Entry(customer.InvoiceAddress).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();
@@ -505,8 +526,15 @@ namespace Trouvaille.Controllers
                 Console.WriteLine(e);
                 throw;
             }
-
-            var getCustomerViewModel = new GetCustomerViewModel(customer);
+            
+            var getCustomer = await _context.Users
+                .Include(c => c.DeliveryAddress)
+                .Include(c => c.InvoiceAddress)
+                .Include(c => c.Orders)
+                .Include(c => c.InvoiceAddress.City)
+                .Include(c => c.DeliveryAddress.City)
+                .FirstOrDefaultAsync(c => c.Id == id);
+            var getCustomerViewModel = new GetCustomerViewModel(getCustomer);
             return Ok(getCustomerViewModel);
         }
 

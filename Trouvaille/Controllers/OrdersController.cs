@@ -138,13 +138,14 @@ namespace Trouvaille.Controllers
                 return BadRequest("List of Product cant be null or empty");
             }
 
+            var counter = 0;
             ICollection<SendRestockEmailParam> sendRestockEmailParams = new List<SendRestockEmailParam>();
             ICollection<OrderProduct> orderProducts = new List<OrderProduct>();
             ICollection<Product> products = new List<Product>();
             foreach (var VARIABLE in model.Products)
             {
                 var product = await _context.Product.FindAsync(VARIABLE.ProductId);
-
+                counter += VARIABLE.Cardinality;
                 if (product == null)
                 {
                     continue;
@@ -196,6 +197,10 @@ namespace Trouvaille.Controllers
                     OrderId = order.OrderId
                 };
                 orderProducts.Add(orderProduct);
+            }
+            if(counter <= 0)
+            {
+                return BadRequest("You have to Order sth");
             }
             order.Products = orderProducts;
             //Calculate total Cost

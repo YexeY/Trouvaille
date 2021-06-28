@@ -96,6 +96,7 @@ namespace Trouvaille.Services.MailService
             template.AppendLine($"<p>Hello {customer.FirstName},</p>");
             template.AppendLine("<p>Thank you for your Order!</p>");
             template.AppendLine($"<p>Invoice Number: {order.Invoice_Id}</p>");
+            template.AppendLine($"<p>Shipment Method: {order.ShipmentMethod}</p>");
             template.AppendLine($"<p>Total Cost: {order.TotalCost}</p>");
             template.AppendLine("<p>With the best Regard</p>");
             template.AppendLine("<p>your Trouvaille Online-Shop</p>");

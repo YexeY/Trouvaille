@@ -222,6 +222,7 @@ namespace Trouvaille.Controllers
             return NoContent();
         }
 
+        /**
         // PUT: api/Products/5/image
         [Microsoft.AspNetCore.Mvc.HttpPut]
         [Microsoft.AspNetCore.Mvc.Route("{id}/image")]
@@ -253,7 +254,7 @@ namespace Trouvaille.Controllers
                     ImageTitle = model.ImageTitle,
                     PictureId = Guid.NewGuid()
                 };
-                //_context.Entry(product).State = EntityState.Modified;
+                _context.Entry(product).State = EntityState.Added;
             }
 
             try
@@ -274,7 +275,7 @@ namespace Trouvaille.Controllers
 
             return NoContent();
         }
-
+        **/
         
         // DELETE: api/Image/{id}
         [Microsoft.AspNetCore.Mvc.HttpDelete]

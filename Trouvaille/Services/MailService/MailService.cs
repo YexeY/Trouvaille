@@ -45,7 +45,6 @@ namespace Trouvaille.Services.MailService
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
 
             return true;
@@ -79,7 +78,6 @@ namespace Trouvaille.Services.MailService
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
 
             return true;
@@ -149,7 +147,6 @@ namespace Trouvaille.Services.MailService
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
 
             return true;
@@ -176,7 +173,6 @@ namespace Trouvaille.Services.MailService
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
 
             return true;
@@ -208,7 +204,6 @@ namespace Trouvaille.Services.MailService
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
 
             return true;
@@ -240,7 +235,6 @@ namespace Trouvaille.Services.MailService
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
 
             return true;
@@ -283,7 +277,6 @@ namespace Trouvaille.Services.MailService
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
 
             return true;
@@ -340,7 +333,6 @@ namespace Trouvaille.Services.MailService
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
 
             return true;

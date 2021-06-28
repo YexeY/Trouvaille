@@ -393,13 +393,6 @@ namespace Trouvaille.Controllers
                 .Take(to -from)
                 .ToList();
 
-            //TODO: is this necessary?
-            if (!orders.Any())
-            {
-                return NotFound("No Orders were found");
-            }
-
-
             var getOrderViewModels = orders.Select(o => new GetOrderViewModel(o)).ToList();
 
             return Ok(getOrderViewModels);

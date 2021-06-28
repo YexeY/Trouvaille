@@ -60,7 +60,17 @@ namespace AuthoDemoMVC.Data.CustomerService
             };
 
             //Create Address
-            var address = new Address
+            var InvoiceAddress = new Address
+            {
+                AddressId = Guid.NewGuid(),
+                Country = model.Country,
+                State = model.State,
+                Street = model.Street,
+                StreetNumber = model.StreetNumber,
+                City = city
+            };
+
+            var DeliveryAddress = new Address
             {
                 AddressId = Guid.NewGuid(),
                 Country = model.Country,
@@ -78,8 +88,8 @@ namespace AuthoDemoMVC.Data.CustomerService
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 PhoneNumber = model.PhoneNumber,
-                InvoiceAddress = address,
-                DeliveryAddress = address
+                InvoiceAddress = InvoiceAddress,
+                DeliveryAddress = DeliveryAddress
             };
 
             var result = await _userManger.CreateAsync(customer, model.Password);

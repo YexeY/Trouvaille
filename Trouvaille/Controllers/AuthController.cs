@@ -446,11 +446,11 @@ namespace Trouvaille.Controllers
             }
 
             var customer = await _context.Users
-                .Include(c => c.DeliveryAddress)
-                .Include(c => c.InvoiceAddress)
-                .Include(c => c.Orders)
-                .Include(c => c.InvoiceAddress.City)
-                .Include(c => c.DeliveryAddress.City)
+                //.Include(c => c.DeliveryAddress)
+                //.Include(c => c.InvoiceAddress)
+                //.Include(c => c.Orders)
+                //.Include(c => c.InvoiceAddress.City)
+                //.Include(c => c.DeliveryAddress.City)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
 
@@ -474,22 +474,27 @@ namespace Trouvaille.Controllers
                 throw;
             }
 
+
+            var DeliveryAddress = await _context.Address
+                .Include(a => a.City)
+                .FirstOrDefaultAsync(a => a.AddressId == customer.DeliveryAddressId);
+
             if (putCustomerViewModel.DeliveryAddress != null)
             {
-                customer.DeliveryAddress.State =
+                DeliveryAddress.State =
                     putCustomerViewModel.DeliveryAddress.State ?? customer.DeliveryAddress.State;
-                customer.DeliveryAddress.Country =
-                    putCustomerViewModel.DeliveryAddress.Country ?? customer.DeliveryAddress.Country;
-                customer.DeliveryAddress.Street =
-                    putCustomerViewModel.DeliveryAddress.Street ?? customer.DeliveryAddress.Street;
-                customer.DeliveryAddress.StreetNumber =
-                    putCustomerViewModel.DeliveryAddress.StreetNumber ?? customer.DeliveryAddress.StreetNumber;
-                customer.DeliveryAddress.City.Name =
-                    putCustomerViewModel.DeliveryAddress.CityName ?? customer.DeliveryAddress.City.Name;
-                customer.DeliveryAddress.City.PostalCode=
-                    putCustomerViewModel.DeliveryAddress.PostalCode ?? customer.DeliveryAddress.City.PostalCode;
+                DeliveryAddress.Country =
+                    putCustomerViewModel.DeliveryAddress.Country ?? DeliveryAddress.Country;
+                DeliveryAddress.Street =
+                    putCustomerViewModel.DeliveryAddress.Street ?? DeliveryAddress.Street;
+                DeliveryAddress.StreetNumber =
+                    putCustomerViewModel.DeliveryAddress.StreetNumber ?? DeliveryAddress.StreetNumber;
+                DeliveryAddress.City.Name =
+                    putCustomerViewModel.DeliveryAddress.CityName ?? DeliveryAddress.City.Name;
+                DeliveryAddress.City.PostalCode=
+                    putCustomerViewModel.DeliveryAddress.PostalCode ?? DeliveryAddress.City.PostalCode;
             }
-            _context.Entry(customer.DeliveryAddress).State = EntityState.Modified;
+            _context.Entry(DeliveryAddress).State = EntityState.Modified;
             try
             {
                 await _context.SaveChangesAsync();
@@ -500,24 +505,29 @@ namespace Trouvaille.Controllers
                 Console.WriteLine(e);
                 throw;
             }
+            _context.Entry(DeliveryAddress).State = EntityState.Detached;
 
+
+            var InvoiceAddress = await _context.Address
+                .Include(a => a.City)
+                .FirstOrDefaultAsync(a => a.AddressId == customer.InvoiceAddressId);
             if (putCustomerViewModel.InvoiceAddress != null)
             {
-                customer.InvoiceAddress.State =
-                    putCustomerViewModel.InvoiceAddress.State ?? customer.InvoiceAddress.State;
-                customer.InvoiceAddress.Country =
-                    putCustomerViewModel.InvoiceAddress.Country ?? customer.InvoiceAddress.Country;
-                customer.InvoiceAddress.Street =
-                    putCustomerViewModel.InvoiceAddress.Street ?? customer.InvoiceAddress.Street;
-                customer.InvoiceAddress.StreetNumber =
-                    putCustomerViewModel.InvoiceAddress.StreetNumber ?? customer.InvoiceAddress.StreetNumber;
-                customer.InvoiceAddress.City.Name =
-                    putCustomerViewModel.InvoiceAddress.CityName ?? customer.InvoiceAddress.City.Name;
-                customer.InvoiceAddress.City.PostalCode =
-                    putCustomerViewModel.InvoiceAddress.PostalCode ?? customer.InvoiceAddress.City.PostalCode;
+                InvoiceAddress.State =
+                    putCustomerViewModel.InvoiceAddress.State ?? InvoiceAddress.State;
+                InvoiceAddress.Country =
+                    putCustomerViewModel.InvoiceAddress.Country ?? InvoiceAddress.Country;
+                InvoiceAddress.Street =
+                    putCustomerViewModel.InvoiceAddress.Street ?? InvoiceAddress.Street;
+                InvoiceAddress.StreetNumber =
+                    putCustomerViewModel.InvoiceAddress.StreetNumber ?? InvoiceAddress.StreetNumber;
+                InvoiceAddress.City.Name =
+                    putCustomerViewModel.InvoiceAddress.CityName ?? InvoiceAddress.City.Name;
+                InvoiceAddress.City.PostalCode =
+                    putCustomerViewModel.InvoiceAddress.PostalCode ?? InvoiceAddress.City.PostalCode;
             }
 
-            _context.Entry(customer.InvoiceAddress).State = EntityState.Modified;
+            _context.Entry(InvoiceAddress).State = EntityState.Modified;
             try
             {
                 await _context.SaveChangesAsync();

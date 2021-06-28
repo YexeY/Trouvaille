@@ -116,7 +116,7 @@ namespace Trouvaille3
 
             services.AddFluentEmail(gmailSender, from)
                 .AddRazorRenderer()
-                .AddSmtpSender(new SmtpClient("mailclient.vvjm.dev")
+                .AddSmtpSender(new SmtpClient(Configuration.GetSection("Gmail")["SMTPServer"])
                 {
                     UseDefaultCredentials = false,
                     Port = gmailPort,

@@ -330,6 +330,7 @@ namespace Trouvaille.Controllers
             }
 
             employee.Email = putEmployeeViewModel.Email ?? employee.Email;
+            employee.UserName = putEmployeeViewModel.Email ?? employee.UserName;
             employee.FirstName = putEmployeeViewModel.FirstName ?? employee.FirstName;
             employee.LastName = putEmployeeViewModel.LastName ?? employee.LastName;
             _context.Entry(employee).State = EntityState.Modified;
@@ -459,6 +460,7 @@ namespace Trouvaille.Controllers
             customer.LastName = putCustomerViewModel.LastName ?? customer.LastName;
             customer.PhoneNumber = putCustomerViewModel.PhoneNumber ?? customer.PhoneNumber;
             customer.Email = putCustomerViewModel.Email ?? customer.Email;
+            customer.UserName = putCustomerViewModel.Email ?? customer.UserName;
             customer.IsDisabled = putCustomerViewModel.IsDisabled ?? customer.IsDisabled;
 
 

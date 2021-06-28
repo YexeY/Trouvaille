@@ -277,6 +277,35 @@ namespace Trouvaille.Controllers
             return NoContent();
         }
 
+        
+        // DELETE: api/Image/{id}
+        [Microsoft.AspNetCore.Mvc.HttpDelete]
+        [Microsoft.AspNetCore.Mvc.Route("{id}/image")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsEmployee")]
+        public async Task<IActionResult> DeleteProductImage(Guid id)
+        {
+            var image = await _context.Picture.FindAsync(id);
+
+            if (image == null)
+            {
+                return NotFound($"Product with id:{id} not found");
+            }
+
+
+            _context.Entry(image).State = EntityState.Deleted;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                //TODO: proper error handling
+                Console.WriteLine(e);
+                throw;
+            }
+            return Ok();
+        }
+        
 
         // POST: api/Products/GetMultiple
         [Microsoft.AspNetCore.Mvc.HttpPost]

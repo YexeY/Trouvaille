@@ -303,11 +303,10 @@ namespace Trouvaille.Services.MailService
             template.AppendLine($"<p>Service Provider: </p>");
             template.AppendLine($"<p>Name: {_configuration.GetSection("Invoice")["Name"]} </p>");
             template.AppendLine($"<p>Address: {_configuration.GetSection("Invoice")["Address"]} </p>");
-            template.AppendLine($"<p>Address: {_configuration.GetSection("Invoice")["Address"]} </p>");
             template.AppendLine($"<p>Recipient: </p>");
             template.AppendLine($"<p>Name: {user.LastName},{user.FirstName} </p>");
             template.AppendLine($"<p>Address: {order.InvoiceAddress.ToString()}</p>");
-            template.AppendLine($"<p>Iteams:</p>");
+            template.AppendLine($"<p>Items:</p>");
             foreach (var orderProduct in order.Products)
             {
                 if (orderProduct.Product == null)

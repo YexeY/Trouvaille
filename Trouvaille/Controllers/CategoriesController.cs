@@ -80,7 +80,7 @@ namespace Trouvaille.Controllers
             var category = await _context.Category
                 .Skip(from)
                 .Take(to - from)
-                .OrderBy(c => c.CategoryId)
+                .OrderBy(c => c.Name)
                 .ToListAsync();
 
             var getCategoryViewModels = category.Select(c => new GetCategoryViewModel(c)).ToList();

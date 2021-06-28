@@ -133,6 +133,10 @@ namespace Trouvaille.Controllers
 
             //Extract Products and add to Order
             //------------------------------------------
+            if(model.Products == null || model.Products.Count == 0)
+            {
+                return BadRequest("List of Product cant be null or empty");
+            }
             ICollection<OrderProduct> orderProducts = new List<OrderProduct>();
             ICollection<Product> products = new List<Product>();
             foreach (var VARIABLE in model.Products)

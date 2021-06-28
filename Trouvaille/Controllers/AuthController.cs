@@ -333,6 +333,8 @@ namespace Trouvaille.Controllers
             employee.UserName = putEmployeeViewModel.Email ?? employee.UserName;
             employee.FirstName = putEmployeeViewModel.FirstName ?? employee.FirstName;
             employee.LastName = putEmployeeViewModel.LastName ?? employee.LastName;
+            employee.NormalizedEmail = putEmployeeViewModel.Email.ToUpper() ?? employee.NormalizedEmail;
+            employee.NormalizedUserName = putEmployeeViewModel.Email.ToUpper() ?? employee.NormalizedUserName;
             _context.Entry(employee).State = EntityState.Modified;
 
             try
@@ -461,6 +463,8 @@ namespace Trouvaille.Controllers
             customer.PhoneNumber = putCustomerViewModel.PhoneNumber ?? customer.PhoneNumber;
             customer.Email = putCustomerViewModel.Email ?? customer.Email;
             customer.UserName = putCustomerViewModel.Email ?? customer.UserName;
+            customer.NormalizedEmail = putCustomerViewModel.Email.ToUpper() ?? customer.NormalizedEmail;
+            customer.NormalizedUserName = putCustomerViewModel.Email.ToUpper() ?? customer.NormalizedUserName;
             customer.IsDisabled = putCustomerViewModel.IsDisabled ?? customer.IsDisabled;
 
 

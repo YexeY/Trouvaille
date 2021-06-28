@@ -32,6 +32,7 @@ namespace AuthoDemoMVC.Models.Communication
 
 #nullable enable
         //Manufacturer
+        [EmailAddress]
         public string? ManufacturerEmail { get; set; }
 
         public string? ManufacturerCatalogId { get; set; }

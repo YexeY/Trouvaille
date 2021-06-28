@@ -52,7 +52,14 @@ namespace AuthoDemoMVC.Data.CustomerService
                 };
 
             //Create City
-            var city = new City
+            var InvoiceCity = new City
+            {
+                CityId = Guid.NewGuid(),
+                PostalCode = model.PostalCode,
+                Name = model.CityName,
+            };
+
+            var DeliveryCity = new City
             {
                 CityId = Guid.NewGuid(),
                 PostalCode = model.PostalCode,
@@ -67,7 +74,7 @@ namespace AuthoDemoMVC.Data.CustomerService
                 State = model.State,
                 Street = model.Street,
                 StreetNumber = model.StreetNumber,
-                City = city
+                City = InvoiceCity
             };
 
             var DeliveryAddress = new Address
@@ -77,7 +84,7 @@ namespace AuthoDemoMVC.Data.CustomerService
                 State = model.State,
                 Street = model.Street,
                 StreetNumber = model.StreetNumber,
-                City = city
+                City = DeliveryCity
             };
 
             //Create Customer

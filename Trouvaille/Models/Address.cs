@@ -31,7 +31,7 @@ namespace Trouvaille_WebAPI.Models
             var address = new StringBuilder();
             address.AppendLine($"{Country} {State}");
             address.AppendLine($"{City.Name}  {City.PostalCode}");
-            address.AppendLine($"{Street}{StreetNumber}");
+            address.AppendLine($"{Street} {StreetNumber}");
 
             return address.ToString();
         }

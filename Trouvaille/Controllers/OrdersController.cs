@@ -160,7 +160,7 @@ namespace Trouvaille.Controllers
                     return BadRequest($"Product with ID: {product.ProductId} is Disabled");
                 }
 
-                if (product.InStock - cardinality < product.MinStock)
+                if ((product.InStock - cardinality) < product.MinStock)
                 {
                     await SendRestockEmailAsync(product.ManufacturerId, product);
                 }
@@ -462,11 +462,11 @@ namespace Trouvaille.Controllers
             if (manufacturerId != null)
             {
                 var manufacturer = await _context.Manufacturer.FindAsync(manufacturerId);
-                _mailService.SendRestockEmailAsync(manufacturer, toOrderProduct);
+                await _mailService.SendRestockEmailAsync(manufacturer, toOrderProduct);
             }
             else
             {
-                _mailService.SendRestockOrderSelfEmailAsync(toOrderProduct);
+                await _mailService.SendRestockOrderSelfEmailAsync(toOrderProduct);
             }
             
         }

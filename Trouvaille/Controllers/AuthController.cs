@@ -322,7 +322,8 @@ namespace Trouvaille.Controllers
             }
             if(putEmployeeViewModel.Email != null)
             {
-                if (await _context.Users.FirstOrDefaultAsync( p =>p.Email == putEmployeeViewModel.Email) != null )
+                var userwithEmail = await _context.Users.FirstOrDefaultAsync(p => p.Email == putEmployeeViewModel.Email);
+                if (userwithEmail != null && userwithEmail.Id != id)
                 {
                     return Conflict("Email already in use");
                 }
@@ -437,7 +438,8 @@ namespace Trouvaille.Controllers
 
             if (putCustomerViewModel.Email != null)
             {
-                if (await _context.Users.FirstOrDefaultAsync(p => p.Email == putCustomerViewModel.Email) != null)
+                var userwithEmail = await _context.Users.FirstOrDefaultAsync(p => p.Email == putCustomerViewModel.Email);
+                if (userwithEmail != null && userwithEmail.Id != id)
                 {
                     return Conflict("Email already in use");
                 }

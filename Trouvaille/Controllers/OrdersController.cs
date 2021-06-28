@@ -137,6 +137,8 @@ namespace Trouvaille.Controllers
             {
                 return BadRequest("List of Product cant be null or empty");
             }
+
+            ICollection<SendRestockEmailParam> sendRestockEmailParams = new List<SendRestockEmailParam>();
             ICollection<OrderProduct> orderProducts = new List<OrderProduct>();
             ICollection<Product> products = new List<Product>();
             foreach (var VARIABLE in model.Products)
@@ -162,7 +164,11 @@ namespace Trouvaille.Controllers
 
                 if ((product.InStock - cardinality) < product.MinStock)
                 {
-                    await SendRestockEmailAsync(product.ManufacturerId, product);
+                    sendRestockEmailParams.Add(new SendRestockEmailParam()
+                    {
+                        ManufacturerId = product.ManufacturerId,
+                        ProductId = product.ProductId
+                    });
                 }
 
                 product.InStock -= cardinality;
@@ -213,6 +219,10 @@ namespace Trouvaille.Controllers
 
             await _mailService.SendOrderConfirmationEmailAsync(user, order);
             await _mailService.SendInvoiceEmailAsync(user, order);
+            foreach (var item in sendRestockEmailParams)
+            {
+                await SendRestockEmailAsync(item);
+            }
 
             var getOrderViewModel = new GetOrderViewModel(order);
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, getOrderViewModel);
@@ -457,16 +467,19 @@ namespace Trouvaille.Controllers
             return NoContent();
         }
 
-        private async Task SendRestockEmailAsync(Guid? manufacturerId, Product toOrderProduct)
+
+
+        private async Task SendRestockEmailAsync(SendRestockEmailParam param)
         {
-            if (manufacturerId != null)
+            var product = await _context.Product.FindAsync(param.ProductId);
+            if (param.ManufacturerId != null)
             {
-                var manufacturer = await _context.Manufacturer.FindAsync(manufacturerId);
-                await _mailService.SendRestockEmailAsync(manufacturer, toOrderProduct);
+                var manufacturer = await _context.Manufacturer.FindAsync(param.ManufacturerId);
+                await _mailService.SendRestockEmailAsync(manufacturer, product);
             }
             else
             {
-                await _mailService.SendRestockOrderSelfEmailAsync(toOrderProduct);
+                await _mailService.SendRestockOrderSelfEmailAsync(product);
             }
             
         }
@@ -487,6 +500,12 @@ namespace Trouvaille.Controllers
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
             await _mailService.SendInvoiceEmailAsync(user, order);
+        }
+
+        private class SendRestockEmailParam
+        {
+            public Guid? ManufacturerId { get; set; }
+            public Guid ProductId { get; set; }
         }
     }
 }

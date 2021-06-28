@@ -83,7 +83,6 @@ namespace Trouvaille.Controllers
             }
         }
         **/
-
         /**
         // POST: api/Products/filtered
         [Microsoft.AspNetCore.Mvc.HttpPost]
@@ -197,8 +196,7 @@ namespace Trouvaille.Controllers
                         ImageData = model.ImageData,
                         ImageTitle = model.ImageTitle
                     };
-                    //_context.Entry(product.Picture).State = EntityState.Added;
-                    //product.ManufacturerId = manufacturer.ManufacturerId;
+                    _context.Entry(product.Picture).State = EntityState.Added;
                 }
 
             }
@@ -255,7 +253,7 @@ namespace Trouvaille.Controllers
                     ImageTitle = model.ImageTitle,
                     PictureId = Guid.NewGuid()
                 };
-                _context.Entry(product).State = EntityState.Modified;
+                //_context.Entry(product).State = EntityState.Modified;
             }
 
             try
@@ -290,9 +288,11 @@ namespace Trouvaille.Controllers
             {
                 return NotFound($"Product with id:{id} not found");
             }
-
-
-            _context.Entry(image).State = EntityState.Deleted;
+            var product = await _context.Product.FirstOrDefaultAsync(p => p.PictureId == image.PictureId);
+            product.PictureId = null;
+            product.Picture = null;
+            _context.Remove(image);
+            //_context.Entry(image).State = EntityState.Deleted;
             try
             {
                 await _context.SaveChangesAsync();

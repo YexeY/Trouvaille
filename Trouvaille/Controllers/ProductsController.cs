@@ -712,6 +712,24 @@ namespace Trouvaille.Controllers
             return Ok(new GetManufacturerViewModel(manufacturer));
         }
 
+        // POST: api/Manufacturer/{id}
+        [Microsoft.AspNetCore.Mvc.HttpGet("DisabledMany")]
+        [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsUser")]
+        public async Task<ActionResult<ICollection<Guid>>> IsDisabledMany(ICollection<Guid> productIds)
+        {
+            ICollection<Guid> list = new List<Guid>(); 
+            foreach (var id in productIds)
+            {
+                var product = await _context.Product.FindAsync(id);
+                if (product.IsDisabled)
+                {
+                    list.Add(product.ProductId);
+                }
+            }
+            return Ok(list);
+        }
+
+
         private bool ProductExists(Guid id)
         {
             return _context.Product.Any(e => e.ProductId == id);

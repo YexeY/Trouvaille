@@ -717,10 +717,18 @@ namespace Trouvaille.Controllers
         [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsUser")]
         public async Task<ActionResult<ICollection<Guid>>> IsDisabledMany(ICollection<Guid> productIds)
         {
+            if(productIds == null || !productIds.Any())
+            {
+                return Ok();
+            }
             ICollection<Guid> list = new List<Guid>(); 
             foreach (var id in productIds)
             {
                 var product = await _context.Product.FindAsync(id);
+                if(product == null)
+                {
+                    return NotFound();
+                }
                 if (product.IsDisabled)
                 {
                     list.Add(product.ProductId);

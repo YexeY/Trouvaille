@@ -147,6 +147,8 @@ namespace Trouvaille.Controllers
                 return NotFound();
             }
 
+            bool wasDisbled = product.IsDisabled;
+
             product.Name = model.Name ?? product.Name;
             product.Description = model.Description ?? product.Description;
             product.MinStock = model.MinStock ?? product.MinStock;
@@ -206,6 +208,10 @@ namespace Trouvaille.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+                if(wasDisbled == false && product.IsDisabled == true)
+                {
+                     await DeleteAllCategoryToProduct(product.ProductId);
+                }
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -422,7 +428,14 @@ namespace Trouvaille.Controllers
             }
 
             _context.Entry(product).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
             return Ok();
         }
 
@@ -702,6 +715,44 @@ namespace Trouvaille.Controllers
         private bool ProductExists(Guid id)
         {
             return _context.Product.Any(e => e.ProductId == id);
+        }
+
+        private async Task<IActionResult> DeleteAllCategoryToProduct(Guid id)
+        {
+            var product = await _context.Product
+                .Include(p => p.ProductCategories)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            if (product == null)
+            {
+                return NotFound($"Product with id:{id} not found");
+            }
+            var categoryIds = product.ProductCategories.Select(p => p.CategoryId).ToList();
+            foreach (var categoryId in categoryIds)
+            {
+                if (product.ProductCategories.Any(c => c.CategoryId == categoryId) == true)
+                {
+                    var category = await _context.Category.FindAsync(categoryId);
+                    if (category == null)
+                    {
+                        return NotFound($"Category with id ={categoryId} not found");
+                    }
+                    product.ProductCategories.Remove(category);
+                    category.ProductCounter -= 1;
+                    _context.Entry(category).State = EntityState.Modified;
+                }
+            }
+
+            _context.Entry(product).State = EntityState.Modified;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw;
+            }
+            return true;
         }
     }
 }

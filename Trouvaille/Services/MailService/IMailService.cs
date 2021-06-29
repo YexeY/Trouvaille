@@ -15,9 +15,9 @@ namespace Trouvaille.Services.MailService
 
         Task<bool> SendOrderConfirmationEmailAsync(ApplicationUser customer, Order order);
 
-        Task<bool> SendRestockEmailAsync(Manufacturer manufacturer, Product product);
+        bool SendRestockEmailAsync(Manufacturer manufacturer, Product product);
 
-        Task<bool> SendRestockOrderSelfEmailAsync(Product product, bool success);
+        bool SendRestockOrderSelfEmailAsync(Product product, bool success);
 
         Task<bool> SendForgotPasswordEmailAsync(ApplicationUser user, string password);
 

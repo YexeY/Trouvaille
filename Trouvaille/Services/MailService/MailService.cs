@@ -118,7 +118,7 @@ namespace Trouvaille.Services.MailService
             return true;
         }
 
-        public async Task<bool> SendRestockEmailAsync(Manufacturer manufacturer, Product product)
+        public bool SendRestockEmailAsync(Manufacturer manufacturer, Product product)
         {
             if (manufacturer == null || product == null || manufacturer.Email == null)
             {
@@ -142,7 +142,7 @@ namespace Trouvaille.Services.MailService
                 .UsingTemplate(template.ToString(), new { });
             try
             {
-                await email.SendAsync();
+                email.Send();
             }
             catch (Exception e)
             {
@@ -153,7 +153,7 @@ namespace Trouvaille.Services.MailService
             return true;
         }
 
-        public async Task<bool> SendRestockOrderSelfEmailAsync(Product product, bool success)
+        public bool SendRestockOrderSelfEmailAsync(Product product, bool success)
         {
             var template = new StringBuilder();
             template.AppendLine($"<p>Hello,</p>");
@@ -176,7 +176,7 @@ namespace Trouvaille.Services.MailService
                 .UsingTemplate(template.ToString(), new {});
             try
             {
-                await email.SendAsync();
+                email.Send();
             }
             catch (Exception e)
             {

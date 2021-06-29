@@ -222,15 +222,16 @@ namespace Trouvaille.Controllers
                 throw;
             }
 
-            await _mailService.SendOrderConfirmationEmailAsync(user, order);
-            await _mailService.SendInvoiceEmailAsync(user, order);
-            /*
-            foreach (var item in sendRestockEmailParams)
+            try
             {
-                await SendRestockEmailAsync(item);
+                await _mailService.SendOrderConfirmationEmailAsync(user, order);
+                await _mailService.SendInvoiceEmailAsync(user, order);
+                await SendRestockEmailManyAsync(sendRestockEmailParams);
             }
-            */
-            await SendRestockEmailManyAsync(sendRestockEmailParams);
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
             var getOrderViewModel = new GetOrderViewModel(order);
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, getOrderViewModel);
         }

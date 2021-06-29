@@ -210,7 +210,7 @@ namespace Trouvaille.Controllers
                 await _context.SaveChangesAsync();
                 if(wasDisbled == false && product.IsDisabled == true)
                 {
-                     await DeleteAllCategoryToProduct(product.ProductId);
+                     //await DeleteAllCategoryToProduct(product.ProductId);
                 }
             }
             catch (DbUpdateConcurrencyException)

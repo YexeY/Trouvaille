@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
@@ -151,6 +152,45 @@ namespace Trouvaille.Services.MailService
 
             return true;
         }
+
+
+        public async Task<bool> SendRestockOrderSelfManyEmailAsync(ICollection<Product> products)
+        {
+            var template = new StringBuilder();
+            template.AppendLine($"<p>Hello,</p>");
+            foreach (var product in products)
+            {
+                template.AppendLine($"<p>---------------------------------------------------------------------------------------</p>");
+                template.AppendLine($"<p>We need to Order {(product.MinStock + (int)(product.MinStock * 0.5))} of {product.Name}</p>");
+                template.AppendLine($"<p>ProductId: {product.ProductId.ToString()}</p>");
+                if (product.Manufacturer != null)
+                {
+                    template.AppendLine($"<p>Manufacturer Info: {product.Manufacturer.Email}</p>");
+                    template.AppendLine($"<p>Manufacturer Info: {product.Manufacturer.CatalogId}</p>");
+                }
+                template.AppendLine($"<p>---------------------------------------------------------------------------------------</p>");
+            }
+            template.AppendLine("<p>With the best Regard</p>");
+            template.AppendLine("<p>Trouvaille Online-Shop</p>");
+
+            var email = Email
+                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
+                .To(_configuration.GetSection("Mail")["RestockEmail"])
+                .Subject("Restock Order")
+                .UsingTemplate(template.ToString(), new { });
+            try
+            {
+                await email.SendAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+
+            return true;
+        }
+
 
         public async Task<bool> SendOrderConfirmationEmailAsync(ApplicationUser customer, Order order)
         {

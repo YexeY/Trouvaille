@@ -26,5 +26,7 @@ namespace Trouvaille.Services.MailService
         Task<bool> SendOrderChangedEmailAsync(ApplicationUser user, Order order);
 
         Task<bool> SendInvoiceEmailAsync(ApplicationUser user, Order order);
+
+        Task<bool> SendRestockOrderSelfManyEmailAsync(ICollection<Product> products);
     }
 }

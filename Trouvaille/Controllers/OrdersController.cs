@@ -224,11 +224,13 @@ namespace Trouvaille.Controllers
 
             await _mailService.SendOrderConfirmationEmailAsync(user, order);
             await _mailService.SendInvoiceEmailAsync(user, order);
+            /*
             foreach (var item in sendRestockEmailParams)
             {
                 await SendRestockEmailAsync(item);
             }
-
+            */
+            await SendRestockEmailManyAsync(sendRestockEmailParams);
             var getOrderViewModel = new GetOrderViewModel(order);
             return CreatedAtAction("GetOrder", new { id = order.OrderId }, getOrderViewModel);
         }
@@ -493,7 +495,16 @@ namespace Trouvaille.Controllers
             }
             
         }
-        
+
+        private async Task SendRestockEmailManyAsync(ICollection<SendRestockEmailParam> param)
+        {
+            var products = param.Select(p => _context.Product
+            .Include(c => c.Manufacturer)
+            .FirstOrDefault(c => c.ProductId == p.ProductId))
+            .ToList();
+            await _mailService.SendRestockOrderSelfManyEmailAsync(products);
+        }
+
         private static bool IsValidDate(string value, string dateFormats)
         {
             DateTime tempDate;

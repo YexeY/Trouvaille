@@ -712,7 +712,7 @@ namespace Trouvaille.Controllers
             return Ok(new GetManufacturerViewModel(manufacturer));
         }
 
-        // POST: api/Manufacturer/{id}
+
         [Microsoft.AspNetCore.Mvc.HttpGet("DisabledMany")]
         [Microsoft.AspNetCore.Authorization.Authorize(Policy = "IsUser")]
         public async Task<ActionResult<ICollection<Guid>>> IsDisabledMany(ICollection<Guid> productIds)

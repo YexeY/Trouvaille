@@ -752,7 +752,7 @@ namespace Trouvaille.Controllers
             {
                 throw;
             }
-            return true;
+            return Ok();
         }
     }
 }

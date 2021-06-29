@@ -226,7 +226,7 @@ namespace Trouvaille.Controllers
             await _mailService.SendInvoiceEmailAsync(user, order);
             foreach (var item in sendRestockEmailParams)
             {
-                SendRestockEmailAsync(item);
+                await SendRestockEmailAsync(item);
             }
 
             var getOrderViewModel = new GetOrderViewModel(order);
@@ -483,13 +483,13 @@ namespace Trouvaille.Controllers
                 var manufacturer = _context.Manufacturer.Find(param.ManufacturerId);
                 if(manufacturer != null)
                 {
-                    success = _mailService.SendRestockEmailAsync(manufacturer, product);
+                    success = await _mailService.SendRestockEmailAsync(manufacturer, product);
                 }
-                _mailService.SendRestockOrderSelfEmailAsync(product, success);
+                await _mailService.SendRestockOrderSelfEmailAsync(product, success);
             }
             else
             {
-                _mailService.SendRestockOrderSelfEmailAsync(product, false);
+                await _mailService.SendRestockOrderSelfEmailAsync(product, false);
             }
             
         }

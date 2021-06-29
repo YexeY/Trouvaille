@@ -83,42 +83,7 @@ namespace Trouvaille.Services.MailService
             return true;
         }
 
-        public async Task<bool> SendOrderConfirmationEmailAsync(ApplicationUser customer, Order order)
-        {
-            if (customer == null || order == null)
-            {
-                return false;
-            }
-
-            var template = new StringBuilder();
-            template.AppendLine($"<p>Hello {customer.FirstName},</p>");
-            template.AppendLine("<p>Thank you for your Order!</p>");
-            template.AppendLine($"<p>Invoice Number: {order.Invoice_Id}</p>");
-            template.AppendLine($"<p>Shipment Method: {order.ShipmentMethod}</p>");
-            template.AppendLine($"<p>Total Cost: {order.TotalCost}</p>");
-            template.AppendLine("<p>With the best Regard</p>");
-            template.AppendLine("<p>your Trouvaille Online-Shop</p>");
-
-            var email = Email
-                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
-                .To(customer.Email)
-                .Subject("Order confirmation")
-                .UsingTemplate(template.ToString(),
-                    new {FirstName = customer.FirstName, InvoiceId = order.Invoice_Id, TotalCost = order.TotalCost});
-            try
-            {
-                await email.SendAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-
-            return true;
-        }
-
-        public bool SendRestockEmailAsync(Manufacturer manufacturer, Product product)
+        public async Task<bool> SendRestockEmailAsync(Manufacturer manufacturer, Product product)
         {
             if (manufacturer == null || product == null || manufacturer.Email == null)
             {
@@ -142,7 +107,7 @@ namespace Trouvaille.Services.MailService
                 .UsingTemplate(template.ToString(), new { });
             try
             {
-                email.Send();
+                await email.SendAsync();
             }
             catch (Exception e)
             {
@@ -153,7 +118,7 @@ namespace Trouvaille.Services.MailService
             return true;
         }
 
-        public bool SendRestockOrderSelfEmailAsync(Product product, bool success)
+        public async Task<bool> SendRestockOrderSelfEmailAsync(Product product, bool success)
         {
             var template = new StringBuilder();
             template.AppendLine($"<p>Hello,</p>");
@@ -176,12 +141,103 @@ namespace Trouvaille.Services.MailService
                 .UsingTemplate(template.ToString(), new {});
             try
             {
-                email.Send();
+                await email.SendAsync();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 return false;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> SendOrderConfirmationEmailAsync(ApplicationUser customer, Order order)
+        {
+            if (customer == null || order == null)
+            {
+                return false;
+            }
+
+            var template = new StringBuilder();
+            template.AppendLine($"<p>Hello {customer.FirstName},</p>");
+            template.AppendLine("<p>Thank you for your Order!</p>");
+            template.AppendLine($"<p>Invoice Number: {order.Invoice_Id}</p>");
+            template.AppendLine($"<p>Shipment Method: {order.ShipmentMethod}</p>");
+            template.AppendLine($"<p>Total Cost: {order.TotalCost}</p>");
+            template.AppendLine("<p>With the best Regard</p>");
+            template.AppendLine("<p>your Trouvaille Online-Shop</p>");
+
+            var email = Email
+                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
+                .To(customer.Email)
+                .Subject("Order confirmation")
+                .UsingTemplate(template.ToString(),
+                    new { FirstName = customer.FirstName, InvoiceId = order.Invoice_Id, TotalCost = order.TotalCost });
+            try
+            {
+                await email.SendAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> SendInvoiceEmailAsync(ApplicationUser user, Order order)
+        {
+            if (user == null || order?.Products == null || order.InvoiceAddress?.City == null)
+            {
+                return false;
+            }
+
+            var template = new StringBuilder();
+            template.AppendLine($"Hello {user.FirstName},");
+            template.AppendLine($"<p>Here is your invoice with the ID: {order.Invoice_Id.ToString()}</p>");
+            template.AppendLine($"<p>for your order: {order.OrderId.ToString()}</p>");
+            template.AppendLine($"<p>Date: {DateTime.Now.ToString()}</p>");
+            template.AppendLine($"<p>Service Provider: </p>");
+            template.AppendLine($"<p>Name: {_configuration.GetSection("Invoice")["Name"]} </p>");
+            template.AppendLine($"<p>Address: {_configuration.GetSection("Invoice")["Address"]} </p>");
+            template.AppendLine($"<p>Recipient: </p>");
+            template.AppendLine($"<p>Name: {user.LastName},{user.FirstName} </p>");
+            template.AppendLine($"<p>Address: {order.InvoiceAddress.ToString()}</p>");
+            template.AppendLine($"<p>Items:</p>");
+            foreach (var orderProduct in order.Products)
+            {
+                if (orderProduct.Product == null)
+                {
+                    return false;
+                }
+                template.AppendLine($"<p>{orderProduct.Cardinality} of {orderProduct.Product.Name}</p>");
+            }
+            template.AppendLine($"<p>Total: {order.TotalCost}</p>");
+            template.AppendLine($"<p>Payment over: Payment in advance</p>");
+            template.AppendLine($"<p>IBAN: {_configuration.GetSection("Invoice")["IBAN"]}</p>");
+            template.AppendLine($"<p>BIC: {_configuration.GetSection("Invoice")["BIC"]}</p>");
+            template.AppendLine($"<p>CustomerID: {user.Id.Substring(0, 27)}</p>");
+            template.AppendLine($"<p>Usage: {order.Invoice_Id.ToString().Substring(0, 27)}</p>");
+            template.AppendLine($"<p>Your order will be send  within 2-3 workdays after reception  of payment </p>");
+
+            template.AppendLine("<p>With best regards</p>");
+            template.AppendLine("<p>Trouvaille Online-Shop</p>");
+
+
+            var email = Email
+                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
+                .To(user.Email)
+                .Subject("Invoice")
+                .UsingTemplate(template.ToString(), new { });
+            try
+            {
+                await email.SendAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
 
             return true;
@@ -278,62 +334,6 @@ namespace Trouvaille.Services.MailService
                 .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
                 .To(user.Email)
                 .Subject("Order update")
-                .UsingTemplate(template.ToString(), new { });
-            try
-            {
-                await email.SendAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            return true;
-        }
-
-        public async Task<bool> SendInvoiceEmailAsync(ApplicationUser user, Order order)
-        {
-            if (user == null || order?.Products == null || order.InvoiceAddress?.City == null)
-            {
-                return false;
-            }
-
-            var template = new StringBuilder();
-            template.AppendLine($"Hello {user.FirstName},");
-            template.AppendLine($"<p>Here is your invoice with the ID: {order.Invoice_Id.ToString()}</p>");
-            template.AppendLine($"<p>for your order: {order.OrderId.ToString()}</p>");
-            template.AppendLine($"<p>Date: {DateTime.Now.ToString()}</p>");
-            template.AppendLine($"<p>Service Provider: </p>");
-            template.AppendLine($"<p>Name: {_configuration.GetSection("Invoice")["Name"]} </p>");
-            template.AppendLine($"<p>Address: {_configuration.GetSection("Invoice")["Address"]} </p>");
-            template.AppendLine($"<p>Recipient: </p>");
-            template.AppendLine($"<p>Name: {user.LastName},{user.FirstName} </p>");
-            template.AppendLine($"<p>Address: {order.InvoiceAddress.ToString()}</p>");
-            template.AppendLine($"<p>Items:</p>");
-            foreach (var orderProduct in order.Products)
-            {
-                if (orderProduct.Product == null)
-                {
-                    return false;
-                }
-                template.AppendLine($"<p>{orderProduct.Cardinality} of {orderProduct.Product.Name}</p>");
-            }
-            template.AppendLine($"<p>Total: {order.TotalCost}</p>");
-            template.AppendLine($"<p>Payment over: Payment in advance</p>");
-            template.AppendLine($"<p>IBAN: {_configuration.GetSection("Invoice")["IBAN"]}</p>");
-            template.AppendLine($"<p>BIC: {_configuration.GetSection("Invoice")["BIC"]}</p>");
-            template.AppendLine($"<p>CustomerID: {user.Id.Substring(0, 27)}</p>");
-            template.AppendLine($"<p>Usage: {order.Invoice_Id.ToString().Substring(0, 27)}</p>");
-            template.AppendLine($"<p>Your order will be send  within 2-3 workdays after reception  of payment </p>");
-
-            template.AppendLine("<p>With best regards</p>");
-            template.AppendLine("<p>Trouvaille Online-Shop</p>");
-
-
-            var email = Email
-                .From(_configuration.GetSection("Gmail")["Sender"], _configuration.GetSection("Mail")["From"])
-                .To(user.Email)
-                .Subject("Invoice")
                 .UsingTemplate(template.ToString(), new { });
             try
             {

@@ -147,17 +147,25 @@ namespace Trouvaille.Services.MailService
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                return false;
             }
 
             return true;
         }
 
-        public async Task<bool> SendRestockOrderSelfEmailAsync(Product product)
+        public async Task<bool> SendRestockOrderSelfEmailAsync(Product product, bool success)
         {
             var template = new StringBuilder();
             template.AppendLine($"<p>Hello,</p>");
             template.AppendLine($"<p>We need to Order {(product.MinStock + (int)(product.MinStock * 0.5))} of {product.Name}</p>");
             template.AppendLine($"<p>ProductId: {product.ProductId.ToString()}</p>");
+            if(success == true)
+            {
+                template.AppendLine($"<p>Email to Manufacturer has been send</p>");
+            } else
+            {
+                template.AppendLine($"<p>Email to Manufacturer has not been send</p>");
+            }
             template.AppendLine("<p>With the best Regard</p>");
             template.AppendLine("<p>Trouvaille Online-Shop</p>");
 
@@ -173,6 +181,7 @@ namespace Trouvaille.Services.MailService
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                return false;
             }
 
             return true;

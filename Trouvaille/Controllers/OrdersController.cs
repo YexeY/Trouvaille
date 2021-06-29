@@ -480,11 +480,12 @@ namespace Trouvaille.Controllers
             if (param.ManufacturerId != null)
             {
                 var manufacturer = await _context.Manufacturer.FindAsync(param.ManufacturerId);
-                await _mailService.SendRestockEmailAsync(manufacturer, product);
+                var success = await _mailService.SendRestockEmailAsync(manufacturer, product);
+                await _mailService.SendRestockOrderSelfEmailAsync(product, success);
             }
             else
             {
-                await _mailService.SendRestockOrderSelfEmailAsync(product);
+                await _mailService.SendRestockOrderSelfEmailAsync(product, false);
             }
             
         }
